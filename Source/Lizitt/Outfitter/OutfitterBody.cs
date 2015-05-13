@@ -793,7 +793,7 @@ namespace com.lizitt.outfitter
                         if (outfit.AttachAccessory(item, controller.Attach) == AttachStatus.Success)
                             controller.Accessory.ReleaseOwnership(this, true);
                         else
-                            item.SafeDestroy();
+                            item.gameObject.SafeDestroy();
                     }
                 }
 

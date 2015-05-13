@@ -112,13 +112,15 @@ namespace com.lizitt.outfitter
         [Header("Body Settings")]
 
         [SerializeField]
-        [Tooltip("The body to apply the outfit changes to.")]
+        [Tooltip(
+            "The body to apply the outfit changes to. (If null, will search children on awake.")]
         private OutfitterBody m_Body = null;
 
         [Space(5)]
 
         [SerializeField]
-        [Tooltip("The animator controller to assign when transitioning from no outfit to an outfit.")]
+        [Tooltip(
+            "The animator controller to assign when transitioning from no outfit to an outfit.")]
         private RuntimeAnimatorController m_DefaultController = null;
 
         private OutfitType m_CurrentOutfitType = OutfitType.None;
@@ -348,6 +350,97 @@ namespace com.lizitt.outfitter
 
         #region Baking and Placeholders
 
+        /// <summary>
+        /// Bakes the outfit, purging all outfit related components.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If in editor mode, the default outfit will be created in its bind pose, parented to
+        /// the outfitter.  This is safe since the outfitter will automatically delete all 
+        /// child object's with the baked suffix when it starts in play mode.
+        /// </para>
+        /// <para>
+        /// If in play mode, the current outfit will be duplicated in its current animated pose.
+        /// </para>
+        /// </remarks>
+        /// <returns>A baked version of the outfitter's outfit.</returns>
+        public GameObject BakePlaceholder(bool removeColliders)
+        {
+            GameObject bakedGo;
+
+            if (Application.isPlaying)
+            {
+                if (!m_Body.HasOutfit)
+                {
+                    Debug.LogWarning("Body does not have an outfit to bake.");
+                    return null;
+                }
+
+                bakedGo = LocalBakePlaceholder(m_Body.Outfit.Instantiate(), m_Body.Outfit);
+            }
+            else
+            {
+                if (StartOutfit == OutfitType.None)
+                {
+                    Debug.LogWarning("Can't bake the None outfit.");
+                    return null;
+                }
+
+                // Note: Using the public version of CreateOutfit since it correctly positions the object.
+                bakedGo = LocalBakePlaceholder(CreateOutfit(this, StartOutfit), null);
+                bakedGo.transform.parent = transform;
+            }
+
+            if (removeColliders)
+            {
+                foreach (var col in bakedGo.GetComponentsInChildren<Collider>())
+                {
+                    var rb = col.GetComponent<Rigidbody>();
+                    if (rb)
+                        rb.SafeDestroy();
+
+                    col.SafeDestroy();
+                }
+            }
+
+            return bakedGo;
+        }
+
+        /// <summary>
+        /// Delete any child placeholder objects. (Objects created by 
+        /// <see cref="BakePlaceholder"/>.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The search is performed based on <see cref="BakeSuffix"/>.
+        /// </para>
+        /// </remarks>
+        public void DeletePlaceholder()
+        {
+            // Get rid of placeholder body if it exists.
+            foreach (var trans in GetComponentsInChildren<Transform>(true))
+            {
+                if (trans && trans.name.EndsWith(BakeSuffix))
+                {
+                    foreach (var item in trans.GetComponentsInChildren<MeshFilter>())
+                    {
+                        var mesh = item.sharedMesh;
+                        if (mesh && mesh.name.EndsWith(BakeSuffix))
+                        {
+                            // Mesh was baked from a skinned mesh.  Must destory of they will
+                            // leak.
+                            if (Application.isPlaying)
+                                Destroy(mesh);
+                            else
+                                DestroyImmediate(mesh);
+                        }
+                    }
+
+                    trans.gameObject.SafeDestroy();
+                }
+            }
+        }
+
         private static GameObject LocalBakePlaceholder(BodyOutfit outfit, BodyOutfit source)
         {
             // Do not make this an overload of BakePlaceholder.  Outfit can be interpreted as a bool.
@@ -434,80 +527,6 @@ namespace com.lizitt.outfitter
             go.name += BakeSuffix;
 
             return go;
-        }
-
-        /// <summary>
-        /// Bakes the outfit, purging all outfit related components.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// If in editor mode, the default outfit will be created in its bind pose, parented to
-        /// the outfitter.  This is safe since the outfitter will automatically delete all 
-        /// child object's with the baked suffix when it starts in play mode.
-        /// </para>
-        /// <para>
-        /// If in play mode, the current outfit will be duplicated in its current animated pose.
-        /// </para>
-        /// </remarks>
-        /// <returns>A baked version of the outfitter's outfit.</returns>
-        public GameObject BakePlaceholder(bool removeColliders)
-        {
-            GameObject bakedGo;
-
-            if (Application.isPlaying)
-            {
-                if (!m_Body.HasOutfit)
-                {
-                    Debug.LogWarning("Body does not have an outfit to bake.");
-                    return null;
-                }
-
-                bakedGo = LocalBakePlaceholder(m_Body.Outfit.Instantiate(), m_Body.Outfit);
-            }
-            else
-            {
-                // Note: Using the public version of CreateOutfit since it correctly positions the object.
-                bakedGo = LocalBakePlaceholder(CreateOutfit(this, StartOutfit), null);
-                bakedGo.transform.parent = transform;
-            }
-
-            if (removeColliders)
-            {
-                foreach (var col in bakedGo.GetComponentsInChildren<Collider>())
-                {
-                    var rb = col.GetComponent<Rigidbody>();
-                    if (rb)
-                        rb.SafeDestroy();
-
-                    col.SafeDestroy();
-                }
-            }
-
-            return bakedGo;
-        }
-
-        /// <summary>
-        /// Delete any child placeholder objects. (Objects created by 
-        /// <see cref="BakePlaceholder"/>.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The search is performed based on <see cref="BakeSuffix"/>.
-        /// </para>
-        /// </remarks>
-        public void DeletePlaceholder()
-        {
-            // Get rid of placeholder body if it exists.
-            foreach (var trans in GetComponentsInChildren<Transform>(true))
-            {
-                if (trans && trans.name.EndsWith(BakeSuffix))
-                {
-                    if (Application.isPlaying)
-                        Destroy(trans.gameObject);
-                    else
-                        DestroyImmediate(trans.gameObject);
-                }
-            }
         }
 
         #endregion

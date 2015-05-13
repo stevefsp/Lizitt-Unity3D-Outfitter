@@ -49,7 +49,7 @@ namespace com.lizitt.outfitter
         private GameObject m_Prototype = null;
 
         [SerializeField]
-        [Tooltip("The terms used identity the standard outfit components after instantiation.")]
+        [Tooltip("The terms used to identify the standard outfit components after instantiation.")]
         private OutfitSearchTerms m_OutfitTerms = null;
 
         [SerializeField]

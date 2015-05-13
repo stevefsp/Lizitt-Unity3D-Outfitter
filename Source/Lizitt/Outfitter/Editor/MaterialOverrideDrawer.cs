@@ -30,11 +30,12 @@ namespace com.lizitt.outfitter
     public class MaterialOverrideDrawer
         : PropertyDrawer
     {
-        // TODO: This is NOT generalized.  It only works properly for the an object with a field
-        // called m_BodyPrototype.  So either generalize it or convert to an attribute 
+        // TODO: This is NOT generalized.  It only works properly for the an object with specific
+        // field names, such as m_Prototype.  So either generalize it or convert to an attribute 
         // drawer.  (Maybe an attribute drawer that requires the property name that holds the search
         // target?)
 
+        private const string ProtoName = "m_Prototype";
         private const float Lines = 4;
         private const float LineHeight = 17;
 
@@ -133,7 +134,7 @@ namespace com.lizitt.outfitter
                 m_Infos.Clear();
             }
 
-            var protoProp = property.serializedObject.FindProperty("m_BodyPrototype");
+            var protoProp = property.serializedObject.FindProperty(ProtoName);
 
             var proto = protoProp.objectReferenceValue as GameObject;
 

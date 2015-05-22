@@ -30,6 +30,25 @@ namespace com.lizitt.outfitter
     public class StandardBody
         : OutfitterBody
     {
+        /*
+         * Design notes:
+         * 
+         * Coliders:
+         * 
+         * The standard outfit creation process assigns collider layers via the collider 
+         * settings asset. This body always overrides those values.  I've gone back
+         * and forth on this, but my current opinion is that it is appropriate that the 
+         * body maintains the layer state and syncs its state to new outfits when they
+         * are applied. I can't think of a use case where collider state should be 
+         * outfit-centric rather than body-centric, and making the body overrides optional
+         * adds complexity for no real benefit.  However, the body collider settings
+         * should still contain layer information for purposes of completeness. (Collider
+         * settings without layer settings doesn't seem appropriate.)  The downside
+         * is that designers my get confused.  (Ahhh!!! Where are my outfit layers getting 
+         * overriden!!!)
+         * 
+         */
+
         #region Unity Editor Fields
 
         [Header("General Settings")]
@@ -40,14 +59,14 @@ namespace com.lizitt.outfitter
         private Transform m_DefaultMotionRoot = null;
 
         [SerializeField]
-        [Tooltip("The layer of the surface collider.")]
+        [Tooltip("The layer of the surface collider. (Overrides outfit settings.)")]
         [UnityLayer]
-        private int m_SurfaceColliderLayer = UnityLayer.Default;
+        private int m_SurfaceColliderLayer = UnityLayer.Default;  // See design notes.
 
         [SerializeField]
-        [Tooltip("The layer of the body colliders.")]
+        [Tooltip("The layer of the body colliders. (Overrides outfit settings.)")]
         [UnityLayer]
-        private int m_BodyColliderLayer = UnityLayer.Default;
+        private int m_BodyColliderLayer = UnityLayer.Default; // See design notes.
 
         [SerializeField]
         [Tooltip("The default status of the body colliders.")]
@@ -60,7 +79,7 @@ namespace com.lizitt.outfitter
         private BodyMaterialOverrides m_MaterialOverrides = new BodyMaterialOverrides();
 
         [SerializeField]
-        [Tooltip("The default body accessories to add to the body.")]
+        [Tooltip("The accessories to automatically attach to compatible outfits.")]
         private BodyAccessory[] m_Accessories = new BodyAccessory[0];
 
         #endregion

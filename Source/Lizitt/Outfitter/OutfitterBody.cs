@@ -350,7 +350,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Initialization normally happens automatically during awake.
+        /// Initialization normally happens automatically during awake.  But in some cases, such
+        /// as an outfit baking operation, the body may need to be initialized manually.
         /// </para>
         /// </remarks>
         public void Initialize()
@@ -363,7 +364,8 @@ namespace com.lizitt.outfitter
 
             var info = GetInfo(true);
 
-            m_BaseDefaultMotionRoot = info.defaultMotionRoot ? info.defaultMotionRoot : this.transform;
+            m_BaseDefaultMotionRoot = 
+                info.defaultMotionRoot ? info.defaultMotionRoot : this.transform;
             m_MotionRoot = m_BaseDefaultMotionRoot;
 
             m_BaseSurfaceColliderLayer = info.surfaceColliderLayer;
@@ -600,7 +602,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         public bool HasBodyColliders
         {
-            get { return m_Outfit ? m_Outfit.HasColliders : false; }
+            get { return m_Outfit ? m_Outfit.HasBodyColliders : false; }
         }
 
         /// <summary>
@@ -613,7 +615,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public int BodyColliderLayer
         {
-            get { return m_Outfit ? m_Outfit.ColliderLayer : m_BaseBodyColliderLayer; }
+            get { return m_Outfit ? m_Outfit.BodyColliderLayer : m_BaseBodyColliderLayer; }
         }
 
         /// <summary>
@@ -627,7 +629,7 @@ namespace com.lizitt.outfitter
             layer = Mathf.Max(0, layer);
 
             if (m_Outfit)
-                m_Outfit.SetColliderLayer(layer);
+                m_Outfit.SetBodyColliderLayer(layer);
 
             m_BaseBodyColliderLayer = layer;
         }
@@ -679,14 +681,12 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit to apply to the body. (Can't be null.)</param>
+        /// <param name="changeCallback">The </param>
         /// <returns>The old outfit or null on an error.</returns>
         public BodyOutfit SetOutfit(BodyOutfit outfit)
         {
             if (!outfit)
-            {
-                Debug.LogError("Can't set outfit to null.  Use ClearOutfit().");
-                return null;
-            }
+                return ClearOutfit();
 
             if (outfit == m_Outfit)
             {
@@ -773,7 +773,7 @@ namespace com.lizitt.outfitter
         private void LoadOutfit(BodyOutfit outfit, bool isExternalOutfit, bool snapTransform = false)
         {
             // Note:  Internal/external have evolved into very different loads. But keeping them 
-            // in one place for ease of refactoring.  All loading operations in one place.
+            // in one place for ease of refactoring, with all loading operations in one place.
 
             // Note: snapTransform is only applicable to external outfit.
 
@@ -801,7 +801,7 @@ namespace com.lizitt.outfitter
                     outfit.Apply(info.materialOverrides);
 
                 outfit.SetColliderStatus(info.bodyColliderStatus);
-                outfit.SetColliderLayer(info.bodyColliderLayer);
+                outfit.SetBodyColliderLayer(info.bodyColliderLayer);
                 outfit.SurfaceCollider.gameObject.layer = info.surfaceColliderLayer;
 
                 var snapTrans = info.defaultMotionRoot ? info.defaultMotionRoot : transform;
@@ -822,7 +822,7 @@ namespace com.lizitt.outfitter
 
                 outfit.Apply(m_BaselMaterialOverrides);
                 outfit.SetColliderStatus(m_BaseBodyColliderStatus);
-                outfit.SetColliderLayer(m_BaseBodyColliderLayer);
+                outfit.SetBodyColliderLayer(m_BaseBodyColliderLayer);
                 outfit.SurfaceCollider.gameObject.layer = m_BaseSurfaceColliderLayer;
             }
         }

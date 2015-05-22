@@ -108,14 +108,14 @@ public abstract class BodyOutfit
     public abstract Collider SurfaceCollider { get; }
 
     /// <summary>
-    /// The main rigid body for the outfit.
+    /// The main RigidBody for the outfit.
     /// </summary>
     public abstract Rigidbody SurfaceRigidBody { get; }
 
     /// <summary>
     /// An array of all body colliders.
     /// </summary>
-    /// <returns>An array of all body colliders.</returns>
+    /// <returns>An array of all body colliders. (May be zero length.)</returns>
     public abstract BodyCollider[] GetColliders();
 
     /// <summary>
@@ -139,18 +139,18 @@ public abstract class BodyOutfit
     /// <summary>
     /// True if the outfit has body colliders.
     /// </summary>
-    public abstract bool HasColliders { get; }
+    public abstract bool HasBodyColliders { get; }
 
     /// <summary>
     /// The layer of the body colliders.
     /// </summary>
-    public abstract int ColliderLayer { get; }
+    public abstract int BodyColliderLayer { get; }
 
     /// <summary>
     /// Sets the layer of the body colliders.
     /// </summary>
     /// <param name="layer"></param>
-    public abstract void SetColliderLayer(int layer);
+    public abstract void SetBodyColliderLayer(int layer);
 
     #endregion
 

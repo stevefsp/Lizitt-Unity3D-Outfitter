@@ -150,7 +150,7 @@ namespace com.lizitt.outfitter
             get { return m_SurfaceRigidBody; }
         }
 
-        public sealed override bool HasColliders
+        public sealed override bool HasBodyColliders
         {
             get { return m_BodyColliders.Length != 0; }
         }
@@ -189,7 +189,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public sealed override int ColliderLayer
+        public sealed override int BodyColliderLayer
         {
             get
             {
@@ -200,7 +200,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public sealed override void SetColliderLayer(int layer)
+        public sealed override void SetBodyColliderLayer(int layer)
         {
             foreach (var item in m_BodyColliders)
             {

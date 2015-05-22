@@ -22,6 +22,7 @@
 using com.lizitt.u3d;
 using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
@@ -62,11 +63,11 @@ namespace com.lizitt.outfitter
         [Tooltip("The material overrides for the outfit.  (If applicable.)")]
         private MaterialOverride[] m_MaterialOverrides = new MaterialOverride[0];
 
+        [Space(8)]
+
         [SerializeField]
         [Tooltip("Accessories to add to the base outfit. (Exempt from coverage restrictions.)")]
-        private BodyAccessory[] m_Acessories = new BodyAccessory[0];
-
-        [Space(8)]
+        private AccessoryGroup m_Acessories = new AccessoryGroup(0);
 
         [SerializeField]
         [Tooltip("The body parts that are considered permanently blocked. (No new accessories.)")]
@@ -134,22 +135,20 @@ namespace com.lizitt.outfitter
                 }
             }
 
-            // Updating acessories array in place, replacing prototypes with instances.  This
-            // is more efficient than creating a new array or list to assign to info.accessories.
+            var accessories = new List<BodyAccessory>(m_Acessories.Count);
 
-            for (int i = 0; i < m_Acessories.Length; i++)
+            foreach (var prototype in m_Acessories)
             {
-                var prototype = m_Acessories[i];
-
                 if (!prototype)
                     // Empty slot.
                     continue;
 
+                BodyAccessory accessory = null;
                 foreach (var mountPoint in info.mountPoints)
                 {
                     if (mountPoint.MountType == prototype.MountPoint)
                     {
-                        var accessory = prototype.Instantiate<BodyAccessory>();
+                        accessory = prototype.Instantiate<BodyAccessory>();
                         accessory.StripCloneName();
 
                         var controller = accessory.TakeOwnership(this, null);
@@ -160,14 +159,14 @@ namespace com.lizitt.outfitter
                             // sent a debug message.
 
                             accessory.SafeDestroy();
-                            m_Acessories[i] = null;
+                            accessory = null;
 
                             continue;
                         }
 
-                        m_Acessories[i] = accessory;
+                        accessories.Add(accessory);
 
-                        // Event though the accessory will only ever self release, can't lock
+                        // Even though the accessory will only ever self release, can't lock
                         // ownership.  Doing so would prevent proper baking of the outfit.  
                         // (I.e. Purging.)
                         accessory.ReleaseOwnership(this, true);
@@ -176,14 +175,15 @@ namespace com.lizitt.outfitter
                     }
                 }
 
-                if (!m_Acessories[i])
+                if (!accessory)
                 {
+                    // This is an error because this is outfit construction.
                     Debug.LogError(
                         "No mount point found for accessory: " + prototype.gameObject.name, this);
                 }
             }
 
-            info.accessories = m_Acessories;
+            info.accessories = accessories;
 
             return result;
         }

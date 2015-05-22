@@ -78,9 +78,11 @@ namespace com.lizitt.outfitter
         [Tooltip("The material overrides for the body.")]
         private BodyMaterialOverrides m_MaterialOverrides = new BodyMaterialOverrides();
 
+        [Space(10)]
+
         [SerializeField]
         [Tooltip("The accessories to automatically attach to compatible outfits.")]
-        private BodyAccessory[] m_Accessories = new BodyAccessory[0];
+        private AccessoryGroup m_Accessories = new AccessoryGroup(0);
 
         #endregion
 
@@ -90,9 +92,9 @@ namespace com.lizitt.outfitter
         {
             var info = new OutfitterBody.Info();
 
-            info.accessories = new BodyAccessory[m_Accessories.Length];
+            info.accessories = new BodyAccessory[m_Accessories.Count];
 
-            for (int i = 0; i < m_Accessories.Length; i++)
+            for (int i = 0; i < m_Accessories.Count; i++)
             {
                 if (!m_Accessories[i])
                     continue;

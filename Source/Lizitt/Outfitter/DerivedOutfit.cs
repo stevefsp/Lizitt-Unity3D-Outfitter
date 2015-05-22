@@ -58,16 +58,18 @@ namespace com.lizitt.outfitter
         private BodyColliderSettings m_ColliderSettings = null;
 
         [Header("Variant Settings")]
+        // As of 5.0.1, the space attribute will add space BEFORE the header, even if placed here.
+        // So can't fix the spacing with the overrides.
 
         [SerializeField]
-        [Tooltip("The material overrides for the outfit.  (If applicable.)")]
-        private MaterialOverride[] m_MaterialOverrides = new MaterialOverride[0];
-
-        [Space(8)]
+        [MaterialOverrideGroup("m_Prototype")]
+        private MaterialOverrideGroup m_MaterialOverrides = new MaterialOverrideGroup(0);
 
         [SerializeField]
         [Tooltip("Accessories to add to the base outfit. (Exempt from coverage restrictions.)")]
         private AccessoryGroup m_Acessories = new AccessoryGroup(0);
+
+        [Header("Accessory Behavior")]
 
         [SerializeField]
         [Tooltip("The body parts that are considered permanently blocked. (No new accessories.)")]
@@ -117,7 +119,7 @@ namespace com.lizitt.outfitter
             else
                 info.colliders = m_ColliderSettings.ApplyTo(info.mountPoints);
 
-            if (m_MaterialOverrides.Length > 0)
+            if (m_MaterialOverrides.Count > 0)
             {
                 var renderers = result.GetComponentsInChildren<Renderer>();
 

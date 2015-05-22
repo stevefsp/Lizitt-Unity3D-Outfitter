@@ -19,21 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEditorInternal;
+using com.lizitt.u3d.editor;
 
-namespace com.lizitt.outfitter
+namespace com.lizitt.outfitter.editor
 {
-    /// <summary>
-    /// A method use to attach an item to a mount point.
-    /// </summary>
-    /// <param name="mountPoint">The mount point.</param>
-    /// <returns>True if the attach was successful or approved. (Depending on context.)</returns>
-    public delegate bool AttachMethod(Transform mountPoint);
+    [CustomPropertyDrawer(typeof(OutfitTypeAttribute))]
+    [CanEditMultipleObjects]
+    public sealed class OutfitTypeDrawer
+        : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            var attr = attribute as OutfitTypeAttribute;
 
-    /// <summary>
-    /// An action that is performed when an outfit is changed from one to another.
-    /// </summary>
-    /// <param name="from">The original outfit. (May be null.)</param>
-    /// <param name="to">The outfit that is replacing <paramref name="from"/>. (May be null.)</param>
-    public delegate void OutfitChange(BodyOutfit from, BodyOutfit to);
+            label = EditorGUI.BeginProperty(position, label, property);
+
+            EditorGUI.BeginChangeCheck();
+
+            var val = OutfitterEditorUtil.OutfitTypePopup(position, label, property.intValue, attr.FilterType);
+
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = val;
+        }
+    }
 }

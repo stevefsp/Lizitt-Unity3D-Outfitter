@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
@@ -29,34 +30,60 @@ namespace com.lizitt.outfitter
     [System.Serializable]
     public class OutfitGroup
     {
+        [System.Serializable]
+        private struct GroupItem
+        {
+            public OutfitType typ;
+            public BodyOutfit prototype;
+        }
+
         [SerializeField]
-        [Tooltip("The outfit that should be applied on start.")]
+        // Tooltip handled by custom editor.
+        [OutfitType(OutfitFilterType.ExcludeCustom)]
         private OutfitType m_StartOutfit = OutfitterUtil.DefaultOutfit;
          
         [SerializeField]
-        [Tooltip("The outfit type to use when an particular outfit type is not assigned.")]
+        // Tooltip handled by custom editor.
+        [OutfitType(OutfitFilterType.StandardOnly)]
         private OutfitType m_DefaultOutfit = OutfitterUtil.DefaultOutfit;
 
-        // Note: 'None' never has a prototype.
         [SerializeField]
-        private BodyOutfit[] m_Prototypes = new BodyOutfit[(int)OutfitType.None];
+        private List<GroupItem> m_Prototypes = new List<GroupItem>(0);
 
         /// <summary>
-        /// The type of the default outfit.
+        /// The outfit type to use when an particular outfit type is not defined.
         /// </summary>
         public OutfitType DefaultOutfit
         {
             get { return m_DefaultOutfit; }
-            set { m_DefaultOutfit = value; }
+            set 
+            { 
+                if (!value.IsStandard())
+                {
+                    Debug.LogError("Default outfit can't be a custom or 'None' outfit: " + value);
+                    return;
+                }
+
+                m_DefaultOutfit = value; 
+            }
         }
 
         /// <summary>
-        /// The type of the start outfit.
+        /// The outfit type that should be applied on component start.
         /// </summary>
         public OutfitType StartOutfit
         {
             get { return m_StartOutfit; }
-            set { m_StartOutfit = value; }
+            set 
+            { 
+                if (value.IsCustom())
+                {
+                    Debug.LogError("Start outfit can't be a custom outfit.");
+                    return;
+                }
+
+                m_StartOutfit = value; 
+            }
         }
 
         /// <summary>
@@ -64,28 +91,52 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is the 'raw' outfit vaoue.  If doesn't take into account the value of 
+        /// This is the 'raw' outfit value.  If doesn't take into account the value of 
         /// <see cref="DefaultOUtfit"/>.
         /// </para>
         /// <para>
-        /// <see cref="OutfitType.None"/> will always return null.
+        /// <see cref="OutfitType.None"/> is invalid and will always fail.
         /// </para>
         /// </remarks>
-        /// <param name="type">The type of outfit.</param>
+        /// <param name="typ">The type of outfit.</param>
         /// <returns>The prototype for the specified type.</returns>
-        public BodyOutfit this[OutfitType type]
+        public BodyOutfit this[OutfitType typ]
         {
-            get 
+            get
             {
-                if (type == OutfitType.None)
+                if (typ == OutfitType.None)
+                {
+                    Debug.LogError("The 'None' type is invalid.");
                     return null;
-                return m_Prototypes[(int)type]; 
+                }
+
+                int i = IndexOf(typ);
+
+                return i == -1 ? null : m_Prototypes[i].prototype;
             }
-            set 
+            set
             {
-                if (type == OutfitType.None)
+                if (typ == OutfitType.None)
+                {
+                    Debug.LogError("Can't set the 'None' outfit.");
                     return;
-                m_Prototypes[(int)type] = value; 
+                }
+
+                var item = new GroupItem();
+                item.typ = typ;
+                item.prototype = value;
+
+                int i = IndexOf(typ);
+
+                if (i == -1)
+                {
+                    if (value)
+                        m_Prototypes.Add(item);
+                }
+                else if (value)
+                    m_Prototypes[i] = item;
+                else
+                    m_Prototypes.RemoveAt(i);
             }
         }
 
@@ -98,22 +149,30 @@ namespace com.lizitt.outfitter
         /// The prototype for the specified outfit type, or the default proprotype if 
         /// the type is not defined.
         /// </returns>
-        public BodyOutfit GetOutfitOrDefault(OutfitType type)
+        public BodyOutfit GetOutfitOrDefault(OutfitType typ)
         {
-            if (type == OutfitType.None)
+            if (typ == OutfitType.None)
             {
-                Debug.LogError("Can't get outfit for 'None' outfity type.");
+                Debug.LogError("Can't get outfit of type 'None'.");
                 return null;
             }
 
-            var result = this[type];
-            if (!result)
-                result = this[m_DefaultOutfit];
+            int i = IndexOf(typ);
 
-            if (!result)
-                Debug.LogError("Outfit group does not have a valid default outfit.");
+            if (i == -1 || !m_Prototypes[i].prototype)
+            {
+                i = IndexOf(m_DefaultOutfit);
 
-            return result;
+                if (i == -1 || !m_Prototypes[i].prototype)
+                {
+                    Debug.LogError("Outfit group does not have a valid default outfit.");
+                    return null;
+                }
+
+                return m_Prototypes[i].prototype;
+            }
+
+            return m_Prototypes[i].prototype;
         }
 
         /// <summary>
@@ -135,15 +194,65 @@ namespace com.lizitt.outfitter
         /// <param name="type">The outfit type.</param>
         /// <returns>The type of the prototype that will be used if <see cref="GetOutfitOrDefault"/>
         /// is called.</returns>
-        public OutfitType GetRealType(OutfitType type)
+        public OutfitType GetRealType(OutfitType typ)
         {
-            if (type == OutfitType.None)
+            if (typ == OutfitType.None)
                 return OutfitType.None;
 
-            if (!this[type])
+            var i = IndexOf(typ);
+
+            if (i == -1 || !m_Prototypes[i].prototype)
                 return m_DefaultOutfit;
 
-            return type;
+            return typ;
+        }
+
+        public bool IsValid(bool silent = true)
+        {
+            // Expect editor to stop introduction of invalid values, such as duplicates.
+            // Start outfit does not have to be defined.  It can be 'None' and if not defined it
+            // will simply default.
+
+            if (!m_DefaultOutfit.IsStandard())
+            {
+                if (!silent)
+                {
+                    Debug.LogError(
+                        "Default outfit must be a normal outfit type: " + m_DefaultOutfit);
+                }
+
+                return false;
+            }
+
+            foreach (var item in m_Prototypes)
+            {
+                if (item.typ == m_DefaultOutfit)
+                {
+                    if (item.prototype)
+                        return true;
+
+                    if (!silent)
+                        Debug.LogError("Default outfit not assigned a prototype.");
+
+                    return false;
+                }
+            }
+
+            if (!silent)
+                Debug.LogError("The default outfit type not defined.");
+
+            return false;
+        }
+
+        private int IndexOf(OutfitType typ)
+        {
+            for (int i = 0; i < m_Prototypes.Count; i++)
+            {
+                if (m_Prototypes[i].typ == typ)
+                    return i;
+            }
+
+            return -1;
         }
     }
 }

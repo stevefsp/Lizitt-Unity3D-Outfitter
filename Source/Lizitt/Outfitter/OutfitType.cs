@@ -26,42 +26,38 @@ namespace com.lizitt.outfitter
         /* 
          * Design notes:
          * 
-         * The meaning of any value can be repurposed except for None.  None must always mean 
-         * 'no outfit'.
+         * Make sure you understand all notes before refactoring this element. 
          * 
-         * These values are used as array indices.  So they must start with zero and remain 
-         * sequential. 
+         * The meaning of any value can be repurposed except for the 'None' outfit.  
+         * The 'None' outfit must always mean 'no outfit' / invisible.
          * 
-         * Values can be added and removed below None without concern, up to the
-         * point where outfitter assets and scene objects have been created.  After that point,
-         * changing the values, especially the value of None, will require those objects be 
-         * repaired.
+         * It is ok to refactor all names as desired.
          * 
-         * Names should be changed through refactoring since some of them are in use in code.
-         * 
-         * Whatever value is assigned to OutfitterUtil.HighestVisibleOutfit will be the
-         * highest Unity Editor assignable outfit.  Any outfit higher than 
-         * OutfitterUtil.HighestVisibleOutfit can be assigned only at run-time via 
-         * code. (Except None, which can never be assigned.)
-         * 
-         * Note: 'Assigned' means assigning an outfit prototype to a configuration.  All values 
-         * are also used for other purposes.
-         * 
-         * The reason for this design is that the lower outfits are generally semi-permanent.  
-         * They are assigned at design-time and changed only occasionally, with their meaning 
-         * being fixed.  E.g. Casual means it is the character's default casual outfit.  
-         * Values higher than OutfitterUtil.HighestVisibleOutfit are used for transient 
-         * special purpose outfits that have meaning only in the context they are used. 
-         * E.g. A special scene requires the character to be a bouncing teapot.  So the AI sets 
-         * the custom outfit to a teapot, uses it, then sets the outfit back to null (default) 
-         * after it is done.
+         * The values do not need to be sequential, though the category range restrictions 
+         * must be followed.
          * 
          */
+
+        /*******************************************************************************************
+         * Standard Outfits
+         * 
+         * Generally considered long term, general use outfits.
+         * 
+         * There must be at least one standard outfit.
+         * All values must be less than the first custom outfit.
+         * Editors generally consider standard outfits to be  assignable at design time.
+         * 
+         * It is ok to add new types at any time.  Unused types can be removed with no impact.
+         * But be careful when removing a type that has been assigned to a project or scene
+         * object.  The assignment may become unusable at run-time or it may be forced to a default
+         * value the next time it is accessed in the editor.
+         * 
+         ******************************************************************************************/
 
         /// <summary>
         /// Casual outfit.
         /// </summary>
-        Casual = 0,  // This is the default value of OutfitterUtil.DefaultOutfit
+        Casual = 0,  // This is the default value defined in OutfitterUtil.
 
         /// <summary>
         /// Formal outfit.
@@ -74,32 +70,44 @@ namespace com.lizitt.outfitter
         Job = 2,
 
         /// <summary>
-        /// Skivvies outfit.
+        /// Underwear outfit.
         /// </summary>
         Skivvies = 3,
 
-        /// <summary>
-        /// Nude outfit.
-        /// </summary>
-        Nude = 4,
-
-        /// <summary>
-        /// Body only outfit.  (Alternate <see cref="Nude"/>)
-        /// </summary>
-        BodyOnly = 5,   // This is the default value of OutfitterUtil.HighestVisibleOutfit.
-
-        // By default, outfits beyond this point cannot be assigned values in the Unity Editor.  
-        // These are special purpose slots for use in code.
+        /*******************************************************************************************
+         * Custom Outfits
+         * 
+         * Custom outfits are short term outfits whose meaning and purpose are context senstive.
+         * They exist so the standard outfits don't need to be temporarily overridden at run-time.
+         *
+         * There must be at least one custom outfit.
+         * New custom types must have a value above the first custom type.
+         * 
+         * In general, custom outfits cannot be assign to the major components at design time.
+         * (E.g. the Outfitter won't let you predefine prototypes for any of the custom
+         * types via the editor, and it won't let you set the start outfit to a custom type.  
+         * But it will allow you to add/remove custom types at run-time.)
+         *
+         * Add and remove custom types following the same guidelines as standard outfits.  
+         * (E.g. Avoid removing types that are already in use by project and scene objects.) 
+         * 
+         ******************************************************************************************/
 
         /// <summary>
         /// A temporary outfit that can be changed at any time by whatever is controlling the
         /// agent.
         /// </summary>
-        Custom = 6,
+        Custom = int.MaxValue - 100,  // Ok to refactor name.  Best not to remove or change value.
+
+        /*******************************************************************************************
+         * Special 'None' Outfit
+         * 
+         * Means 'no outfit'.  Must always be the highest value and it's meaning cannot change.
+         ******************************************************************************************/
 
         /// <summary>
-        /// No body at all.
+        /// No outfit at all.
         /// </summary>
-        None = 7    // Must always be the highest value.  It's meaning cannot change.
+        None = int.MaxValue
 	}
 }

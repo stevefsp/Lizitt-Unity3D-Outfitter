@@ -20,51 +20,28 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Implements various outfitter utility features.
+    /// Display a standard <see cref="OutfitType"/> pop-up.
     /// </summary>
-    public static class OutfitterUtil
+    public class OutfitTypeAttribute
+        : PropertyAttribute
     {
         /// <summary>
-        /// The default choice for sorting body coverage flag values.
+        /// The filter to apply to the pop-up.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This value is constant so it can be used with attributes.
-        /// </para>
-        /// </remarks>
-        public const bool SortBodyCoverage = true;
+        public OutfitFilterType FilterType { get; private set; }
 
         /// <summary>
-        /// The standard default outfit.
+        /// Constructor.
         /// </summary>
-        public const OutfitType DefaultOutfit = OutfitType.Casual;
-
-        #region Extensions
-
-        public static bool IsStandard(this OutfitType typ)
+        /// <param name="filterType">The filter to apply to the pop-up.</param>
+        public OutfitTypeAttribute(OutfitFilterType filterType = OutfitFilterType.All)
         {
-            return (int)typ < (int)OutfitType.Custom;
+            FilterType = filterType;
         }
-
-        public static bool IsCustom(this OutfitType typ)
-        {
-            return typ != OutfitType.None && !IsStandard(typ);
-        }
-
-        /// <summary>
-        /// The status is not success and not pending.
-        /// </summary>
-        /// <param name="status">The status to evaluate.</param>
-        /// <returns>The status is not success and not pending.</returns>
-        public static bool IsFailed(this AttachStatus status)
-        {
-            return !(status == AttachStatus.Success || status == AttachStatus.Pending);
-        }
-
-        #endregion
     }
 }

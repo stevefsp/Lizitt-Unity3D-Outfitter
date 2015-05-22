@@ -29,13 +29,13 @@ namespace com.lizitt.outfitter
     /// A component that is used to manage outfit changes for a <see cref="OutfitterBody"/>.
     /// </summary>
     [SelectionBase]
-    public sealed class Outfitter
+    public class Outfitter
         : MonoBehaviour
     {
         #region Constant and Static Members
 
         /// <summary>
-        /// The suffix used to identify a placeholder body that will be deleted on start.
+        /// The suffix used to identify baked bodys & meshes.
         /// </summary>
         public const string BakeSuffix = "_BAKED";
 
@@ -77,7 +77,7 @@ namespace com.lizitt.outfitter
             if (type == OutfitType.None)
                 throw new System.ArgumentException("Can't create a 'None' type outfit.");
 
-            var outfit = outfitter.m_Prototypes.GetOutfitOrDefault(type).Instantiate();
+            var outfit = outfitter.m_Outfits.GetOutfitOrDefault(type).Instantiate();
             outfit.name = outfitter.name + BodySuffix;
             outfit.Initialize();
 
@@ -106,22 +106,14 @@ namespace com.lizitt.outfitter
         [Header("Outfit Settings")]
 
         [SerializeField]
-        [UnityEngine.Serialization.FormerlySerializedAs("m_OutfitPrototypes")]
-        private OutfitGroup m_Prototypes = null;
+        private OutfitGroup m_Outfits = null;
 
         [Header("Body Settings")]
 
         [SerializeField]
-        [Tooltip(
-            "The body to apply the outfit changes to. (If null, will search children on awake.")]
+        [Tooltip("The body to apply the outfit changes to. (If null, will default to the"
+            + "first body found in a child search.")]
         private OutfitterBody m_Body = null;
-
-        [Space(5)]
-
-        [SerializeField]
-        [Tooltip(
-            "The animator controller to assign when transitioning from no outfit to an outfit.")]
-        private RuntimeAnimatorController m_DefaultController = null;
 
         private OutfitType m_CurrentOutfitType = OutfitType.None;
 
@@ -159,7 +151,7 @@ namespace com.lizitt.outfitter
             {
                 m_IsInitialized = true;  // Failure should prevent future initializations.
                 DeletePlaceholder();
-                ApplyOutfit(m_Prototypes.StartOutfit);
+                ApplyOutfit(m_Outfits.StartOutfit);
             }
         }
 
@@ -174,7 +166,7 @@ namespace com.lizitt.outfitter
         /// <returns>The prototype for the specified outfit, or null if the outfit is not defined.</returns>
         public BodyOutfit this[OutfitType type]
         {
-            get { return m_Prototypes[type]; }
+            get { return m_Outfits[type]; }
         }
 
         /// <summary>
@@ -198,7 +190,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         public OutfitType DefaultOutfit
         {
-            get { return m_Prototypes.DefaultOutfit; }
+            get { return m_Outfits.DefaultOutfit; }
         }
 
         /// <summary>
@@ -206,7 +198,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         public OutfitType StartOutfit
         {
-            get { return m_Prototypes.StartOutfit; }
+            get { return m_Outfits.StartOutfit; }
         }
 
         #endregion
@@ -224,7 +216,7 @@ namespace com.lizitt.outfitter
         /// </returns>
         public BodyOutfit GetOutfitOrDefault(OutfitType type)
         {
-            return m_Prototypes.GetOutfitOrDefault(type);
+            return m_Outfits.GetOutfitOrDefault(type);
         }
 
         /// <summary>
@@ -235,28 +227,20 @@ namespace com.lizitt.outfitter
         /// The default behavior is for no action to be taken if the current outfit type
         /// is the same as the requested outfit type.
         /// </para>
-        /// <para>Animator handling:</para>
         /// <para>
-        /// The <see cref="animSync"/> delegate will only be run if the current outfit has an 
-        /// animator with an animator controller assigned, and the new outfit also has an animator.
-        /// </para>
-        /// <para>
-        /// The current outfit's animator controller and state, if it exits, is synchronized to the 
-        /// new outfit.  If there is no animator on the current outfit, then the last known 
-        /// controller is applied and will start in its default state.
-        /// </para>
-        /// <para>
-        /// For best results the animator should be in a simple state before the outfit is changed.
+        /// <paramref name="changeCallback"/> can be used to perform extra preparations such 
+        /// as animator synchronziation before the new outfit is applied to the body.  It will
+        /// only be called if a change is actually triggered.  Also, depending on the type of 
+        /// transition, one of the its parameters may be null.
         /// </para>
         /// </remarks>
         /// <param name="type">The outfit type to apply.</param>
         /// <param name="force">Force the outfit to be applied, even if the current outfit type
         /// is the same as the requested outfit type.</param>
-        /// <param name="animSync">
-        /// The animation synchronization method to run if both the current and new outfits 
-        /// have operational animators.
+        /// <param name="changeCallback">
+        /// A method to be called just before the outfit change is applied to the body.
         /// </param>
-        public void ApplyOutfit(OutfitType type, bool force = false, MecanimUtil.Sync animSync = null)
+        public void ApplyOutfit(OutfitType type, bool force = false, OutfitChange changeCallback = null)
         {
             CheckInitialized();
 
@@ -268,51 +252,63 @@ namespace com.lizitt.outfitter
                 return;
             }
 
-            // These next check is important. Want clients to be able to call apply as often as 
+            // These next checks are important. Want clients to be able to call apply as often as 
             // desired without incurring unnecessary costs. 
 
-            if (!force && m_Prototypes.GetRealType(type)
-                == m_Prototypes.GetRealType(m_CurrentOutfitType))
+            if (!force && m_Outfits.GetRealType(type)
+                == m_Outfits.GetRealType(m_CurrentOutfitType))
             {
                 // Even though the outfit doesn't need to change, the type may have changed.
                 m_CurrentOutfitType = type;
                 return;
             }
 
+            BodyOutfit oldOutfit;
+
+            // Design note: The callback is happening before the change is applied to the
+            // body due to event timing issues.  The callback may change things the
+            // body needs to detect.  E.g. Animator change events.
+
             if (type == OutfitType.None)
             {
-                var old = m_Body.ClearOutfit();
-                if (old)
-                    Destroy(old.gameObject);
+                if (changeCallback != null)
+                    changeCallback(m_Body.Outfit, null);  // See design note above.
+
+                OnApplyOutfitPre(m_Body.Outfit, null);
+                oldOutfit = m_Body.ClearOutfit();
             }
             else
             {
-                BodyOutfit noutfit = CreateOutfit(this, type, false);
+                var noutfit = CreateOutfit(this, type, false);
 
-                if (m_CurrentOutfitType == OutfitType.None)
-                    noutfit.Animator.runtimeAnimatorController = m_DefaultController;
-                else if (noutfit.Animator && m_Body.Animator)
-                {
-                    noutfit.Animator.runtimeAnimatorController = m_Body.Animator.runtimeAnimatorController;
-
-                    if (animSync != null && noutfit.Animator.runtimeAnimatorController)
-                        animSync(noutfit.Animator, m_Body.Animator);
-                }
-
+                // Parent and snap the outfit root to the outfitter for consistancy.  The body will
+                // take care of altering this behavior as appropriate.
                 noutfit.transform.parent = transform;
-
-                // Snap the outfit root to the outfitter for consistancy.  The body will
-                // take care of snapping the motion root.
                 noutfit.transform.position = transform.position;
                 noutfit.transform.rotation = transform.rotation;
 
-                var old = m_Body.SetOutfit(noutfit);
-                if (old)
-                    Destroy(old.gameObject);
+                if (changeCallback != null)
+                    changeCallback(m_Body.Outfit, noutfit);  // See design note above.
+
+                OnApplyOutfitPre(m_Body.Outfit, noutfit);
+                oldOutfit = m_Body.SetOutfit(noutfit);
             }
+
+            if (oldOutfit)
+                oldOutfit.gameObject.SafeDestroy();
 
             m_CurrentOutfitType = type;
             m_CurrentOutfitChanged = false;
+        }
+
+        /// <summary>
+        /// Called just before a new outfit is applied to the body.
+        /// </summary>
+        /// <param name="oldOutfit">The body's current outfit. (May be null.)</param>
+        /// <param name="newOutfit">The new outfit to be applied. (May be null.)</param>
+        protected virtual void OnApplyOutfitPre(BodyOutfit oldOutfit, BodyOutfit newOutfit)
+        {
+            return;
         }
 
         /// <summary>
@@ -340,7 +336,7 @@ namespace com.lizitt.outfitter
                 return;
             }
 
-            m_Prototypes[type] = prototype;
+            m_Outfits[type] = prototype;
 
             if (type == m_CurrentOutfitType)
                 m_CurrentOutfitChanged = true;

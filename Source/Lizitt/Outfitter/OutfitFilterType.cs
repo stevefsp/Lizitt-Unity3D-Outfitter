@@ -20,51 +20,33 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Implements various outfitter utility features.
+    /// Represents permitted outfit types.
     /// </summary>
-    public static class OutfitterUtil
+    public enum OutfitFilterType
     {
         /// <summary>
-        /// The default choice for sorting body coverage flag values.
+        /// All outfits, including standard, custom, and 'None'.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This value is constant so it can be used with attributes.
-        /// </para>
-        /// </remarks>
-        public const bool SortBodyCoverage = true;
+        All,
 
         /// <summary>
-        /// The standard default outfit.
+        /// Only the standard outfits.  (Exclude custom and 'None'.)
         /// </summary>
-        public const OutfitType DefaultOutfit = OutfitType.Casual;
-
-        #region Extensions
-
-        public static bool IsStandard(this OutfitType typ)
-        {
-            return (int)typ < (int)OutfitType.Custom;
-        }
-
-        public static bool IsCustom(this OutfitType typ)
-        {
-            return typ != OutfitType.None && !IsStandard(typ);
-        }
+        StandardOnly,
 
         /// <summary>
-        /// The status is not success and not pending.
+        /// All outfits except 'None'.
         /// </summary>
-        /// <param name="status">The status to evaluate.</param>
-        /// <returns>The status is not success and not pending.</returns>
-        public static bool IsFailed(this AttachStatus status)
-        {
-            return !(status == AttachStatus.Success || status == AttachStatus.Pending);
-        }
+        ExcludeNone,
 
-        #endregion
+        /// <summary>
+        /// All outfits except custom.
+        /// </summary>
+        ExcludeCustom,
     }
 }

@@ -21,6 +21,9 @@
  */
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEditorInternal;
+using com.lizitt.u3d.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -28,104 +31,228 @@ namespace com.lizitt.outfitter.editor
     public class OutfitGroupDrawer
         : PropertyDrawer
     {
-        // TODO: Need to find a better way of defining height.  
-        // It doesn't handle changes to the number of outfits very well.
+        private const string ProtoPropName = "m_Prototypes";
+        private const string DefaultPropName = "m_DefaultOutfit";
+        private const string StartPropName = "m_StartOutfit";
+        private const string ItemTypName = "typ";
+        private const string ItemProtoName = "prototype";
 
-        private const float Lines = (int)OutfitType.None + 2.5f;
-        private const float LineHeight = 17;
+        private readonly static GUIContent StartLabel = new GUIContent("Start Outfit",
+            "The outfit type that should be applied on component start.");
+
+        private readonly static GUIContent DefaultLabel = new GUIContent("Default Outfit",
+            "The outfit type to use when the requested outfit type is not defined.");
+
+        private ReorderableList m_PrototypeList;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return Lines * LineHeight;
+            // Non-list fields.  List handles its own height.
+            return 2 * EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing
+                + EditorGUIUtility.standardVerticalSpacing * 2;  // For extra space at bottom.
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var defaultOutfitProp = property.FindPropertyRelative("m_DefaultOutfit");
-            var startOutfitProp = property.FindPropertyRelative("m_StartOutfit");
-            var prototypesProp = property.FindPropertyRelative("m_Prototypes");
-
             label = EditorGUI.BeginProperty(position, label, property);
 
-            var rec = new Rect(position.x, position.y, position.width, position.height / Lines);
+            var lineHeight = EditorGUIUtility.singleLineHeight;
+            var space = EditorGUIUtility.standardVerticalSpacing;
 
-            EditorGUI.LabelField(rec, "Outfit Group");
+            // Start Outfit
 
-            rec = new Rect(rec.xMin, rec.yMax, rec.width, rec.height);
-            EditorGUI.PropertyField(rec, startOutfitProp);
+            var rec = new Rect(position.x, position.y, position.width, lineHeight);
+            var prop = property.FindPropertyRelative(StartPropName);
+            var plabel = StartLabel;
+            
+            var choice = OutfitterEditorUtil.OutfitTypePopup(
+                rec, plabel, prop.intValue, OutfitFilterType.ExcludeCustom);
 
-            rec = new Rect(rec.xMin, rec.yMax, rec.width, rec.height);
-            EditorGUI.PropertyField(rec, defaultOutfitProp);
+            if (choice != prop.intValue)
+                prop.intValue = choice;
 
-            var expectedCount = (int)OutfitType.None;
+            // Default Outfit
 
-            if (expectedCount != prototypesProp.arraySize)
-                RepairPrototypes(prototypesProp, expectedCount, rec);
-            else
-                ProcessPrototypes(prototypesProp, rec);
+            rec = new Rect(rec.xMin, rec.yMax + space, rec.width, lineHeight);
+            prop = property.FindPropertyRelative(DefaultPropName);
+            plabel = DefaultLabel;
+
+            choice = OutfitterEditorUtil.OutfitTypePopup(
+                rec, plabel,prop.intValue, OutfitFilterType.StandardOnly);
+
+            if (choice != prop.intValue)
+            {
+                prop.intValue = choice;
+
+                var listProp = property.FindPropertyRelative(ProtoPropName);
+                if (!IsOutfitInList(listProp, choice))
+                    AddPrototype(listProp, choice);    
+            }
+
+            if (m_PrototypeList == null)
+                CreatePrototypeList(property);
+
+            m_PrototypeList.DoLayoutList();
 
             EditorGUI.EndProperty();
         }
 
-        private void ProcessPrototypes(SerializedProperty prototypes, Rect rec)
+        private void CreatePrototypeList(SerializedProperty property)
         {
-            var count = (int)OutfitterUtil.HighestVisibleOutfit + 1;
+            var list = new ReorderableList(property.serializedObject
+                , property.FindPropertyRelative(ProtoPropName)
+                , true, true, true, true);
 
-            for (int i = 0; i < count; i++)
+            list.drawHeaderCallback = delegate(Rect rect)
+                {
+                    var label = new GUIContent("Predefined Prototypes");
+                    var style = GUI.skin.label;
+
+                    if (list.serializedProperty.arraySize == 0)
+                    {
+                        style = EditorGUIUtil.RedLabel;
+                        label.tooltip = "Default outfit is not defined.";
+                    }
+
+                    EditorGUI.LabelField(rect, label, style);
+                };
+
+            list.drawElementCallback = 
+                delegate(Rect position, int index, bool isActive, bool isFocused)
+                {
+                    var element = list.serializedProperty.GetArrayElementAtIndex(index);
+
+                    var typProp = element.FindPropertyRelative(ItemTypName);
+                    var protoProp = element.FindPropertyRelative(ItemProtoName);
+
+                    GUIContent label;
+
+                    bool hasError = false;
+                    if (typProp.enumValueIndex == -1)
+                    {
+                        label = new GUIContent("Invalid Type", "Enum type value changed or removed?");
+                        hasError = true;
+                    }
+                    else
+                        label = new GUIContent(typProp.enumDisplayNames[typProp.enumValueIndex]);
+
+                    var rect = new Rect(position.x, 
+                        position.y + EditorGUIUtility.standardVerticalSpacing, 
+                        90, EditorGUIUtility.singleLineHeight);
+
+                    GUIStyle style = GUI.skin.label;
+
+                    if (hasError)
+                        style = EditorGUIUtil.RedLabel;
+                    else if (!protoProp.objectReferenceValue)
+                    {
+                        var dval = property.FindPropertyRelative(DefaultPropName).intValue;
+
+                        if (typProp.intValue == dval)
+                        {
+                            style = EditorGUIUtil.RedLabel;
+                            label.tooltip = "Default outfit needs assignment.";
+                        }
+                        else
+                        {
+                            style = EditorGUIUtil.YellowLabel;
+                            label.tooltip = "Will use default prototype: " + (OutfitType)dval;
+                        }
+                    }
+
+                    EditorGUI.LabelField(rect, label, style);
+
+                    rect = new Rect(
+                        rect.xMax + 5, rect.y, position.width - rect.width - 5, rect.height);
+
+                    EditorGUI.PropertyField(rect, protoProp, GUIContent.none);
+                };
+
+            GenericMenu.MenuFunction2 addItem = delegate(object typValue)
             {
-                rec = new Rect(rec.xMin, rec.yMax, rec.width, rec.height);
+                list.index = AddPrototype(list.serializedProperty, (int)typValue);
+            };
 
-                var outfitProp = prototypes.GetArrayElementAtIndex(i);
-                var lbl =  ((OutfitType)i).ToString();
+            GenericMenu.MenuFunction addAllItems = delegate()
+            {
+                var stdNames = OutfitterEditorUtil.StandardOutfitNames;
+                var stdValues = OutfitterEditorUtil.StandardOutfitValues;
 
-                var choice = (BodyOutfit)EditorGUI.ObjectField(rec, lbl
-                    , outfitProp.objectReferenceValue, typeof(BodyOutfit), false);
+                var idx = list.serializedProperty.arraySize;
 
-                if (GUI.changed)
-                    outfitProp.objectReferenceValue = choice;
-            }
+                for (int i = 0; i < stdNames.Length; i++)
+                {
+                    if (!IsOutfitInList(list.serializedProperty, stdValues[i]))
+                        AddPrototype(list.serializedProperty, stdValues[i]);
+                }
+
+                list.index = idx;  // Assumes never called unless if list is full.
+            };
+
+            list.onAddDropdownCallback = delegate(Rect rect, ReorderableList roList)
+            {
+                var menu = new GenericMenu();
+
+                var stdNames = OutfitterEditorUtil.StandardOutfitNames;
+                var stdValues = OutfitterEditorUtil.StandardOutfitValues;
+
+                for (int i = 0; i < stdNames.Length; i++)
+                {
+                    if (!IsOutfitInList(list.serializedProperty, stdValues[i]))
+                        menu.AddItem(new GUIContent(stdNames[i]), false, addItem, stdValues[i]);
+                }
+
+                if (menu.GetItemCount() == 0)
+                    menu.AddDisabledItem(new GUIContent("[None Available]"));
+                else
+                    menu.AddItem(new GUIContent("All"), false, addAllItems);
+
+                menu.ShowAsContext();
+            };
+
+            list.onRemoveCallback = delegate(ReorderableList roList)
+            {
+                var element = roList.serializedProperty.GetArrayElementAtIndex(roList.index);
+                var defaultValue = property.FindPropertyRelative(DefaultPropName).intValue;
+
+                if (element.FindPropertyRelative(ItemTypName).intValue == defaultValue)
+                {
+                    Debug.LogWarning(
+                        "Can't remove the default outfit: " + (OutfitType)defaultValue);
+                    return;
+                }
+
+                ReorderableList.defaultBehaviours.DoRemoveButton(roList);
+            };
+
+            m_PrototypeList = list;
         }
 
-        private void RepairPrototypes(SerializedProperty prototypes, int expecedCount, Rect rec)
+        private int AddPrototype(SerializedProperty listProp, int typValue)
         {
-            // Increase chance of catching user's attention.
-            Debug.LogError("Invalid number of outfits in outfit group.  Expect: " + expecedCount 
-                + ", Actual: " + prototypes.arraySize);
+            int nidx = listProp.arraySize;
 
-            rec = new Rect(rec.xMin, rec.yMax, rec.width, rec.height * 2);
+            listProp.arraySize++;
 
-            string message;
+            var element = listProp.GetArrayElementAtIndex(nidx);
+            element.FindPropertyRelative(ItemTypName).intValue = typValue;
+            element.FindPropertyRelative(ItemProtoName).objectReferenceValue = null;
 
-            if (expecedCount < prototypes.arraySize)
-                message = "Outfit array is too large.  Data will be lost during the repair.";
-            else
-                message = "Outfit array is too small.  Repair will not destroy any data.";
+            listProp.serializedObject.ApplyModifiedProperties();
 
-            EditorGUI.HelpBox(rec, message, MessageType.Error);
+            return nidx;
+        }
 
-            rec = new Rect(rec.xMin, rec.yMax, rec.width, rec.height);
+        private bool IsOutfitInList(SerializedProperty listProp, int typValue)
+        {
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                var element = listProp.GetArrayElementAtIndex(i);
+                if (element.FindPropertyRelative(ItemTypName).intValue == typValue)
+                    return true;
+            }
 
-            if (GUI.Button(rec, "Repair"))
-                prototypes.arraySize = expecedCount;
-
-            //int delta = expecedCount - prototypes.arraySize;
-
-            //if (delta > 0)
-            //{
-            //    while (delta > 0)
-            //    {
-            //        prototypes.InsertArrayElementAtIndex(prototypes.arraySize - 1);
-            //        delta--;
-            //    }
-            //}
-            //else
-            //{
-            //    while (delta < 0)
-            //    {
-            //        prototypes.DeleteArrayElementAtIndex(prototypes.arraySize - 1);
-            //        delta++;
-            //    }
-            //}
+            return false;
         }
     }
 }

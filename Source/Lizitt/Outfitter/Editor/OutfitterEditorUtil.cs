@@ -27,14 +27,16 @@ namespace com.lizitt.outfitter.editor
 {
     public static class OutfitterEditorUtil
     {
-        private static GUIContent[] m_AllNames;
+        #region Outfit Type
+
+        private static GUIContent[] m_AllOutfitNames;
         private static int[] m_AllValues;
 
-        private static GUIContent[] m_ExcludeNoneNames;
-        private static int[] m_ExcludeNoneValues;
+        private static GUIContent[] m_ExcludeNoneOutfitNames;
+        private static int[] m_ExcludeNoneOutfitValues;
 
-        private static GUIContent[] m_ExcludeCustomNames;
-        private static int[] m_ExcludeCustomValues;
+        private static GUIContent[] m_ExcludeCustomOutfitNames;
+        private static int[] m_ExcludeCustomOutfitValues;
 
         #region Standard Outfit Arrays
 
@@ -145,7 +147,7 @@ namespace com.lizitt.outfitter.editor
 
                 case OutfitFilterType.ExcludeNone:
 
-                    if (m_ExcludeNoneNames == null)
+                    if (m_ExcludeNoneOutfitNames == null)
                     {
                         var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
                         var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
@@ -160,18 +162,18 @@ namespace com.lizitt.outfitter.editor
                             }
                         }
 
-                        m_ExcludeNoneNames = CreateLabels(lin);
-                        m_ExcludeNoneValues = liv.ToArray();
+                        m_ExcludeNoneOutfitNames = CreateLabels(lin);
+                        m_ExcludeNoneOutfitValues = liv.ToArray();
                     }
 
-                    names = m_ExcludeNoneNames;
-                    values = m_ExcludeNoneValues;
+                    names = m_ExcludeNoneOutfitNames;
+                    values = m_ExcludeNoneOutfitValues;
 
                     break;
 
                 case OutfitFilterType.ExcludeCustom:
 
-                    if (m_ExcludeCustomNames == null)
+                    if (m_ExcludeCustomOutfitNames == null)
                     {
                         var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
                         var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
@@ -185,25 +187,25 @@ namespace com.lizitt.outfitter.editor
                             }
                         }
 
-                        m_ExcludeCustomNames = CreateLabels(lin);
-                        m_ExcludeCustomValues = liv.ToArray();
+                        m_ExcludeCustomOutfitNames = CreateLabels(lin);
+                        m_ExcludeCustomOutfitValues = liv.ToArray();
                     }
 
-                    names = m_ExcludeCustomNames;
-                    values = m_ExcludeCustomValues;
+                    names = m_ExcludeCustomOutfitNames;
+                    values = m_ExcludeCustomOutfitValues;
 
                     break;
 
                 default:
 
-                    if (m_AllNames == null)
+                    if (m_AllOutfitNames == null)
                     {
-                        m_AllNames = CreateLabels(
+                        m_AllOutfitNames = CreateLabels(
                             new List<string>(System.Enum.GetNames(typeof(OutfitType))));
                         m_AllValues = System.Enum.GetValues(typeof(OutfitType)) as int[];
                     }
 
-                    names = m_AllNames;
+                    names = m_AllOutfitNames;
                     values = m_AllValues;
 
                     break;
@@ -227,6 +229,71 @@ namespace com.lizitt.outfitter.editor
 
             return values[selectedIdx];
         }
+
+        #endregion
+
+        #region Mount Point Type
+
+        private static GUIContent[] m_MountPointTypeNames;
+        private static int[] m_MountPointTypeValues;
+
+        /// <summary>
+        /// The <see cref="OutfitType"/> names for the standard outfits.  (Not custom, not None)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a reference to a global array.  Don't make changes to it.  The reason it is
+        /// a reference is to reduce construction and garbage collection costs in editor GUI
+        /// operations.
+        /// </para>
+        /// <para>
+        /// Thhe order of the array is the same as <see cref="StandardOutfitValues"/>.
+        /// </para>
+        /// </remarks>
+        public static GUIContent[] MountPointTypeNames
+        {
+            get
+            {
+                if (m_MountPointTypeNames == null)
+                    BuildMountTypes();
+
+                return m_MountPointTypeNames;
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="OutfitType"/> values for the standard outfits.  (Not custom, not None)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is a reference to a global array.  Don't make changes to it.  The reason it is
+        /// a reference is to reduce construction and garbage collection costs in editor GUI
+        /// operations.
+        /// </para>
+        /// <para>
+        /// Thhe order of the array is the same as <see cref="StandardOutfitNames"/>.
+        /// </para>
+        /// </remarks>
+        public static int[] MountPointTypeValues
+        {
+            get
+            {
+                if (m_MountPointTypeValues == null)
+                    BuildMountTypes();
+
+                return m_MountPointTypeValues;
+            }
+        }
+
+        private static void BuildMountTypes()
+        {
+            var lin = new List<string>(System.Enum.GetNames(typeof(MountPointType)));
+            var liv = new List<int>(System.Enum.GetValues(typeof(MountPointType)) as int[]);
+
+            m_MountPointTypeNames = CreateLabels(lin);
+            m_MountPointTypeValues = liv.ToArray();
+        }
+        #endregion
 
         private static GUIContent[] CreateLabels(List<string> labels)
         {

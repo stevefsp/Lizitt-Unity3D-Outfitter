@@ -20,10 +20,8 @@
  * THE SOFTWARE.
  */
 using UnityEditor;
-using UnityEngine;
-using System.Collections.Generic;
 using UnityEditorInternal;
-using com.lizitt.u3d.editor;
+using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -40,7 +38,8 @@ namespace com.lizitt.outfitter.editor
             EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
         private static readonly float ElementHeight =
-            EditorGUIUtility.singleLineHeight + (EditorGUIUtility.standardVerticalSpacing * 2);
+            EditorGUIUtility.singleLineHeight + (EditorGUIUtility.standardVerticalSpacing * 2)
+            + 3;  // Improves the layout, especially for the final element, above the footer.
 
         private ReorderableList m_List;
 

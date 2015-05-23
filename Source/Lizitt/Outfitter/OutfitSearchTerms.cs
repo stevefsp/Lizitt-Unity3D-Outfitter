@@ -58,7 +58,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         private BodyMountPointTerm[] m_MountTerms = new BodyMountPointTerm[0];
 
-        [Header("Material Terms")]
+        //[Header("Material Terms")]
 
         [SerializeField]
         [Tooltip("The search term used to locate the head material. (If applicable.)")]
@@ -72,7 +72,7 @@ namespace com.lizitt.outfitter
         [Tooltip("The search term used to locate the body material. (If applicable.)")]
         private string m_BodyTerm = null;
 
-        [Header("Other Terms")]
+        //[Header("Other Terms")]
 
         [SerializeField]
         [Tooltip("The search term used to locate the renderer that contains the head blendshapes."

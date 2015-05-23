@@ -29,10 +29,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This class is designed for use as a field in a Unity component when a list of accessories
-    /// needs to use the <see cref=" AccessoryGroupAttribute"/> for display in the editor.
-    /// <see cref="AccessoryGroupAttribute"/> is generally better than Unity's default list handler
-    /// for organizing accessories.
+    /// Designed for use as a field in a Unity component.  It provides a
+    /// better editor experience than is available for arrays.
     /// </para>
     /// </remarks>
     [System.Serializable]

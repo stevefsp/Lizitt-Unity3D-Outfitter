@@ -19,11 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEditor;
-using UnityEngine;
-using System.Collections.Generic;
-using UnityEditorInternal;
 using com.lizitt.u3d.editor;
+using UnityEditor;
+using UnityEditorInternal;
+using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {

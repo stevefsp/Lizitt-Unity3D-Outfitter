@@ -41,10 +41,10 @@ public class BodyColliderSettings
     private int m_SurfaceLayer = UnityLayer.Default;
 
     [SerializeField]
-    [Tooltip("The settings for the surface collider.")]
+    [Tooltip("The settings for the surface collider. (Always a capsule collider.)")]
     private CapsuleColliderParams m_SurfaceCollider = new CapsuleColliderParams();
 
-    [Header("Mount Point Colliders")]
+    [Header("Body Colliders")]
 
     [SerializeField]
     [Tooltip("Post a warning message if the outfit doesn't support a defined collider.")]

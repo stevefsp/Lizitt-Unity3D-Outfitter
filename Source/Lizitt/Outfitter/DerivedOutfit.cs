@@ -69,16 +69,17 @@ namespace com.lizitt.outfitter
         [Tooltip("Accessories to add to the base outfit. (Exempt from coverage restrictions.)")]
         private AccessoryGroup m_Acessories = new AccessoryGroup(0);
 
-        [Header("Accessory Behavior")]
+        [Header("Blocking Behavior")]
 
         [SerializeField]
-        [Tooltip("The body parts that are considered permanently blocked. (No new accessories.)")]
+        [Tooltip("The body parts that are considered permanently blocked. (No new accessories."
+            + " ignored by variant accessories.)")]
         [EnumFlags(typeof(BodyCoverage), OutfitterUtil.SortBodyCoverage)]
         private BodyCoverage m_CoverageBlocks = 0;
 
         [SerializeField]
         [Tooltip("If true, only accessories marked to ignore this flag will attach."
-            + " (The accessories listed above are exempt from this flag.)")]
+            + " (Ignored by variant accessories.)")]
         private bool m_AccessoriesLimited = false;
 
         #endregion

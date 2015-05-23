@@ -76,8 +76,8 @@ namespace com.lizitt.outfitter
         private Vector3 m_AttachRotation = Vector3.zero;
 
         [SerializeField]
-        [Tooltip("If true the attach position and rotation will be ignored when attached."
-            + " (Useful when the accessories transform will be manually interpolated to the"
+        [Tooltip("If true the attach position and rotation will be ignored."
+            + " (Useful when the accessory's transform will be manually interpolated to the"
             + " mount point.)")]
         private bool m_PreserveWorldTransform = false;
 

@@ -24,8 +24,7 @@ using UnityEditor;
 
 namespace com.lizitt.outfitter.editor
 {
-    public class BodyColliderSettingsEditor
-        : Editor
+    public static class BodyColliderSettingsEditor
     {
         private const string MenuItemName = "Body Collider Settings";
         private const int MenuPriority = EditorUtil.AssetGroup + OutfitterEditor.MenuPriority + 1;
@@ -37,5 +36,20 @@ namespace com.lizitt.outfitter.editor
             var item = EditorUtil.CreateAsset<BodyColliderSettings>("", OutfitterEditor.AssetLabel);
             Selection.activeObject = item;
         }
+
+        /*
+         * Design notes:
+         * 
+         * Prototyped custom editor options to try to improve the body collider array layouts.
+         * The default array handling is ugly and difficult to browse.
+         * 
+         * Can't use ReorderableList because the elements require too much vertical space 
+         * and it requires a custom editor for each collider type since EditorGUI.PropertyField 
+         * creates a foldout that is closed by default. Foldouts in a ReorderableList list are 
+         * very ugly.  
+         * 
+         * Other options aren't any better since they would require custom array handling code,
+         * just for this one-off. Too much work for too little benefit.
+         */
     }
 }

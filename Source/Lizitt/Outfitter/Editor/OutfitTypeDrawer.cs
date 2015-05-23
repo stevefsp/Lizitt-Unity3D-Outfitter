@@ -21,9 +21,6 @@
  */
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEditorInternal;
-using com.lizitt.u3d.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -44,6 +41,8 @@ namespace com.lizitt.outfitter.editor
 
             if (EditorGUI.EndChangeCheck())
                 property.intValue = val;
+
+            EditorGUI.EndProperty();
         }
     }
 }

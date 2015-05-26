@@ -23,7 +23,7 @@ There isn't much online documentation at this point.  There is some information 
 
 ### Videos
 
-[An Quick Introduction](https://vimeo.com/128934977)
+[A Quick Introduction](https://vimeo.com/128934977)
 
 ## Miscellaneous
 

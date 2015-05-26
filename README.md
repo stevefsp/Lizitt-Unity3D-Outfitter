@@ -1,7 +1,5 @@
 # Lizitt Unity3D Outfitter
 
-**2015-05-11:**  Roll-out is in progress.
-
 ## Overview
 
 Status: Alpha  
@@ -22,6 +20,10 @@ Requires [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-U
 ## Documentation
 
 There isn't much online documentation at this point.  There is some information over on the [Wiki](https://github.com/stevefsp/Lizitt-Unity3D-Outfitter/wiki).  All code is documented using standard C# XML comments.
+
+### Videos
+
+[An Quick Introduction](https://vimeo.com/128934977)
 
 ## Miscellaneous
 

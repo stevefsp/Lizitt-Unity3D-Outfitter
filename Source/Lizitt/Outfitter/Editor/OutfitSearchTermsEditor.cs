@@ -86,10 +86,7 @@ namespace com.lizitt.outfitter.editor
             DrawMountPointTerms();
 
             if (UnityEngine.GUI.changed)
-            {
-                UnityEngine.Debug.Log("change");
                 serializedObject.ApplyModifiedProperties();
-            }
 
             EditorGUILayout.Separator();
 

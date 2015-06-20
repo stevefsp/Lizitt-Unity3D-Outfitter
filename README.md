@@ -2,11 +2,10 @@
 
 ## Overview
 
-Status: Alpha  
+API Status: Alpha  
+Test Status: Beta  
 Language: C#  
 Target: [Unity3D](http://unity3d.com/unity) 5.0+ (Personal & Professional)
-
-Test coverage not yet complete.
 
 The Outfitter helps a user to define prototypes (usually prefabs) that represent outfits and accessories.  These components are combined at run-time to represent an agent's body.  Certain parts of the outfits, such as materials can be overriden in order to support outfit varients.  At run-time the outfits and accessories are instantiated as needed to create a body.
 

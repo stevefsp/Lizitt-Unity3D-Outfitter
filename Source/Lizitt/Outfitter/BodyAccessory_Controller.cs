@@ -53,7 +53,7 @@ namespace com.lizitt.outfitter
             /// <param name="destroyed">
             /// True if the release is due to the accessory being destoryed.
             /// </param>
-            public delegate void AutoRelease(Controller controller, bool destoryed);
+            public delegate void AutoRelease(Controller controller, bool destroyed);
 
             #endregion
 

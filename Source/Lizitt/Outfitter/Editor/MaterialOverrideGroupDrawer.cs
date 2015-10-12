@@ -26,6 +26,9 @@ using System.Collections.Generic;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="MaterialOverrideGroup"/> editor.
+    /// </summary>
     [CustomPropertyDrawer(typeof(MaterialOverrideGroupAttribute))]
     public class MaterialOverrideGroupDrawer
         : PropertyDrawer
@@ -131,6 +134,9 @@ namespace com.lizitt.outfitter.editor
         private ReorderableList m_List;
         private ProtoInfo m_ProtoInfo;
 
+        /// <summary>
+        /// The PropertyDrawer property height method.
+        /// </summary>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             if (m_List == null)
@@ -154,6 +160,9 @@ namespace com.lizitt.outfitter.editor
             return result;
         }
 
+        /// <summary>
+        /// The PropertyDrawer on gui method.
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as MaterialOverrideGroupAttribute;

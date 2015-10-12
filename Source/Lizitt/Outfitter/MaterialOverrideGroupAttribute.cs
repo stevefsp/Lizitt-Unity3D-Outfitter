@@ -25,11 +25,27 @@ using com.lizitt.u3d;
 
 namespace com.lizitt.outfitter
 {
+    /// <summary>
+    /// [Internal use only - not properly generalized]
+    /// Display the <see cref="MaterialOverrideGroup"/> in a user friendly way by scanning
+    /// the provided prototype for potential renderers.
+    /// </summary>
     public class MaterialOverrideGroupAttribute
         : PropertyAttribute
     {
+        /// <summary>
+        /// The name of the field in the property's serialized object that references a 
+        /// GameObject containing the renderers that can be selected.
+        /// </summary>
         public readonly string prototypeField;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="prototypeField">
+        /// The name of the field in the property's serialized object that references a 
+        /// GameObject containing the renderers that can be selected.
+        /// </param>
         public MaterialOverrideGroupAttribute(string prototypeField)
         {
             this.prototypeField = prototypeField;

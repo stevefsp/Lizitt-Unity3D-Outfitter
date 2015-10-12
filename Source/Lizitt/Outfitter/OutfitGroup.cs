@@ -92,7 +92,7 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// This is the 'raw' outfit value.  If doesn't take into account the value of 
-        /// <see cref="DefaultOUtfit"/>.
+        /// <see cref="DefaultOutfit"/>.
         /// </para>
         /// <para>
         /// <see cref="OutfitType.None"/> is invalid and will always fail.
@@ -144,7 +144,7 @@ namespace com.lizitt.outfitter
         /// Gets the prototype for the specified outfit type, or the default proprotype if 
         /// the type is not defined.
         /// </summary>
-        /// <param name="type">The type of the outfit to retrieve.</param>
+        /// <param name="typ">The type of the outfit to retrieve.</param>
         /// <returns>
         /// The prototype for the specified outfit type, or the default proprotype if 
         /// the type is not defined.
@@ -185,13 +185,13 @@ namespace com.lizitt.outfitter
         /// prototype.
         /// </para>
         /// <para>
-        /// If <paramref name="type"/> is <see cref="OutfitType.None"/>, will return 
-        /// <see cref="OutfitType.None"/>.  If <paramref name="type"/> has no assigned 
+        /// If <paramref name="typ"/> is <see cref="OutfitType.None"/>, will return 
+        /// <see cref="OutfitType.None"/>.  If <paramref name="typ"/> has no assigned 
         /// prototype, or it is the default, then the default outfit type will be returned.  
         /// Otherwise it will return the type unaltered.
         /// </para>
         /// </remarks>
-        /// <param name="type">The outfit type.</param>
+        /// <param name="typ">The outfit type.</param>
         /// <returns>The type of the prototype that will be used if <see cref="GetOutfitOrDefault"/>
         /// is called.</returns>
         public OutfitType GetRealType(OutfitType typ)
@@ -207,6 +207,13 @@ namespace com.lizitt.outfitter
             return typ;
         }
 
+        /// <summary>
+        /// True if the outfit group is properly configured and can be used.
+        /// </summary>
+        /// <param name="silent">
+        /// True if console errors should be suppressed, false if they should be posted.
+        /// </param>
+        /// <returns>True if the outfit group is properly configured and can be used.</returns>
         public bool IsValid(bool silent = true)
         {
             // Expect editor to stop introduction of invalid values, such as duplicates.

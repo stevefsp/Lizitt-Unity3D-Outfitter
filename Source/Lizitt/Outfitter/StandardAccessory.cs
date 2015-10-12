@@ -85,6 +85,9 @@ namespace com.lizitt.outfitter
 
         #region Transform Related
 
+        /// <summary>
+        /// <see cref="BodyAccessory.AttachPosition"/>
+        /// </summary>
         public sealed override Vector3 AttachPosition
         {
             get { return m_AttachPosition; }
@@ -98,6 +101,10 @@ namespace com.lizitt.outfitter
         {
             m_AttachPosition = offset;
         }
+
+        /// <summary>
+        /// <see cref="BodyAccessory.AttachPosition"/>
+        /// </summary>
         public sealed override Vector3 AttachRotation
         {
             get { return m_AttachRotation; }
@@ -112,6 +119,9 @@ namespace com.lizitt.outfitter
             m_AttachRotation = offset;
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.PreserveWorldTransform"/>
+        /// </summary>
         public sealed override bool PreserveWorldTransform
         {
             get { return m_PreserveWorldTransform; }
@@ -121,18 +131,27 @@ namespace com.lizitt.outfitter
 
         #region Mount and Coverage
 
+        /// <summary>
+        /// <see cref="BodyAccessory.MountPoint"/>
+        /// </summary>
         public sealed override MountPointType MountPoint
         {
             get { return m_MountPoint; }
             set { m_MountPoint = value; }
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.IgnoreLimited"/>
+        /// </summary>
         public sealed override bool IgnoreLimited
         {
             get { return m_IgnoreLimited; }
             set { m_IgnoreLimited = value; }
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.Coverage"/>
+        /// </summary>
         public sealed override BodyCoverage Coverage
         {
             get { return m_Coverage; }
@@ -145,6 +164,9 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.IsCoverageDynamic"/>
+        /// </summary>
         public sealed override bool IsCoverageDynamic
         {
             get { return m_DynamicCoverage; }
@@ -154,6 +176,9 @@ namespace com.lizitt.outfitter
 
         #region Initialization
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnInitialize"/>
+        /// </summary>
         protected override void OnInitialize()
         {
             SetRenderers(false);
@@ -163,28 +188,44 @@ namespace com.lizitt.outfitter
 
         #region Control Methods
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnAttachPost"/>
+        /// </summary>
         protected override void OnAttachPost()
         {
             SetRenderers(true);
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnStored"/>
+        /// </summary>
         protected override void OnStored()
         {
             SetRenderers(false);
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnReleaseFromAttachedPre"/>
+        /// </summary>
         protected override void OnReleaseFromAttachedPre()
         {
             SetRenderers(false);
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnReleaseFromStoragePre"/>
+        /// </summary>
         protected override void OnReleaseFromStoragePre()
         {
             SetRenderers(false);
         }
 
+        /// <summary>
+        /// <see cref="BodyAccessory.OnPurge"/>
+        /// </summary>
         protected override void OnPurge()
         {
+            // Do nothing.
         }
 
         #endregion

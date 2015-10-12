@@ -35,7 +35,7 @@ namespace com.lizitt.outfitter
         #region Constant and Static Members
 
         /// <summary>
-        /// The suffix used to identify baked bodys & meshes.
+        /// The suffix used to identify baked bodys and meshes.
         /// </summary>
         public const string BakeSuffix = "_BAKED";
 

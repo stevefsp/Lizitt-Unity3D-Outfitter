@@ -74,6 +74,9 @@ namespace com.lizitt.outfitter
         private bool m_IsInitialized;
 
         // Protected modifier required to support Unity introspection behavior.
+        /// <summary>
+        /// The standard Monobehaviour start method.
+        /// </summary>
         protected void Start()
         {
             CheckInitialize();
@@ -358,8 +361,10 @@ namespace com.lizitt.outfitter
         /// the root of the scene.
         /// </para>
         /// </remarks>
-        /// <param name="holdingObject">The object that will hold the accessory until it is
-        /// ready to attach to a new mount point.</param>
+        /// <param name="toStorage">
+        /// The object that will hold the accessory until it is ready to attach to a 
+        /// new mount point. (Can be null, though not recommended.)
+        /// </param>
         private bool Release(Transform toStorage)
         {
             CheckInitialize();

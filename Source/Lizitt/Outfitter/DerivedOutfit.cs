@@ -86,11 +86,17 @@ namespace com.lizitt.outfitter
 
         #region Mount Points & Accessories
 
+        /// <summary>
+        /// <see cref="BodyOutfit.AccessoriesLimited"/>
+        /// </summary>
         public sealed override bool AccessoriesLimited
         {
             get { return m_AccessoriesLimited; }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.CoverageBlocks"/>
+        /// </summary>
         public sealed override BodyCoverage CoverageBlocks
         {
             get { return m_CoverageBlocks; }
@@ -100,6 +106,9 @@ namespace com.lizitt.outfitter
 
         #region Initialization
 
+        /// <summary>
+        /// <see cref="StandardOutfit.GetOutfitInfo"/>
+        /// </summary>
         protected sealed override GameObject GetOutfitInfo(out StandardOutfit.CoreOutfitInfo info)
         {
             if (!m_Prototype)
@@ -191,6 +200,9 @@ namespace com.lizitt.outfitter
             return result;
         }
 
+        /// <summary>
+        /// <see cref="StandardOutfit.CreateSurfaceCollider"/>
+        /// </summary>
         protected sealed override Collider CreateSurfaceCollider(Transform motionTransform)
         {
             if (m_ColliderSettings)

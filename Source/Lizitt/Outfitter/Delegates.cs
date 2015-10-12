@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// <summary>
     /// An action that is performed when an outfit is changed from one to another.
     /// </summary>
-    /// <param name="from">The original outfit. (May be null.)</param>
-    /// <param name="to">The outfit that is replacing <paramref name="from"/>. (May be null.)</param>
+    /// <param name="reference">The original outfit. (May be null.)</param>
+    /// <param name="to">The outfit that is replacing <paramref name="reference"/>. (May be null.)</param>
     public delegate void OutfitChange(BodyOutfit from, BodyOutfit to);
 }

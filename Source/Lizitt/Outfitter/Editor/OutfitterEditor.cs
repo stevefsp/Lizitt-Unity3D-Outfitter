@@ -24,13 +24,26 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="Outfitter"/> editor.
+    /// </summary>
     [CustomEditor(typeof(Outfitter))]
     public class OutfitterEditor
         : Editor
     {
+        /// <summary>
+        /// The standard menu priority for Outfitter related components.
+        /// </summary>
         public const int MenuPriority = 200;
+
+        /// <summary>
+        /// The standard asset label for for outfitter assets.
+        /// </summary>
         public const string AssetLabel = "Outfitter";
 
+        /// <summary>
+        /// The Editor inspector gui method.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             var targ = target as Outfitter;

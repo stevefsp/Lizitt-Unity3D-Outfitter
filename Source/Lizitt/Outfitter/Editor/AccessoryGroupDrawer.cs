@@ -25,6 +25,9 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="AccessoryGroup"/> editor.
+    /// </summary>
     [CustomPropertyDrawer(typeof(AccessoryGroup))]
     public class AccessoryGroupDrawer
         : PropertyDrawer
@@ -43,6 +46,9 @@ namespace com.lizitt.outfitter.editor
 
         private ReorderableList m_List;
 
+        /// <summary>
+        /// The PropertyDrawer property height method.
+        /// </summary>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             float items = property.FindPropertyRelative(ItemPropName).arraySize;
@@ -51,6 +57,9 @@ namespace com.lizitt.outfitter.editor
                 + (ElementHeight * Mathf.Max(1, items));
         }
 
+        /// <summary>
+        /// The PropertyDrawer on gui method.
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (m_List == null)

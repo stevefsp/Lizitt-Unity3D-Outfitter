@@ -139,7 +139,7 @@ namespace com.lizitt.outfitter
         /// Managed accessory indexer.
         /// </summary>
         /// <param name="index">The index of the accessory. 
-        /// [Limits: 0 &lt= value &lt <see cref="AccessoryCount"/>]</param>
+        /// [Limits: 0 &lt;= value &lt; <see cref="Count"/>]</param>
         /// <returns></returns>
         public BodyAccessory this[int index]
         {

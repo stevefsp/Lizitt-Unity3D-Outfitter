@@ -25,6 +25,9 @@ using System.Collections.Generic;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// Various editor utility features related to the Outfitter
+    /// </summary>
     public static class OutfitterEditorUtil
     {
         #region Outfit Type

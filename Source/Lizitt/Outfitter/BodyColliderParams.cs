@@ -41,8 +41,12 @@ namespace com.lizitt.outfitter
         [Header("Body Settings")]
 
         [SerializeField]
+        [Tooltip("The mount point the collider should be attached to.")]
         private MountPointType m_MountPoint = MountPointType.Root;
 
+        /// <summary>
+        /// The mount point the collider should be attached to.
+        /// </summary>
         public MountPointType MountPoint
         {
             get { return m_MountPoint; }
@@ -59,8 +63,12 @@ namespace com.lizitt.outfitter
         [Header("Body Settings")]
 
         [SerializeField]
+        [Tooltip("The mount point the collider should be attached to.")]
         private MountPointType m_MountPoint = MountPointType.Root;
 
+        /// <summary>
+        /// The mount point the collider should be attached to.
+        /// </summary>
         public MountPointType MountPoint
         {
             get { return m_MountPoint; }
@@ -77,8 +85,12 @@ namespace com.lizitt.outfitter
         [Header("Body Settings")]
 
         [SerializeField]
+        [Tooltip("The mount point the collider should be attached to.")]
         private MountPointType m_MountPoint = MountPointType.Root;
 
+        /// <summary>
+        /// The mount point the collider should be attached to.
+        /// </summary>
         public MountPointType MountPoint
         {
             get { return m_MountPoint; }

@@ -252,7 +252,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// If there is an outfit, this is the same as the outfit's <see cref="Outfit.MotionRoot"/>.
+        /// If there is an outfit, this is the same as the outfit's <see cref="BodyOutfit.MotionRoot"/>.
         /// If there is no outfit then this is the default motion root for the body.
         /// </para>
         /// <para>
@@ -314,11 +314,11 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Gets the specified mount point, or null if the mount point does not exist.
         /// </summary>
-        /// <param name="mountPoint">The mount point to retrieve.</param>
+        /// <param name="typ">The mount point to retrieve.</param>
         /// <returns>The specified mount point, or null if the mount point does not exist.</returns>
-        public MountPoint GetMountPoint(MountPointType type)
+        public MountPoint GetMountPoint(MountPointType typ)
         {
-            return m_Outfit ? m_Outfit.GetMountPoint(type) : null;
+            return m_Outfit ? m_Outfit.GetMountPoint(typ) : null;
         }
 
         #endregion
@@ -326,6 +326,9 @@ namespace com.lizitt.outfitter
         #region Initialization
 
         // Protected modifier required to support Unity introspection behavior.
+        /// <summary>
+        /// The standard MonoBehaviour awake method.
+        /// </summary>
         protected void Awake()
         {
             CheckInitialized();
@@ -681,8 +684,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit to apply to the body. (Can't be null.)</param>
-        /// <param name="changeCallback">The </param>
-        /// <returns>The old outfit or null on an error.</returns>
+        /// <returns>The original outfit or null on error.</returns>
         public BodyOutfit SetOutfit(BodyOutfit outfit)
         {
             if (!outfit)

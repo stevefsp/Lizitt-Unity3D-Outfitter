@@ -88,6 +88,9 @@ namespace com.lizitt.outfitter
 
         #region Initialization
 
+        /// <summary>
+        /// <see cref="OutfitterBody.GetInfo(bool)"/>
+        /// </summary>
         protected override OutfitterBody.Info GetInfo(bool instantiate)
         {
             var info = new OutfitterBody.Info();

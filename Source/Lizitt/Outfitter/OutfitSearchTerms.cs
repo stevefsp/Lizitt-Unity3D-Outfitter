@@ -94,7 +94,7 @@ namespace com.lizitt.outfitter
         /// Attemps to derive outfit settings for the specified object.
         /// </summary>
         /// <param name="rootObject">The root of the component to search.</param>
-        /// <returns>The settings derived from <see cref="rootObject"/></returns>
+        /// <returns>The settings derived from <paramref name="rootObject"/>.</returns>
         public StandardOutfit.CoreOutfitInfo DeriveStandardSettings(GameObject rootObject)
         {
             // TODO: EVAL: Sloppy and not generalized.  Worth upgrading?

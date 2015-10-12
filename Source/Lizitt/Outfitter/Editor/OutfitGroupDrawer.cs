@@ -26,6 +26,9 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="OutfitGroup"/> editor.
+    /// </summary>
     [CustomPropertyDrawer(typeof(OutfitGroup))]
     public class OutfitGroupDrawer
         : PropertyDrawer
@@ -44,6 +47,9 @@ namespace com.lizitt.outfitter.editor
 
         private ReorderableList m_PrototypeList;
 
+        /// <summary>
+        /// The PropertyDrawer property height method.
+        /// </summary>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             // Non-list fields.  List handles its own height.
@@ -51,6 +57,9 @@ namespace com.lizitt.outfitter.editor
                 + EditorGUIUtility.standardVerticalSpacing * 2;  // For extra space at bottom.
         }
 
+        /// <summary>
+        /// The PropertyDrawer on gui method.
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             label = EditorGUI.BeginProperty(position, label, property);

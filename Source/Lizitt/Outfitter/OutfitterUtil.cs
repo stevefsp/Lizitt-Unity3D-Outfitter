@@ -45,11 +45,27 @@ namespace com.lizitt.outfitter
 
         #region Extensions
 
+        /// <summary>
+        /// True if the outfit type is classified as a 'standard' outfit. 
+        /// (A long term, general use outfit.)
+        /// </summary>
+        /// <param name="typ">The outfity type to check.</param>
+        /// <returns>
+        /// True if the outfit type is classified as a 'standard' outfit. 
+        /// </returns>
         public static bool IsStandard(this OutfitType typ)
         {
             return (int)typ < (int)OutfitType.Custom;
         }
 
+        /// <summary>
+        /// True if the outfit type is classified as a 'custom' outfit. 
+        /// (A short term, special use outfit.)
+        /// </summary>
+        /// <param name="typ">The outfity type to check.</param>
+        /// <returns>
+        /// True if the outfit type is classified as a 'custom' outfit. 
+        /// </returns>
         public static bool IsCustom(this OutfitType typ)
         {
             return typ != OutfitType.None && !IsStandard(typ);

@@ -24,17 +24,26 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="BodyMaterialOverrides"/> editor.
+    /// </summary>
     [CustomPropertyDrawer(typeof(BodyMaterialOverrides))]
     [CanEditMultipleObjects]
     public sealed class BodyMaterialOverridesDrawer
         : PropertyDrawer
     {
+        /// <summary>
+        /// The PropertyDrawer property height method.
+        /// </summary>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUIUtility.singleLineHeight * 4
                 + EditorGUIUtility.standardVerticalSpacing * 5;
         }
 
+        /// <summary>
+        /// The PropertyDrawer on gui method.
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             // This flat layout looks better than the default foldout layout.

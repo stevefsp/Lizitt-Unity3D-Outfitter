@@ -24,6 +24,9 @@ using UnityEditor;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="BodyColliderSettings"/> editor.
+    /// </summary>
     public static class BodyColliderSettingsEditor
     {
         private const string MenuItemName = "Body Collider Settings";

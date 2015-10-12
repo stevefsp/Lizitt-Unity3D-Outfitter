@@ -26,6 +26,9 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="OutfitSearchTerms"/> editor.
+    /// </summary>
     [CustomEditor(typeof(OutfitSearchTerms))]
     [CanEditMultipleObjects]
     public class OutfitSearchTermsEditor
@@ -66,6 +69,9 @@ namespace com.lizitt.outfitter.editor
             }
         }
 
+        /// <summary>
+        /// The Editor inspector GUI method.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             serializedObject.Update();

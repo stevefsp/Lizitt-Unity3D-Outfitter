@@ -24,11 +24,17 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
+    /// <summary>
+    /// The <see cref="OutfitType"/> editor.
+    /// </summary>
     [CustomPropertyDrawer(typeof(OutfitTypeAttribute))]
     [CanEditMultipleObjects]
     public sealed class OutfitTypeDrawer
         : PropertyDrawer
     {
+        /// <summary>
+        /// The PropertyDrawer on gui method.
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attr = attribute as OutfitTypeAttribute;

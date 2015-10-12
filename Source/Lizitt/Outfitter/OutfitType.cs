@@ -21,6 +21,9 @@
  */
 namespace com.lizitt.outfitter
 {
+    /// <summary>
+    /// The standard outfit types.
+    /// </summary>
 	public enum OutfitType
 	{
         /* 

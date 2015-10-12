@@ -140,26 +140,41 @@ namespace com.lizitt.outfitter
         /// <returns>The surface collider.</returns>
         protected abstract Collider CreateSurfaceCollider(Transform motionTransform);
 
+        /// <summary>
+        /// <see cref="BodyOutfit.SurfaceCollider"/>
+        /// </summary>
         public sealed override Collider SurfaceCollider
         {
             get { return m_SurfaceCollider; }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.SurfaceRigidBody"/>
+        /// </summary>
         public sealed override Rigidbody SurfaceRigidBody
         {
             get { return m_SurfaceRigidBody; }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.HasBodyColliders"/>
+        /// </summary>
         public sealed override bool HasBodyColliders
         {
             get { return m_BodyColliders.Length != 0; }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.GetColliders"/>
+        /// </summary>
         public sealed override BodyCollider[] GetColliders()
         {
             return m_BodyColliders.Clone() as BodyCollider[];
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.GetCollider"/>
+        /// </summary>
         public sealed override BodyCollider GetCollider(MountPointType mountPoint)
         {
             foreach (var item in m_BodyColliders)
@@ -171,6 +186,9 @@ namespace com.lizitt.outfitter
             return null;
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.ColliderStatus"/>
+        /// </summary>
         public sealed override BodyColliderStatus ColliderStatus
         {
             get
@@ -181,6 +199,9 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.SetColliderStatus"/>
+        /// </summary>
         public sealed override void SetColliderStatus(BodyColliderStatus status)
         {
             foreach (var item in m_BodyColliders)
@@ -189,6 +210,9 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.BodyColliderLayer"/>
+        /// </summary>
         public sealed override int BodyColliderLayer
         {
             get
@@ -200,6 +224,9 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.SetBodyColliderLayer"/>
+        /// </summary>
         public sealed override void SetBodyColliderLayer(int layer)
         {
             foreach (var item in m_BodyColliders)
@@ -214,6 +241,9 @@ namespace com.lizitt.outfitter
 
         private MountPoint[] m_MountPoints = new MountPoint[0];
 
+        /// <summary>
+        /// <see cref="BodyOutfit.GetMountPoint"/>
+        /// </summary>
         public sealed override MountPoint GetMountPoint(MountPointType mountPoint)
         {
             foreach (var item in m_MountPoints)
@@ -251,6 +281,9 @@ namespace com.lizitt.outfitter
         /// <returns>The outfit's root transform.</returns>
         protected abstract GameObject GetOutfitInfo(out CoreOutfitInfo info);
 
+        /// <summary>
+        /// <see cref="BodyOutfit.OnInitializePre"/>
+        /// </summary>
         protected sealed override IEnumerable<BodyAccessory> OnInitializePre()
         {
             // Ignore local settings.
@@ -312,6 +345,9 @@ namespace com.lizitt.outfitter
             get { return m_MotionRoot; }
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.Apply"/>
+        /// </summary>
         public sealed override void Apply(BodyMaterialOverrides overrides)
         {
             m_HeadMaterial.Apply(overrides.HeadMaterial);
@@ -319,6 +355,9 @@ namespace com.lizitt.outfitter
             m_BodyMaterial.Apply(overrides.BodyMaterial);
         }
 
+        /// <summary>
+        /// <see cref="BodyOutfit.PurgeOutfitComponents"/>
+        /// </summary>
         public override void PurgeOutfitComponents()
         {
             // Note: Colliders are not considered outfit components.  So they aren't removed as

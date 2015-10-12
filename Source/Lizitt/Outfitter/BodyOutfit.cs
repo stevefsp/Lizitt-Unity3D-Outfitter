@@ -132,22 +132,22 @@ public abstract class BodyOutfit
     public abstract void SetColliderStatus(BodyColliderStatus status);
 
     /// <summary>
-    /// The status of the body colliders.
+    /// The status of the body part colliders.
     /// </summary>
     public abstract BodyColliderStatus ColliderStatus { get; }
 
     /// <summary>
-    /// True if the outfit has body colliders.
+    /// True if the outfit has body part colliders.
     /// </summary>
     public abstract bool HasBodyColliders { get; }
 
     /// <summary>
-    /// The layer of the body colliders.
+    /// The layer of the body part colliders.
     /// </summary>
     public abstract int BodyColliderLayer { get; }
 
     /// <summary>
-    /// Sets the layer of the body colliders.
+    /// Sets the layer of the body part colliders.
     /// </summary>
     /// <param name="layer"></param>
     public abstract void SetBodyColliderLayer(int layer);
@@ -167,6 +167,9 @@ public abstract class BodyOutfit
     }
 
     // Unity reflection behavior requires that this be protected.
+    /// <summary>
+    /// The standard MonoBehaviour start method.
+    /// </summary>
     protected void Start()
     {
         if (!m_IsInitialized)
@@ -216,7 +219,7 @@ public abstract class BodyOutfit
     /// Called early in the <see cref="Initialize"/> operation.
     /// </summary>
     /// <returns>
-    /// A list of all accessories to attach to outfit an initialization. (The default accessories.)
+    /// A list of all accessories that already exist on the outfit. (The default accessories.)
     /// </returns>
     protected abstract IEnumerable<BodyAccessory> OnInitializePre();
 

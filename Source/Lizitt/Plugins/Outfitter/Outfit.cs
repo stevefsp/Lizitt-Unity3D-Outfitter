@@ -1,0 +1,529 @@
+﻿/*
+ * Copyright (c) 2015-2016 Stephen A. Pratt
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+using UnityEngine;
+
+namespace com.lizitt.outfitter
+{
+    /// <summary>
+    /// A body outfit representing the physical presence of an agent.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The body outfit generally consists of the models, renderers, animators, colliders, 
+    /// and other components the represent an agents physical presence in the scene.
+    /// </para>
+    /// <para>
+    /// The functionality of an outfit can extended in one of two ways:  
+    /// Class extension and through the use of <see cref="IOutfitObservers"/>s.  
+    /// </para>
+    /// <para>
+    /// Warning: Do not make the Outfit component a required component.  I.e. Don't do this:  
+    /// [RequireComponent(typeof(Outfit))]. Doing so can prevent proper baking.
+    /// </para>
+    /// </remarks>
+    public abstract class Outfit
+        : MonoBehaviour
+    {
+        #region Core Settings
+
+        /// <summary>
+        /// The transform that is used to move the outfit. (Required, always exists.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The motion root will never be null for a valid outfit.
+        /// </para>
+        /// </remarks>
+        public abstract Transform MotionRoot { get; }
+
+        /// <summary>
+        /// The primary collider for the outfit. (Optional)
+        /// </summary>
+        public abstract Collider PrimaryCollider { get; set; }
+
+        /// <summary>
+        /// The primary rigidbody for the outfit. (Optional)
+        /// </summary>
+        public abstract Rigidbody PrimaryRigidbody { get; }
+
+        #endregion
+
+        #region Body Parts
+
+        /// <summary>
+        /// The maximum number of body parts the outfit can have. [Limit: >= 0]
+        /// </summary>
+        /// <para>
+        /// How body parts are managed and stored is implementation specific.  This value
+        /// may be fixed or dynamic. It may represent a true buffer size, or simply the number
+        /// of currently avaiable body parts.
+        /// </para>
+        public abstract int BodyPartBufferSize { get; }
+
+        /// <summary>
+        /// The body part at the specified index, or null if there is none.
+        /// </summary>
+        /// <param name="index">
+        /// The index. [0 &lt;= value &lt <see cref="BodyPartBufferSize"/>]
+        /// </param>
+        /// <returns>
+        /// The body part at the specified index, or null if there is none.
+        /// </returns>
+        public abstract BodyPart GetBodyPart(int index);
+
+        /// <summary>
+        /// True if there is at least one body part.
+        /// </summary>
+        public abstract bool HasBodyParts { get; }
+
+        /// <summary>
+        /// Gets the body part associated with the specified type, or null if there is none.
+        /// </summary>
+        /// <param name="typ">The type.</param>
+        /// <returns>
+        /// The body part associated with the specified type, or null if there is none.
+        /// </returns>
+        public abstract BodyPart GetBodyPart(BodyPartType typ);
+
+        /// <summary>
+        /// The current status of the body parts.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// 'Disabled' if there are no body parts.
+        /// </para>
+        /// <para>
+        /// This value is valid only if <see cref="ApplyBodyPartStatus"/> is used to 
+        /// manage the body part status.
+        /// </para>
+        /// </remarks>
+        public abstract ColliderStatus BodyPartStatus { get; }
+
+        /// <summary>
+        /// Applies the colider status to all body parts.
+        /// </summary>
+        /// <param name="status">The desired status.</param>
+        public abstract void ApplyBodyPartStatus(ColliderStatus status);
+
+        /// <summary>
+        /// The layer of the body parts.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The default layer if there are no body parts.
+        /// </para>
+        /// <para>
+        /// This value is valid only if <see cref="ApplyBodyPartLayer"/> is used to 
+        /// manage the body parts layer.
+        /// </para>
+        /// </remarks>
+        public abstract int BodyPartLayer { get; }
+
+        /// <summary>
+        /// Applies the layer all body parts.
+        /// </summary>
+        /// <param name="layer">The layer id.</param>
+        public abstract void ApplyBodyPartLayer(int layer);
+
+        #endregion
+
+        #region Mount Points & Accessories
+
+        /// <summary>
+        /// If true, only accessories marked to ignore this flag can be successfully attached.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The purpose of this flag is to allow an outfit to be marked as not appropriate for
+        /// most accessories.  Consider a full body space suit.  It is normally not appropriate
+        /// for hats, glasses, etc. to be mounted to such an outfit.  So it is marked as limited.
+        /// </para>
+        /// </remarks>
+        public abstract bool AccessoriesLimited { get; set; }
+
+        /// <summary>
+        /// The built-in coverage blocks for the outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Built-in coverage blocks represent blocks owned by the outfit rather than accessories.
+        /// Accessories that have coverage that overlaps the blocks will normally no be allowed
+        /// to mount.
+        /// </para>
+        /// <para>
+        /// Example:  An outfit with a built-in hat will have coverage blocks for the top of the 
+        /// head.
+        /// </para>
+        /// </remarks>
+        public abstract BodyCoverage CoverageBlocks { get; set; }
+
+        /// <summary>
+        /// The combined coverage from both <see cref="CoverageBlocks"/> and accessory coverage.
+        /// </summary>
+        public abstract BodyCoverage CurrentCoverage { get; }
+
+        /// <summary>
+        /// True if the there is a least one mount point.
+        /// </summary>
+        public abstract bool HasMountPoints { get; }
+
+        /// <summary>
+        /// The maximum number of mount points the outfit can have.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// How mount points are managed and stored is implementation specific.  This value
+        /// may be fixed or dynamic. It may represent a true buffer size, or simply the number
+        /// of currently avaiable mount points.
+        /// </para>
+        /// </remarks>
+        public abstract int MountPointBufferSize { get; }
+
+        /// <summary>
+        /// Get the mount point at the specified index, or null if there is none.
+        /// </summary>
+        /// <para>
+        /// Depending on the implementation, an index location may contain a null value.
+        /// </para>
+        /// <param name="index">
+        /// The index. [0 &lt;= value &lt; <see cref="MountPointBufferSize"/>
+        /// </param>
+        /// <returns>
+        /// The mount point at the specified index, or null if there is none.
+        /// </returns>
+        public abstract MountPoint GetMountPoint(int index);
+
+        /// <summary>
+        /// Gets the specified mount point, or null if there is none.
+        /// </summary>
+        /// <param name="locationType">The mount location.</param>
+        /// <returns>The specified mount point, or null if there is none.</returns>
+        public abstract MountPoint GetMountPoint(MountPointType locationType);
+
+        /// <summary>
+        /// The number of accessories mounted to the outfit.
+        /// </summary>
+        public abstract int AccessoryCount { get; }
+
+        /// <summary>
+        /// Get the accessory at the specified index.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The return value will always be non-null unless the accessory is improperly destroyed
+        /// while mounted.
+        /// </para>
+        /// </remarks>
+        /// <param name="index">The index. [0 &lt;= value &lt; <see cref="AccessoryCount"/>]</param>
+        /// <returns>The accessory at the specified index.</returns>
+        public abstract Accessory GetAccessory(int index);
+
+        /// <summary>
+        /// Mount the accessory to the specified location.
+        /// </summary>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <param name="locationType">The location to mount the accessory to.</param>
+        /// <param name="ignoreRestrictions">
+        /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
+        /// </param>
+        /// <param name="priorityMounter">The mounter that should be tried before any other
+        /// mounters.  (A custom mounter.)  (Optional)</param>
+        /// <param name="additionalCoverage">
+        /// Coverage to add to the accessory if it is successfully mounted, above and beyond any 
+        /// coverage inherent in the accessory.
+        /// </param>
+        /// <returns>The result of the mount attempt.</returns>
+        public abstract MountStatus Mount(Accessory accessory, MountPointType locationType,
+            bool ignoreRestrictions, AccessoryMounter priorityMounter, 
+            BodyCoverage additionalCoverage);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+
+        /// <summary>
+        /// Mount the accessory to the specified location.
+        /// </summary>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <param name="locationType">The location to mount the accessory to.</param>
+        /// <param name="ignoreRestrictions">
+        /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
+        /// </param>
+        /// <param name="priorityMounter">The mounter that should be tried before any other
+        /// mounters.  (A custom mounter.)  (Optional)</param>
+        /// <returns>The result of the mount attempt.</returns>
+        public MountStatus Mount(Accessory accessory, MountPointType locationType,
+            bool ignoreRestrictions, AccessoryMounter priorityMounter)
+        {
+            return Mount(accessory, locationType, ignoreRestrictions, priorityMounter, 0);
+        }
+
+        /// <summary>
+        /// Mount the accessory to the specified location.
+        /// </summary>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <param name="locationType">The location to mount the accessory to.</param>
+        /// <param name="ignoreRestrictions">
+        /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
+        /// </param>
+        /// <returns>The result of the mount attempt.</returns>
+        public MountStatus Mount(Accessory accessory, MountPointType locationType,
+            bool ignoreRestrictions)
+        {
+            return Mount(accessory, locationType, ignoreRestrictions, null, 0);
+        }
+
+        /// <summary>
+        /// Mount the accessory to the specified location.
+        /// </summary>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <param name="locationType">The location to mount the accessory to.</param>
+        /// <returns>The result of the mount attempt.</returns>
+        public MountStatus Mount(Accessory accessory, MountPointType locationType)
+        {
+            return Mount(accessory, locationType, false, null, 0);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Unmount the accessory from the outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// An unmount operation will always succeed if the accessory is currently mounted to the
+        /// outfit.
+        /// </para>
+        /// </remarks>
+        /// <param name="accessory">The accessory. (Required.)</param>
+        /// <param name="priorityMounter">
+        /// The mounter that should be tried before any other mounters.  (A custom unmounter.)  
+        /// (Optional)
+        /// </param>
+        /// <returns>
+        /// True if an unmount occurred, false if the accessory is not known to the outfit.
+        /// </returns>
+        public abstract bool Unmount(Accessory accessory, AccessoryMounter priorityMounter);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+
+        /// <summary>
+        /// Unmount the accessory from the outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// An unmount operation will always succeed if the accessory is currently mounted to the
+        /// outfit.
+        /// </para>
+        /// </remarks>
+        /// <param name="accessory">The accessory. (Required.)</param>
+        /// <returns>
+        /// True if an unmount occurred, false if the accessory is not known to the outfit.
+        /// </returns>
+        public bool Unmount(Accessory accessory)
+        {
+            return Unmount(accessory, null);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        #endregion
+
+        #region Observers
+
+        /// <summary>
+        /// Add the specified event observer.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// All standard implementations require the observer to be a Unity Object for
+        /// serialization purposes, so it is acceptable for an outfit to reject an observer.  An
+        /// error message will be logged if an observer is rejected.
+        /// </para>
+        /// </para>
+        /// <para>
+        /// An observer can only be added once.
+        /// </para>
+        /// </remarks>
+        /// <param name="observer">The observer to add. (Required)</param>
+        /// <returns>
+        /// True if the observer was accepted or already added.  False if the observer was rejected.
+        /// </returns>
+        public abstract bool AddObserver(IOutfitObserver observer);
+
+        /// <summary>
+        /// Remove the specified event listener.
+        /// </summary>
+        /// <param name="observer">The observer to remove. (Required)</param>
+        public abstract void RemoveObserver(IOutfitObserver observer);
+
+        #endregion
+
+        #region Renderers
+
+        /// <summary>
+        /// The outfit's blend shape renderer. (Optional)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// An outfit can only support a single blend shape renderer.
+        /// </para>
+        /// </remarks>
+        public abstract SkinnedMeshRenderer BlendShapeRenderer { get; set; }
+
+        /// <summary>
+        /// True if the material is defined and can be set.
+        /// </summary>
+        /// <param name="typ">The material type.</param>
+        /// <returns>True if the material is defined and can be set.</returns>
+        public abstract bool IsMaterialDefined(OutfitMaterialType typ);
+
+        /// <summary>
+        /// Gets the specified shared material, or null if it is not defined.
+        /// </summary>
+        /// <param name="typ">The material type.</param>
+        /// <returns>
+        /// The specified shared material, or null if it is not defined.
+        /// </returns>
+        public abstract Material GetSharedMaterial(OutfitMaterialType typ);
+
+        /// <summary>
+        /// Sets the specified shared material.
+        /// </summary>
+        /// <param name="typ">The material type.</param>
+        /// <param name="material">The material to apply. (Required.)</param>
+        /// <returns>True if the material was successfully applied.</returns>
+        public abstract int ApplySharedMaterial(OutfitMaterialType typ, Material material);
+
+        #endregion
+
+        #region Pooling
+        //TODO: POOLING
+
+
+        //public abstract PoolingType PoolingType { get; set; }
+        //public abstract void SetPoolingType(PoolingType value, bool safe = true);
+
+        //public abstract int PoolingId { get; set; }  // Don't use 'group' in the name.  That is a pooling type.
+
+        #endregion
+
+        #region Miscellaneous
+
+        /// <summary>
+        /// True if the outfit is in a valid state.
+        /// </summary>
+        public abstract bool IsOutfitValid();
+
+        /// <summary>
+        /// Bake the outfit into a non-outfit static state and self delete the outfit component.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Important: This method must only be called by the owner of the outfit.
+        /// </para>
+        /// </remarks>
+        /// <param name="reference">
+        /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.)
+        /// Or null if the outfit has no known source.
+        /// </param>
+        public abstract void Bake(Outfit reference);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+
+        /// <summary>
+        /// Bake the outfit into a non-outfit static state and self delete the outfit component.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Important: This method must only be called by the owner of the outfit.
+        /// </para>
+        /// </remarks>
+        public void Bake()
+        {
+            Bake(null);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        #endregion
+
+        #region Utilities
+
+        /// <summary>
+        /// Performs a standard search of the outfit for an Animator.
+        /// </summary>
+        /// <remarks>
+        /// <para>An animator attached to the outfit's motion root takes precidence.</para>
+        /// </remarks>
+        /// <returns>The outfit's animator, or null if none was found.</returns>
+        public Animator GetAnimator()
+        {
+            Animator result = null;
+
+            if (MotionRoot)
+                result = MotionRoot.GetComponent<Animator>();
+
+            return result ? result : GetComponentInChildren<Animator>();
+        }
+
+        /// <summary>
+        /// Implements a safe, standard way of setting an outfits's primary collider layer, 
+        /// if the collider exists.
+        /// </summary>
+        /// <param name="outfit">The outit. (Required)</param>
+        /// <param name="layer">The desired primary collider layer.</param>
+        /// <returns>The clamped layer.</returns>
+        public static int SetPrimaryColliderLayer(Outfit outfit, int layer)
+        {
+            layer = Mathf.Max(0, layer);
+
+            if (outfit && outfit.PrimaryCollider)
+            {
+                outfit.PrimaryCollider.gameObject.layer = layer;
+                return outfit.PrimaryCollider.gameObject.layer;
+            }
+
+            return layer;
+        }
+
+        /// <summary>
+        /// Implements a safe, standard way of setting a the outfit's body part layers, 
+        /// if any body parts exist.
+        /// </summary>
+        /// <param name="outfit">The outit. (Required)</param>
+        /// <param name="layer">The desired layer.</param>
+        /// <returns>The clamped layer.</returns>
+        public static int SetBodyPartLayer(Outfit outfit, int layer)
+        {
+            layer = Mathf.Max(0, layer);
+
+            if (outfit)
+                outfit.ApplyBodyPartLayer(layer);
+
+            return layer;
+        }
+
+        #endregion
+    }
+}

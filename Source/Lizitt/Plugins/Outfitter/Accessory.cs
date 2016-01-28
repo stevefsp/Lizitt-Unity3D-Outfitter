@@ -28,19 +28,19 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Accessories are usually components meant to be attached to outfit mount points.  But
-    /// an accessory can be attached to any mount point, no matter the owner.  Accessories can
+    /// Accessories are any game object that needs to be attached to a mount point.  They can
     /// be visible, such as a hat, sun glasses, a baseball bat, etc.  Or they can be
-    /// purely functional such as a perception system.
+    /// purely functional such as a perception system. Accessories are usually components meant 
+    /// to be attached to outfits.  But an accessory can be attached to any mount point, no matter 
+    /// the owner.  
     /// </para>
     /// <para>
-    /// The functionality of an Accessory component can extended in one of two ways:  
+    /// The functionality of an Accessory can extended in one of two ways:  
     /// Class extension and through the use of <see cref="IAccessoryObserver"/>s.  
     /// </para>
     /// <para>
-    /// Warning: Do not make Accessory classes a required component of other components. 
-    /// I.e. Don't do this:  [RequireComponent(typeof(Accessory))]. Doing so can prevent proper 
-    /// baking.
+    /// Warning: Do not make the Accessory component a required component.  I.e. Don't do this:  
+    /// [RequireComponent(typeof(Accessory))]. Doing so can prevent proper baking.
     /// </para>
     /// </remarks>
     public abstract class Accessory
@@ -50,31 +50,6 @@ namespace com.lizitt.outfitter
         /// The current accessory status.
         /// </summary>
         public abstract AccessoryStatus Status { get; }
-
-        /// <summary>
-        /// Add the specified event observer.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// All standard implementations require the observer to be a Unity Object, so it is
-        /// acceptable for an accessory to reject an observer.  The accessory will post
-        /// an error to the console if it rejects an accessory.
-        /// </para>
-        /// <para>
-        /// An observer will only be added once.
-        /// </para>
-        /// </remarks>
-        /// <param name="observer">The observer to add. (Required)</param>
-        /// <returns>
-        /// True if the observer was accepted or already added.  False if the observer was rejected.
-        /// </returns>
-        public abstract bool AddObserver(IAccessoryObserver observer);
-
-        /// <summary>
-        /// Remove the specified event listener.
-        /// </summary>
-        /// <param name="observer">The observer to remove.</param>
-        public abstract void RemoveObserver(IAccessoryObserver observer);
          
         /// <summary>
         /// The location the accessory is mounted to, or null if not mounted.  (Mount operation
@@ -101,20 +76,10 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="locationType">The mount location.</param>
-        /// <returns>True if the accessory is currently attached to the specified mount location.</returns>
+        /// <returns>
+        /// True if the accessory is currently attached to the specified mount location.
+        /// </returns>
         public abstract bool IsMountedTo(MountPointType locationType);
-
-        /// <summary>
-        /// The coverage for the current mount point, or zero if not mounted.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// An accessory does not have to have coverage.  So this may have a value of zero even
-        /// when mounted.  It will only have a non-zero value if <see cref="Status"/> is
-        /// 'mounted' or 'mounting'.
-        /// </para>
-        /// </remarks>
-        public abstract BodyCoverage CurrentCoverage { get; }
 
         /// <summary>
         /// If true, the accessory can be attached to a mount point no matter the value of
@@ -137,14 +102,44 @@ namespace com.lizitt.outfitter
         public abstract bool IgnoreLimited { get; set; }
 
         /// <summary>
-        /// True if the accessory can be mounted to the specified location without violating the
+        /// The coverage for the current mount point, or zero if not mounted.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// An accessory does not have to have coverage.  So this may have a value of zero even
+        /// when mounted.  It will only have a non-zero value if <see cref="Status"/> is
+        /// 'mounted' or 'mounting'.
+        /// </para>
+        /// </remarks>
+        public abstract BodyCoverage CurrentCoverage { get; }
+
+        /// <summary>
+        /// The body coverage of the accessory when attached to the specified location.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Will return zero if either the accessory has no coverage when mounted to the location, 
+        /// or it can't mount to the specified location at all.  (See: <see cref="CanMount"/>)
+        /// </para>
+        /// </remarks>
+        /// <param name="locationType">The mount location.</param>
+        /// <returns>
+        /// The body coverage of the accessory when attached to the specified mount point.
+        /// </returns>
+        /// <seealso cref="CanMount"/>
+        public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
+
+        /// <summary>
+        /// True if the accessory can be mounted to the location without violating the
         /// specified coverage restrictions.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Many accessories have different coverage for different mount points.  In such
-        /// cases, the <paramref name="restrictions"/> allows the accessory to evaluate
-        /// whether it should be mounted to the specified location.
+        /// When an accessory can mount to multiple locations it will often have different 
+        /// coverage for each location.  In such cases, the <paramref name="restrictions"/> 
+        /// allows the accessory to evaluate whether it should be mounted to the specified location.
+        /// This method will return false if the accessory's coverage for the location overlaps 
+        /// with <paramref name="restrictions"/>. 
         /// </para>
         /// </remarks>
         /// <param name="locationType">The desired location.</param>
@@ -159,14 +154,13 @@ namespace com.lizitt.outfitter
         // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
 
         /// <summary>
-        /// True if the accessory can be mounted to the specified location, ignoring any coverage
-        /// restrictions.
+        /// True if the accessory can be mounted to the specified location, without regard for
+        /// coverage restrictions.
         /// </summary>
         /// <param name="locationType">The desired location.</param>
-        /// <param name="restrictions">Disallowed body coverage.</param>
         /// <returns>
-        /// True if the accessory can mount to the specified location, ignoring coverage
-        /// restrictions.
+        /// True if the accessory can mount to the specified location,  without regard for
+        /// coverage restrictions.
         /// </returns>
         public bool CanMount(MountPointType locationType)
         {
@@ -176,39 +170,30 @@ namespace com.lizitt.outfitter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// The body coverage of the accessory when attached to the specified location.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Will return zero if either the accessory has no coverage for the location, or it
-        /// can't mount to the specified location at all.
-        /// </para>
-        /// </remarks>
-        /// <param name="locationType">The mount location.</param>
-        /// <returns>
-        /// The body coverage of the accessory when attached to the specified mount point.
-        /// </returns>
-        public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
-
-        /// <summary>
         /// Mount the accessory to the specified mount point.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is guarenteed to return true if <see cref="CanMount"/> returns true and
+        /// This method is guarenteed to succeed if <see cref="CanMount"/> returns true and
         /// no <paramref name="priorityMounter"/> is used. But it is valid to use a call to this
         /// method without pre-checking mountability. E.g. As an optimitation, it is valid to
         /// simply call this method on a list of all available accessories to let the accessory 
-        /// decide whether or not it can attach.
+        /// decide whether or not it can mount.
+        /// </para>
+        /// <para>
+        /// A null <paramref name="location"/> will result in an unmount.
         /// </para>
         /// <para>
         /// <paramref name="additionalCoverage"/> is useful in situations where an accessory 
-        /// uses a generic mounter that doesn't provide coverage information.
+        /// uses a generic mounter that doesn't provide coverage information.  On a successful
+        /// mount the additional coverage will be added to the coverage
+        /// supplied by the mounter or built into the accessory.
         /// </para>
         /// </remarks>
-        /// <param name="location">The mount location.</param>
+        /// <param name="location">The mount point.</param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (Essentially, a custom mounter.)
+        /// The mounter to attempt to use before any others are tried.  (A custom mounter.)
+        /// (Optional)
         /// </param>
         /// <param name="additionalCoverage">
         /// Additional coverage to apply on a successful mount, above and beyond the coverage
@@ -230,14 +215,17 @@ namespace com.lizitt.outfitter
         /// no <paramref name="priorityMounter"/> is used. But it is valid to use a call to this
         /// method without pre-checking mountability. E.g. As an optimitation, it is valid to
         /// simply call this method on a list of all available accessories to let the accessory 
-        /// decide whether or not it can attach.
+        /// decide whether or not it can mount.
         /// </para>
-        /// <param name="location">The mount location.</param>
+        /// <para>
+        /// A null <paramref name="location"/> will result in an unmount.
+        /// </para>
+        /// <param name="location">The mount point.</param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (Essentially, a custom mounter.)
+        /// The mounter to attempt to use before any others are tried.  (A custom mounter.)
+        /// (Optional)
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-
         public bool Mount(MountPoint location, AccessoryMounter priorityMounter)
         {
             return Mount(location, priorityMounter, 0);
@@ -251,14 +239,13 @@ namespace com.lizitt.outfitter
         /// This method is guarenteed to return true if <see cref="CanMount"/> returns true.
         /// But it is valid to use a call to this method without pre-checking mountability. 
         /// E.g. As an optimitation, it is valid to simply call this method on a list of all
-        /// available accessories to let the accessory decide whether or not it can attach.
+        /// available accessories to let the accessory decide whether or not it can mount.
         /// <para>
-        /// <paramref name="additionalCoverage"/> is useful in situations where an accessory 
-        /// uses a generic mounter that doesn't provide coverage information.
+        /// <para>
+        /// A null <paramref name="location"/> will result in an unmount.
         /// </para>
-        /// <param name="location">The mount location.</param>
+        /// <param name="location">The mount point.</param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-
         public bool Mount(MountPoint location)
         {
             return Mount(location, null, 0);
@@ -270,11 +257,13 @@ namespace com.lizitt.outfitter
         /// Unmount the accessory from its current location.
         /// </summary>
         /// <remarks>
+        /// <para>
         /// An unmount operation will always succeed.  A false return value indicates that an
         /// unmount was not necessary.
+        /// </para>
         /// </remarks>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (Essentially, a custom unmounter.)
+        /// The mounter to attempt before any others are tried.  (A custom unmounter.) (Optional)
         /// </param>
         /// <returns>True if the mount status of the accessory has changed.</returns>
         public abstract bool Unmount(AccessoryMounter priorityMounter);
@@ -313,8 +302,8 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <returns>
-        /// True if already in the stored state, or if the transition to the stored
-        /// state was successful.
+        /// True if the transition to the 'stored' state was successful, or the accessory is
+        /// already in the 'stored' state.
         /// </returns>
         public abstract bool Store();
 
@@ -333,7 +322,32 @@ namespace com.lizitt.outfitter
         public abstract bool Unstore();
 
         /// <summary>
-        /// Request the accessory bake itself for use as a static, non-accessory object.
+        /// Add the specified event observer.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// All standard implementations require the observer to be a Unity Object for
+        /// serialization, so it is acceptable for an accessory to reject an observer.  An
+        /// error message will be logged if an observer is rejected.
+        /// </para>
+        /// <para>
+        /// An observer can only be added once.
+        /// </para>
+        /// </remarks>
+        /// <param name="observer">The observer to add. (Required)</param>
+        /// <returns>
+        /// True if the observer was accepted or already added.  False if the observer was rejected.
+        /// </returns>
+        public abstract bool AddObserver(IAccessoryObserver observer);
+
+        /// <summary>
+        /// Remove the specified event observer.
+        /// </summary>
+        /// <param name="observer">The observer to remove.</param>
+        public abstract void RemoveObserver(IAccessoryObserver observer);
+
+        /// <summary>
+        /// Bake the accessory for use as a static, non-accessory object.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -342,10 +356,10 @@ namespace com.lizitt.outfitter
         /// happens when baking the outfit the accessory is attached to.
         /// </para>
         /// <para>
-        /// It is a valid behavior for an accessory to simply auto-unmount as a result of a bake
-        /// request.  This supports situations where an accessory is semi-independant.
-        /// E.g. A fairy that is fluttering around an outfit's head.  A bake (a.k.a death)
-        /// of the outfit results in the fairy being freed.
+        /// It is a valid behavior for an accessory to reject the bake and simply auto-unmount 
+        /// as a result of a bake request.  This supports situations where an accessory is 
+        /// semi-independant. E.g. A fairy that is fluttering around an outfit's head.  
+        /// A bake (a.k.a death) of the agent results in the fairy being freed.
         /// </para>
         /// <para>
         /// The accessory component is responsible for destroying itself as appropriate.  So

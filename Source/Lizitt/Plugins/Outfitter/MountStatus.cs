@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2015 Stephen A. Pratt
+ * Copyright (c) 2015-2016 Stephen A. Pratt
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ namespace com.lizitt.outfitter
         Success = 1,
 
         /// <summary>
-        /// Not immediately added.  Stored for a later attempt.
+        /// Not immediately added.  Stored for a later attempt.  (Transfer of ownership succeeded.)
         /// </summary>
         /// <remarks>
         /// <para>
@@ -62,15 +62,14 @@ namespace com.lizitt.outfitter
         LocationBlocked,
 
         /// <summary>
-        /// Failed: Accessory rejected mount.  (E.g. No mounter available for location or state.)
+        /// Failed: Accessory rejected mount.  
+        /// (E.g. No mounter available for location and/or state.)
         /// </summary>
         RejectedByAccessory,
 
         /// <summary>
-        /// Failed due to an error.  (Must succeed but no outfit, invalid arguments, etc.)
+        /// Failed due to an error.
         /// </summary>
         FailedOnError,
-
-
     }
 }

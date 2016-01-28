@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// All accessories are required to support custom mounters.  But not all accessories use
-    /// mounters.  Some have mount capatilities built in.
+    /// mounters.  Some have built-in mount capatilities.
     /// </para>
     /// <para>
     /// A specific mounter may only be able to mount an accessory to a single location, or 
@@ -44,18 +44,20 @@ namespace com.lizitt.outfitter
         : MonoBehaviour
     {
         /// <summary>
-        /// The coverage of the accessory when it is attached to the specified location.
+        /// The coverage of the accessory when it is attached to the specified location using the
+        /// mounter.
         /// </summary>
         /// <remarks>
         /// <para>
         /// Will return zero if either the accessory will have no coverage for the location, or the
-        /// mounter can never mount to the specified location.
+        /// mounter can never mount to the specified location. (See: <see cref="CanMount"/>)
         /// </para>
         /// </remarks>
         /// <param name="locationType">The mount location</param>
         /// <returns>
         /// The coverage of the accessory when it is attached to the specified mount point.
         /// </returns>
+        /// <seealso cref="CanMount"/>
         public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
 
         /// <summary>
@@ -72,11 +74,10 @@ namespace com.lizitt.outfitter
         /// to the right hand, or the mount location is not the upper back.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to check.</param>
+        /// <param name="accessory">The accessory to check. (Required)</param>
         /// <param name="locationType">The mount location.</param>
         /// <returns>
-        /// True if the mounter can be used to mount the accessory to the specified 
-        /// location.
+        /// True if the mounter can be used to mount the accessory to the specified location.
         /// </returns>
         public abstract bool CanMount(Accessory accessory, MountPointType locationType);
 
@@ -91,11 +92,12 @@ namespace com.lizitt.outfitter
         /// the accessory is not supported.  Etc.
         /// </para>
         /// <para>
-        /// Accessories are always required to self-unmount.  Mounters can be used for unmounting
-        /// when custom behavior is required.
+        /// Accessories are always required to provide built-in unmount capabilities.  (An unmount
+        /// can never fail.)  But using a mounter to perform an unmount allows implementation of
+        /// custom behavior.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to check.</param>
+        /// <param name="accessory">The accessory to check. (Required)</param>
         /// <returns>
         /// True if the mounter can be used to unmount the accessory.
         /// </returns>
@@ -112,13 +114,13 @@ namespace com.lizitt.outfitter
         /// </para>
         /// <para>
         /// This method is guarenteed to return true if <see cref="CanMount"/> or 
-        /// <see cref="CanUnmount"/> (as appropriate) returned true.  But it is
+        /// <see cref="CanUnmount"/> (as appropriate) return true.  But it is
         /// valid to use a call to this method without pre-checking mountability.  E.g. As an
         /// optimitation, it is valid to simply call this method on a list of all available 
         /// mounters until one succeeds or all fail.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to mount/unmount.</param>
+        /// <param name="accessory">The accessory to mount/unmount. (Required)</param>
         /// <param name="location">The mount location, or null to unmount.</param>
         /// <returns>
         /// True if initialization was successful.  False if the mount operation is not supported.
@@ -132,10 +134,10 @@ namespace com.lizitt.outfitter
         /// <para>
         /// <see cref="InitializeMount"/> must be called and return true before calling this
         /// method, then either this method must be called through to completion or 
-        /// <see cref="CancelMount"/> used to cancel the process.
+        /// <see cref="CancelMount"/> used to cancel the operation.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory mount operation to update.</param>
+        /// <param name="accessory">The accessory mount operation to update. (Required)</param>
         /// <param name="location">The mount location, or null to unmount.</param>
         /// <returns>
         /// True while the mount operation is in-progress.  False when the operation is
@@ -153,7 +155,7 @@ namespace com.lizitt.outfitter
         /// cancellation is implementation dependant.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to update.</param>
+        /// <param name="accessory">The accessory to update. (Required)</param>
         /// <param name="location">The mount location, or null for unmount operations.</param>
         public abstract void CancelMount(Accessory accessory, MountPoint location);
 
@@ -169,10 +171,10 @@ namespace com.lizitt.outfitter
         /// completely.
         /// </para>
         /// <para>
-        /// Override this method in order to replace or extend its default behavior.
+        /// Override this method in order to replace or extend the default behavior.
         /// </para>
         /// </remarks>
-        /// <param name="gameObject">The mounter owner's GameObject.</param>
+        /// <param name="gameObject">The mounter owner's GameObject. (Required)</param>
         public virtual void BakePost(GameObject gameObject)
         {
             if (gameObject == this.gameObject)

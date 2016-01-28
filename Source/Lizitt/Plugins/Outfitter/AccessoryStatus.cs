@@ -19,8 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
-
 namespace com.lizitt.outfitter
 {
     /// <summary>
@@ -34,22 +32,22 @@ namespace com.lizitt.outfitter
         NotMounted = 0,
 
         /// <summary>
-        /// The accessory is attached to a mount point.
+        /// The accessory is attached to a mount point. (Mounted and managed.)
         /// </summary>
         Mounted,
 
         /// <summary>
-        /// The accessory is transitioning to 'mounted'. (Mount in progress.)
+        /// The accessory is transitioning to 'mounted'. (Mount in progress, managed.)
         /// </summary>
         Mounting,
 
         /// <summary>
-        /// The accessory is transitioning to 'not mounted'. (Unmount in progress.)
+        /// The accessory is transitioning to 'not mounted'. (Unmount in progress, not managed.)
         /// </summary>
         Unmounting,
 
         /// <summary>
-        /// The accessory is inactive and managed.  (Not mounted, owned/managed.)
+        /// The accessory is stored/inactive.  (Not mounted, managed.)
         /// </summary>
         Stored,
 

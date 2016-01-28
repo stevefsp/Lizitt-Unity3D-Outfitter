@@ -24,14 +24,16 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// An mount point to which accessories can be attached.
+    /// A mount point to which items, such as accessories, can be attached.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// While mount points are normally associated with an Outfit, the owner may any Component
-    /// or GameObject.
+    /// While mount points are normally associated with an <see cref="Outfit"/>, the owner 
+    /// may any Component or GameObject.
     /// </para>
     /// </remarks>
+    /// <seealso cref="Accessory"/>
+    /// <seealso cref="AccessoryMounterGroup"/>
     public class MountPoint
         : MonoBehaviour
     {
@@ -57,9 +59,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is a data field meant for use by custom accessories and mounters.  It provides 
-        /// a target to search for needed components.   E.g. Detecting the status of the outfit
-        /// that owns the mount point.
+        /// This is an informational field.  It can be set to provide information to users of
+        /// the mount point, such as accessories and mounters.
         /// </para>
         /// </remarks>
         public GameObject Owner
@@ -77,10 +78,10 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is a hint.  How accessories, mounters, and the mount point's owner handles
+        /// This is a hint.  How outfits, accessories, and mounters handle
         /// this flag is implementation specific.  The general rule is that the component
-        /// responsbile for asking an accessory to mount to the mount point is responsible 
-        /// for first checking the blocked status.
+        /// responsbile for asking an accessory to mount to a mount point is responsible 
+        /// for first checking and responding to its blocked status.
         /// </para>
         /// </remarks>
         public bool IsBlocked

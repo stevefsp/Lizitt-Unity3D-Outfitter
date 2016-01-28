@@ -28,8 +28,9 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most accessories require this interface to be implemented by a Component so its association
-    /// to the accessory can be properly serialized.
+    /// Most accessories require this interface to be implemented by a Unity Object for
+    /// serialization purposes.  So accessories are allowed to  reject observers that are not 
+    /// Unity Objects.
     /// </para>
     /// </remarks>
     public interface IAccessoryObserver
@@ -46,16 +47,24 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is called before the accessory it becomes invalid.
+        /// This method is called before the accessory performs any of its internal bake 
+        /// operations, but whether or not an accessory feature is still useable depends on
+        /// the call order of the observers.
         /// </para>
-        /// </remarks>
         /// <param name="sender">The accessory that is being baked.</param>
         void OnBake(Accessory sender);
 
         /// <summary>
-        /// Process an accessory post-bake event.  (The accessory is no longer avaiable.)
+        /// Perform post bake operations.  (The accessory component is no longer available.)
         /// </summary>
-        /// <param name="sender">The original accessory's GameObject.</param>
+        /// <remarks>
+        /// <para>
+        /// This method is called after the acessory is no longer valid.  Its purpose is to 
+        /// allow components that depend on the accessory to clean themselves up.  
+        /// (E.g. Self destroy.)
+        /// </para>
+        /// </remarks>
+        /// <param name="outfit">The baked outfit's GameObject.</param>
         void OnBakePost(GameObject sender);
     }
 }

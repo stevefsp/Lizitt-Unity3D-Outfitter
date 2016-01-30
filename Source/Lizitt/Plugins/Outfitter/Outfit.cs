@@ -80,6 +80,11 @@ namespace com.lizitt.outfitter
         public abstract int BodyPartBufferSize { get; }
 
         /// <summary>
+        /// True if there is at least one body part.
+        /// </summary>
+        public abstract bool HasBodyParts { get; }
+
+        /// <summary>
         /// The body part at the specified index, or null if there is none.
         /// </summary>
         /// <param name="index">
@@ -91,11 +96,6 @@ namespace com.lizitt.outfitter
         public abstract BodyPart GetBodyPart(int index);
 
         /// <summary>
-        /// True if there is at least one body part.
-        /// </summary>
-        public abstract bool HasBodyParts { get; }
-
-        /// <summary>
         /// Gets the body part associated with the specified type, or null if there is none.
         /// </summary>
         /// <param name="typ">The type.</param>
@@ -105,38 +105,10 @@ namespace com.lizitt.outfitter
         public abstract BodyPart GetBodyPart(BodyPartType typ);
 
         /// <summary>
-        /// The current status of the body parts.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// 'Disabled' if there are no body parts.
-        /// </para>
-        /// <para>
-        /// This value is valid only if <see cref="ApplyBodyPartStatus"/> is used to 
-        /// manage the body part status.
-        /// </para>
-        /// </remarks>
-        public abstract ColliderStatus BodyPartStatus { get; }
-
-        /// <summary>
         /// Applies the colider status to all body parts.
         /// </summary>
         /// <param name="status">The desired status.</param>
         public abstract void ApplyBodyPartStatus(ColliderStatus status);
-
-        /// <summary>
-        /// The layer of the body parts.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The default layer if there are no body parts.
-        /// </para>
-        /// <para>
-        /// This value is valid only if <see cref="ApplyBodyPartLayer"/> is used to 
-        /// manage the body parts layer.
-        /// </para>
-        /// </remarks>
-        public abstract int BodyPartLayer { get; }
 
         /// <summary>
         /// Applies the layer all body parts.
@@ -485,26 +457,6 @@ namespace com.lizitt.outfitter
                 result = MotionRoot.GetComponent<Animator>();
 
             return result ? result : GetComponentInChildren<Animator>();
-        }
-
-        /// <summary>
-        /// Implements a safe, standard way of setting an outfits's primary collider layer, 
-        /// if the collider exists.
-        /// </summary>
-        /// <param name="outfit">The outit. (Required)</param>
-        /// <param name="layer">The desired primary collider layer.</param>
-        /// <returns>The clamped layer.</returns>
-        public static int SetPrimaryColliderLayer(Outfit outfit, int layer)
-        {
-            layer = Mathf.Max(0, layer);
-
-            if (outfit && outfit.PrimaryCollider)
-            {
-                outfit.PrimaryCollider.gameObject.layer = layer;
-                return outfit.PrimaryCollider.gameObject.layer;
-            }
-
-            return layer;
         }
 
         /// <summary>

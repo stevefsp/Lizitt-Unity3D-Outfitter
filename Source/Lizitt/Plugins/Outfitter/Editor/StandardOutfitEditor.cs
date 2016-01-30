@@ -203,7 +203,7 @@ namespace com.lizitt.outfitter.editor
 
         #region Body Parts Section
 
-        private const string BodyPartStartPath = "m_PartStatus";
+        private const string BodyPartStartPath = "m_AutoLoadParts";
         private const string BodyPartEndListPath = "m_Parts";
 
         private List<SerializedProperty> m_PartProperties = new List<SerializedProperty>();

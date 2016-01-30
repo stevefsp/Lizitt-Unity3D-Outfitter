@@ -41,64 +41,22 @@ namespace com.lizitt.outfitter
 
         #region Body Parts (Editor Section)
 
-        [SerializeField]
-        [Tooltip("The status of the body part colliders. (Will be applied at initialization.)")]
-        private ColliderStatus m_PartStatus;         // Refactor note: Field name used in the editor.
-
-        public sealed override ColliderStatus BodyPartStatus
-        {
-            get
-            {
-                return (m_Parts.BufferSize == 0)
-                    ? ColliderStatus.Disabled
-                    : m_PartStatus;
-            }
-        }
-
         public sealed override void ApplyBodyPartStatus(ColliderStatus status)
         {
-            CheckInitializeBodyParts(true, false);
-
-            m_PartStatus = status;
-
-            for (int i = 0; i < m_Parts.BufferSize; i++)
-                m_Parts[i].Status = m_PartStatus;
-        }
-
-        [SerializeField]
-        [Tooltip("The layer of the body parts. (Will be applied at initialization.)")]
-        [UnityLayer]
-        private int m_PartLayer;
-
-        public sealed override int BodyPartLayer
-        {
-            get
-            {
-                CheckInitializeBodyParts(true, true);
-                return (m_Parts.BufferSize == 0) ? 0 : m_PartLayer;
-            }
+            CheckInitializeBodyParts();
+            m_Parts.ApplyStatusToAll(status);
         }
 
         public sealed override void ApplyBodyPartLayer(int layer)
         {
-            CheckInitializeBodyParts(false, true);
-
-            if (layer < 0 || layer > 31)
-            {
-                Debug.LogError("ApplyBodyPartLayer: Body collider layer is out of range: " + layer);
-                return;
-            }
-
-            m_PartLayer = layer;
-
-            for (int i = 0; i < m_Parts.BufferSize; i++)
-                m_Parts[i].Layer = m_PartLayer;
+            CheckInitializeBodyParts();
+            m_Parts.ApplyLayerToAll(layer);
         }
 
         [SerializeField]
         [Tooltip("Perform a refresh of the body parts during outfit initialization."
             + " (Flexible, but less efficient than assigning body parts at design time.)")]
-        private bool m_AutoLoadParts = false;
+        private bool m_AutoLoadParts = false;    // Refactor note: Field name used in the editor.
 
         /// <summary>
         /// If true, a refresh of the body parts will ocucr during outfit initialization.
@@ -125,7 +83,7 @@ namespace com.lizitt.outfitter
         {
             get 
             {
-                CheckInitializeBodyParts(true, true);
+                CheckInitializeBodyParts();
                 return m_Parts.HasItem; 
             }
         }
@@ -134,34 +92,27 @@ namespace com.lizitt.outfitter
         {
             get
             {
-                CheckInitializeBodyParts(true, true); 
+                CheckInitializeBodyParts(); 
                 return m_Parts.BufferSize;
             }
         }
 
         public sealed override BodyPart GetBodyPart(int index)
         {
-            CheckInitializeBodyParts(true, true);
+            CheckInitializeBodyParts();
             return m_Parts[index];
         }
 
         public sealed override BodyPart GetBodyPart(BodyPartType typ)
         {
-            CheckInitializeBodyParts(true, true);
-
-            for (int i = 0; i < m_Parts.BufferSize; i++)
-            {
-                if (m_Parts[i] && m_Parts[i].Type == typ)
-                    return m_Parts[i];
-            }
-
-            return null;
+            CheckInitializeBodyParts();
+            return m_Parts[typ];
         }
 
         // Safe to re-run.  So don't need to serialize.
         private bool m_IsPartsInitialized = false;
 
-        private void CheckInitializeBodyParts(bool includeLayer, bool includeStatus)
+        private void CheckInitializeBodyParts()
         {
             if (m_IsPartsInitialized)
                 return;
@@ -171,17 +122,7 @@ namespace com.lizitt.outfitter
             if (m_AutoLoadParts)
                 UnsafeRefreshBodyParts(this, false);
 
-            if (includeLayer)
-                ApplyBodyPartLayer(BodyPartLayer);
-
-            if (includeStatus)
-                ApplyBodyPartStatus(BodyPartStatus);
-
-            for (int i = 0; i < m_Parts.BufferSize; i++)
-            {
-                if (m_Parts[i] && !m_Parts[i].Owner)
-                    m_Parts[i].Owner = gameObject;
-            }
+            m_Parts.SetOwnership(gameObject, true);
         }
 
         /// <summary>
@@ -248,54 +189,11 @@ namespace com.lizitt.outfitter
                 return items.Length;
             }
 
-            if (items.Length == 0)
-                return 0;
+            var before = outfit.m_Parts.ItemCount;
 
-            var existing = outfit.m_Parts;
+            outfit.m_Parts.CompressAndAdd(items);
 
-            if (!existing.HasItem)
-            {
-                UnsafeSet(outfit, true, items);
-                return items.Length;
-            }
-
-            var ncount = 0;  // New count.
-            for (int i = 0; i < items.Length; i++)
-            {
-                if (existing.Contains(items[i]))
-                    items[i] = null;
-                else
-                    ncount++;
-            }
-
-            if (ncount == 0)
-                return 0;
-
-            int ecount = 0;  // Existing count.
-            for (int i = 0; i < existing.BufferSize; i++)
-            {
-                if (existing[i])
-                    ecount++;
-            }
-
-            var nitems = new BodyPart[ecount + ncount];
-
-            var j = 0;
-            for (int i = 0; i < existing.BufferSize; i++)
-            {
-                if (existing[i])
-                    nitems[j++] = existing[i];
-            }
-
-            for (int i = 0; i < items.Length; i++)
-            {
-                if (items[i])  // Dups were set to null.
-                    nitems[j++] = items[i];
-            }
-
-            UnsafeSet(outfit, true, nitems);
-
-            return ncount;
+            return outfit.m_Parts.ItemCount - before;
         }
 
         #endregion
@@ -352,7 +250,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [OutfitMaterials(true)]
-        private OutfitMaterials m_OutfitMaterials = new OutfitMaterials();         // Refactor note: Field name used in the editor.
+        private OutfitMaterialGroup m_OutfitMaterials = new OutfitMaterialGroup();         // Refactor note: Field name used in the editor.
 
         public sealed override Material GetSharedMaterial(OutfitMaterialType typ)
         {
@@ -438,13 +336,7 @@ namespace com.lizitt.outfitter
             if (!m_AccessoriesInitialized)
             {
                 m_AccessoriesInitialized = true;
-
-                // Clears null's form the list.
-                for (int i = m_Accessories.Count - 1; i >= 0; i--)
-                {
-                    if (!m_Accessories[i])
-                        m_Accessories.RemoveAt(i);
-                }
+                m_Accessories.PurgeNulls();
             }
         }
 
@@ -636,7 +528,7 @@ namespace com.lizitt.outfitter
         protected override void Reset()
         {
             m_BlendRenderer = null;
-            m_OutfitMaterials = new OutfitMaterials();  // Materials Reset() is not as safe.
+            m_OutfitMaterials = new OutfitMaterialGroup();  // Materials Reset() is not as safe.
             m_Parts.Clear(0);
             base.Reset();
         }
@@ -702,13 +594,6 @@ namespace com.lizitt.outfitter
         #endregion
 
         #region Context Menus
-
-        [ContextMenu("Apply Body Part Settings")]
-        private void ApplyBodyPartSettings()
-        {
-            ApplyBodyPartLayer(BodyPartLayer);
-            ApplyBodyPartStatus(BodyPartStatus);
-        }
 
         [ContextMenu("Refresh All Settings")]
         private void AutoDetectSettings()

@@ -406,6 +406,7 @@ namespace com.lizitt.outfitter
         private void LinkAccessory(Accessory accessory)
         {
             accessory.AddObserver(this);
+            accessory.Owner = gameObject;
             m_Accessories.Add(accessory);
         }
 
@@ -413,6 +414,9 @@ namespace com.lizitt.outfitter
         {
             if (m_Accessories.Remove(accessory))
             {
+                if (accessory.Owner == gameObject)
+                    accessory.Owner = null;
+
                 accessory.RemoveObserver(this);
                 return true;
             }
@@ -430,23 +434,37 @@ namespace com.lizitt.outfitter
             {
                 case AccessoryStatus.NotMounted:
                 case AccessoryStatus.Unmounting:
+                case AccessoryStatus.Invalid:
+                case AccessoryStatus.Stored:
 
-                    // An auto-unmount occurred.
+                    // Unmounting is usually ok.  E.g. An auto-unmount as the accessory is 'killed'.
+                    // Staying silent on the rest to support the most use cases.
                     UnlinkAccessory(sender);
                     SendUnmount(sender);
 
                     break;
 
-                case AccessoryStatus.Invalid:
-                case AccessoryStatus.Stored:
+                case AccessoryStatus.Mounted:
+                case AccessoryStatus.Mounting:
 
-                    Debug.LogErrorFormat(this, 
-                        "Released accessory: Invalid status change, not by this outfit: {0}"
-                        + " (Status: {1})", sender.name, status);
+                    if (IsLocalMountPoint(sender.CurrentLocation))
+                    {
+                        // This might be overkill...
+                        if (sender.Owner != gameObject)
+                        {
+                            Debug.LogWarning(
+                                "Unexpected accessory remount owner.  Auto-recovered: " + sender.Owner);
+                            sender.Owner = gameObject;
+                        }
+                    }
+                    else
+                    {
+                        // Ownership transfer is uncommon, but ok.  E.g. An accessory hops between 
+                        // outfits on its own and doesn't want to unmount/deactivate during the hops.
 
-                    UnlinkAccessory(sender);
-                    SendUnmount(sender);
-
+                        UnlinkAccessory(sender);
+                        SendUnmount(sender);
+                    }
                     break;
             }
         }

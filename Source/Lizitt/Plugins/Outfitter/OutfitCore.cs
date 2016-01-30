@@ -314,54 +314,11 @@ namespace com.lizitt.outfitter
                 return fitems.Length;
             }
 
-            if (fitems.Length == 0)
-                return 0;
+            var before = outfit.m_MountPoints.ItemCount;
 
-            var existing = outfit.m_MountPoints;
+            outfit.m_MountPoints.CompressAndAdd(fitems);
 
-            if (!existing.HasItem)
-            {
-                UnsafeSet(outfit, true, fitems);
-                return fitems.Length;
-            }
-
-            var ncount = 0;  // New count.
-            for (int i = 0; i < fitems.Length; i++)
-            {
-                if (existing.Contains(fitems[i]))
-                    fitems[i] = null;
-                else
-                    ncount++;
-            }
-
-            if (ncount == 0)
-                return 0;
-
-            int ecount = 0;  // Existing count.
-            for (int i = 0; i < existing.BufferSize; i++)
-            {
-                if (existing[i])
-                    ecount++;
-            }
-
-            var nitems = new MountPoint[ecount + ncount];
-
-            var j = 0;
-            for (int i = 0; i < existing.BufferSize; i++)
-            {
-                if (existing[i])
-                    nitems[j++] = existing[i];
-            }
-
-            for (int i = 0; i < fitems.Length; i++)
-            {
-                if (fitems[i])  // Dups were set to null.
-                    nitems[j++] = fitems[i];
-            }
-
-            UnsafeSet(outfit, true, nitems);
-
-            return ncount;
+            return outfit.m_MountPoints.ItemCount - before;
         }
 
         // Not destructive.  No need to serialize.

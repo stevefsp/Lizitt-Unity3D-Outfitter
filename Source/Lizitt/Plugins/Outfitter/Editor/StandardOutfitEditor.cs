@@ -127,7 +127,7 @@ namespace com.lizitt.outfitter.editor
         // Does not implement a foldout.
 
         private const string CoreStartPath = "m_MotionRoot";
-        private const string CoreEndPath = "m_PrimaryCollider";
+        private const string CoreEndPath = "m_Owner";
 
         private List<SerializedProperty> m_CoreProperties = new List<SerializedProperty>();
 

@@ -402,6 +402,18 @@ namespace com.lizitt.outfitter
         #region Miscellaneous
 
         /// <summary>
+        /// The owner of the outfit. (Optional.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is an informational field.  It can be set to provide information about the
+        /// the outfit owner.  E.g. The Body, Outfitter, agent, or object pool that currently
+        /// controls the the outfit.
+        /// </para>
+        /// </remarks>
+        public abstract GameObject Owner { get; set; }
+
+        /// <summary>
         /// True if the outfit is in a valid state.
         /// </summary>
         public abstract bool IsOutfitValid();

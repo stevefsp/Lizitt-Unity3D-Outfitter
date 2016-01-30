@@ -135,10 +135,23 @@ namespace com.lizitt.outfitter
             get { return m_PrimaryCollider ? m_PrimaryCollider.GetAssociatedRigidBody() : null; }
         }
 
+        [SerializeField]
+        [Tooltip("The owner of the outfit. (Various standard implemetations will automatically set"
+            + " this value as control of the outfit is handed off between them.)"
+            + " (Informational, Optional)")]
+        private GameObject m_Owner = null;
+
+        public override GameObject Owner
+        {
+            get { return m_Owner; }
+            set { m_Owner = value; }
+        }
+
         private void ResetCoreSettings()
         {
             m_MotionRoot = null;
             m_PrimaryCollider = null;
+            m_Owner = null;
         }
 
         #endregion

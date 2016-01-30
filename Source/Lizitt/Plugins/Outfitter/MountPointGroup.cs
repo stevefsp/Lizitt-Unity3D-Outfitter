@@ -179,18 +179,68 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
+        /// The number of assigned items in the group.  (Non-null, non-destroyed)
+        /// </summary>
+        public int ItemCount
+        {
+            get
+            {
+                var count = 0;
+
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i])
+                        count++;
+                }
+
+                return count;
+            }
+        }
+
+        /// <summary>
         /// True if the item is in the group.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// a null or destoryed <paramref name="item"/> always returns false.
+        /// </para>
+        /// </remarks>
         /// <param name="item">The item to check. (Required)</param>
         /// <returns>True if the item is in the group.</returns>
-        public bool Contains(MountPoint location)
+        public bool Contains(MountPoint item)
         {
-            for (int i = 0; i < m_Items.Length; i++)
+            if (item)
             {
-                if (m_Items[i] == location)
-                    return true;
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i] == item)
+                        return true;
+                }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Removes all null and destroyed items from the group.
+        /// </summary>
+        public void Compress()
+        {
+            m_Items = m_Items.GetCompressed();
+        }
+
+        /// <summary>
+        /// Remove null and destroyed items from the group and add new, non-duplicate items.
+        /// </summary>
+        /// <param name="newItems">The potential new items to add.</param>
+        public void CompressAndAdd(params MountPoint[] newItems)
+        {
+            if (newItems == null || newItems.Length == 0)
+            {
+                m_Items = m_Items.GetCompressed();
+                return;
+            }
+
+            m_Items = m_Items.CompressAndAddDistinct(true, newItems);
         }
     }
 }

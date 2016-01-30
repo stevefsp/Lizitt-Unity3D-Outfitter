@@ -255,6 +255,16 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
+        /// True if the specified mount point is part of the outfit.
+        /// </summary>
+        /// <param name="location">The mount point.</param>
+        /// <returns>True if the specified mount point is part of the outfit.</returns>
+        public bool IsLocalMountPoint(MountPoint location)
+        {
+            return m_MountPoints.Contains(location);
+        }
+
+        /// <summary>
         /// Replaces the current mount points with the provided mounts points.
         /// </summary>
         /// <remarks>

@@ -45,7 +45,7 @@ namespace com.lizitt.outfitter.editor
             return m_GUIElement.GetPropertyHeight(property.FindPropertyRelative(ItemPropName));
         }
 
-        private ReferenceListComponent m_GUIElement;
+        private ReferenceListControl m_GUIElement;
 
         /// <summary>
         /// See Unity documentation.
@@ -60,7 +60,7 @@ namespace com.lizitt.outfitter.editor
         {
             if (m_GUIElement == null)
             {
-                m_GUIElement =  new ReferenceListComponent(
+                m_GUIElement =  new ReferenceListControl(
                     property.FindPropertyRelative(ItemPropName), HeaderTitle, true);
             }
         }

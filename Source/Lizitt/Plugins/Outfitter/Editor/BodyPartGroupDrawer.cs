@@ -32,7 +32,7 @@ namespace com.lizitt.outfitter.editor
     public sealed class BodyPartGroupDrawer
         : PropertyDrawer
     {
-        ReferenceListComponent m_GuiElement;
+        ReferenceListControl m_GuiElement;
 
         private SerializedProperty GetListProperty(SerializedProperty property)
         {
@@ -66,7 +66,7 @@ namespace com.lizitt.outfitter.editor
         private void CheckInitialized(SerializedProperty listProperty)
         {
             if (m_GuiElement == null)
-                m_GuiElement = new ReferenceListComponent(listProperty, "Body Parts", true);
+                m_GuiElement = new ReferenceListControl(listProperty, "Body Parts", true);
         }
     }
 }

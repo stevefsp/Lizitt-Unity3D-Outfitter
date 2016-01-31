@@ -55,7 +55,7 @@ namespace com.lizitt.outfitter
         private GameObject m_Owner = null;
 
         /// <summary>
-        /// TThe owner of the mount point. (E.g. The mount point's outfit.)  (Optional.)
+        /// The owner of the mount point. (E.g. The mount point's outfit.)  (Optional.)
         /// </summary>
         /// <remarks>
         /// <para>

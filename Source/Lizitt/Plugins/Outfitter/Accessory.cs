@@ -82,6 +82,18 @@ namespace com.lizitt.outfitter
         public abstract bool IsMountedTo(MountPointType locationType);
 
         /// <summary>
+        /// The owner of the outfit. (Optional.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is an informational field.  It can be set to provide information about the
+        /// the accessory owner.  E.g. The Body, Outfit, agent, or object pool that currently
+        /// controls the the accessory.
+        /// </para>
+        /// </remarks>
+        public abstract GameObject Owner { get; set; }
+
+        /// <summary>
         /// If true, the accessory can be attached to a mount point no matter the value of
         /// the mount point owner's 'accessories limited' flag.
         /// </summary>

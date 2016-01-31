@@ -40,6 +40,18 @@ namespace com.lizitt.outfitter
         #region Status
 
         [SerializeField]
+        [Tooltip("The owner of the accesory. (Various standard implemetations will automatically set"
+            + " this value as control of the accessory is handed off between them.)"
+            + " (Informational, Optional)")]
+        private GameObject m_Owner = null;
+
+        public override GameObject Owner
+        {
+            get { return m_Owner; }
+            set { m_Owner = value; }
+        }
+
+        [SerializeField]
         [HideInInspector]
         private AccessoryStatus m_Status = AccessoryStatus.NotMounted;
 

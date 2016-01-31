@@ -484,6 +484,18 @@ namespace com.lizitt.outfitter
 
         #endregion
 
+        #region Initialization
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            CheckInitializeBodyParts();
+            CheckInitializedAccessories();
+        }
+
+        #endregion
+
         #region Utility Features
 
         // Note: Static utility members specific to a feature colocated with the feature.

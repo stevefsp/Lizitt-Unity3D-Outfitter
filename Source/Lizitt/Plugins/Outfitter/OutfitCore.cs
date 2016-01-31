@@ -141,7 +141,7 @@ namespace com.lizitt.outfitter
             + " (Informational, Optional)")]
         private GameObject m_Owner = null;
 
-        public override GameObject Owner
+        public sealed override GameObject Owner
         {
             get { return m_Owner; }
             set { m_Owner = value; }
@@ -166,7 +166,7 @@ namespace com.lizitt.outfitter
 
         public override bool AccessoriesLimited
         {
-            // Leave unsealed because of setter.
+            // Leave unsealed so the setter can be overriden.
             get { return m_Limited; }
             set { m_Limited = value; }
         }
@@ -388,6 +388,15 @@ namespace com.lizitt.outfitter
         public sealed override void RemoveObserver(IOutfitObserver observer)
         {
             m_Observers.Remove(observer);
+        }
+
+        #endregion
+
+        #region Initialization
+
+        protected virtual void Awake()
+        {
+            CheckInitializeMountPoints();
         }
 
         #endregion

@@ -249,7 +249,7 @@ namespace com.lizitt.outfitter
         [Space(5)]
 
         [SerializeField]
-        [OutfitMaterials(true)]
+        [OutfitMaterialGroup(true)]
         private OutfitMaterialGroup m_OutfitMaterials = new OutfitMaterialGroup();         // Refactor note: Field name used in the editor.
 
         public sealed override Material GetSharedMaterial(OutfitMaterialType typ)

@@ -26,9 +26,9 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// <see cref="OutfitMaterialsAttribute"/> custom editor.
+    /// <see cref="OutfitMaterialGroupAttribute"/> custom editor.
     /// </summary>
-    [CustomPropertyDrawer(typeof(OutfitMaterialsAttribute))]
+    [CustomPropertyDrawer(typeof(OutfitMaterialGroupAttribute))]
     public class OutfitMaterialGroupDrawer
         : PropertyDrawer
     {
@@ -69,7 +69,7 @@ namespace com.lizitt.outfitter.editor
             if (m_GuiControl != null)
                 return;
 
-            var attr = attribute as OutfitMaterialsAttribute;
+            var attr = attribute as OutfitMaterialGroupAttribute;
             m_MaterialControl = new RendererMaterialPtrControl(attr.SearchPropertyPath);
 
             var settings = new OutfitMaterialListInfo();

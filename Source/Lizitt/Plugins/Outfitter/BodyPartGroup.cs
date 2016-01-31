@@ -49,6 +49,8 @@ namespace com.lizitt.outfitter
     [System.Serializable]
     public class BodyPartGroup
     {
+        #region Core
+
         [SerializeField]
         private BodyPart[] m_Items;
 
@@ -59,6 +61,19 @@ namespace com.lizitt.outfitter
         public BodyPartGroup(int bufferSize)
         {
             m_Items = new BodyPart[Mathf.Max(0, bufferSize)];
+        }
+
+        #endregion
+
+        #region Item Related
+
+        /// <summary>
+        /// The maximum number of items in the group. [Limit: >= 0]
+        /// </summary>
+        public int BufferSize
+        {
+            // Can be null during initial instantiation in the editor.
+            get { return m_Items == null ? 0 : m_Items.Length; }
         }
 
         /// <summary>
@@ -102,13 +117,96 @@ namespace com.lizitt.outfitter
             }
         }
 
+
+
         /// <summary>
-        /// The maximum number of items in the group. [Limit: >= 0]
+        /// True if the group contains at least one non-null item.
         /// </summary>
-        public int BufferSize
+        public bool HasItem
         {
-            // Can be null during initial instantiation in the editor.
-            get { return m_Items == null ? 0 : m_Items.Length; }
+            get
+            {
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i])
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// The number of assigned items in the group.  (Non-null, non-destroyed)
+        /// </summary>
+        public int ItemCount
+        {
+            get
+            {
+                var count = 0;
+
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i])
+                        count++;
+                }
+
+                return count;
+            }
+        }
+
+        /// <summary>
+        /// True if the item is in the group.
+        /// </summary>
+        /// <param name="item">The item to check. (Required)</param>
+        /// <returns>True if the item is in the group.</returns>
+        public bool Contains(BodyPart item)
+        {
+            if (item)
+            {
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i] == item)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Clear all items, optionally resizing the internal buffer in the process.
+        /// </summary>
+        /// <param name="bufferSize">
+        /// The new buffer size or -1 to keep the current buffer. [Limites: >= 0, or -1]
+        /// </param>
+        public void Clear(int bufferSize = -1)
+        {
+            if (bufferSize == -1)
+                System.Array.Clear(m_Items, 0, m_Items.Length);
+            else
+                m_Items = new BodyPart[Mathf.Max(0, bufferSize)];
+        }
+
+        /// <summary>
+        /// Removes all null and destroyed items from the group.
+        /// </summary>
+        public void Compress()
+        {
+            m_Items = m_Items.GetCompressed();
+        }
+
+        /// <summary>
+        /// Remove null and destroyed items from the group and add new, non-duplicate items.
+        /// </summary>
+        /// <param name="newItems">The potential new items to add.</param>
+        public void CompressAndAdd(params BodyPart[] newItems)
+        {
+            if (newItems == null || newItems.Length == 0)
+            {
+                m_Items = m_Items.GetCompressed();
+                return;
+            }
+
+            m_Items = m_Items.CompressAndAddDistinct(true, newItems);
         }
 
         /// <summary>
@@ -137,19 +235,9 @@ namespace com.lizitt.outfitter
                 bodyParts.m_Items = asReference ? items : (BodyPart[])items.Clone();
         }
 
-        /// <summary>
-        /// Clear all items, optionally resizing the internal buffer in the process.
-        /// </summary>
-        /// <param name="bufferSize">
-        /// The new buffer size or -1 to keep the current buffer. [Limites: >= 0, or -1]
-        /// </param>
-        public void Clear(int bufferSize = -1)
-        {
-            if (bufferSize == -1)
-                System.Array.Clear(m_Items, 0, m_Items.Length);
-            else
-                m_Items = new BodyPart[Mathf.Max(0, bufferSize)];
-        }
+        #endregion
+
+        #region Item State and Mutators
 
         /// <summary>
         /// Sets the ownership of the items.
@@ -173,38 +261,44 @@ namespace com.lizitt.outfitter
             }
         }
 
-        /// <summary>
-        /// True if the group contains at least one non-null item.
-        /// </summary>
-        public bool HasItem
+        public BodyPart FirstItem
         {
             get
             {
                 for (int i = 0; i < m_Items.Length; i++)
                 {
                     if (m_Items[i])
-                        return true;
+                        return m_Items[i];
                 }
-                return false;
+
+                return null;
             }
         }
 
-        /// <summary>
-        /// True if the item is in the group.
-        /// </summary>
-        /// <param name="item">The item to check. (Required)</param>
-        /// <returns>True if the item is in the group.</returns>
-        public bool Contains(BodyPart item)
+        public void ApplyLayerToAll(int layer)
         {
-            if (item)
+            if (layer < 0 || layer > 31)
             {
-                for (int i = 0; i < m_Items.Length; i++)
-                {
-                    if (m_Items[i] == item)
-                        return true;
-                }
+                Debug.LogError("ApplyBodyPartLayer: Body collider layer is out of range: " + layer);
+                return;
             }
-            return false;
+
+            for (int i = 0; i < m_Items.Length; i++)
+            {
+                if (m_Items[i])
+                    m_Items[i].Layer = layer;
+            }
         }
+
+        public void ApplyStatusToAll(ColliderStatus status)
+        {
+            for (int i = 0; i < m_Items.Length; i++)
+            {
+                if (m_Items[i])
+                    m_Items[i].Status = status;
+            }
+        }
+
+        #endregion
     }
 }

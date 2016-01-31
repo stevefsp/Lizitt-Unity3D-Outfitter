@@ -160,23 +160,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public ColliderStatus Status
         {
-            get
-            {
-                // Do real checks just in case something misbehaves and alters the components
-                // manually.
-
-                var rb = Rigidbody;
-                if (rb && rb.detectCollisions)
-                {
-                    if (Collider.enabled)
-                        return ColliderStatus.DetectCollision;
-                }
-                else if (Collider.enabled)
-                    return ColliderStatus.RaycastOnly;
-
-                return ColliderStatus.Disabled;
-            }
-
+            get { return Collider ? m_Collider.GetStatus() : ColliderStatus.Disabled; }
             set
             {
                 if (!Collider)
@@ -185,38 +169,7 @@ namespace com.lizitt.outfitter
                     return;
                 }
 
-                var rb = Rigidbody;
-                if (!rb && value == ColliderStatus.DetectCollision)
-                {
-                    Debug.LogError(Type + ": Can't set status while the rigidbody is null.", this);
-                    return;
-                }
-
-                switch (value)
-                {
-                    case ColliderStatus.DetectCollision:
-
-                        m_Collider.enabled = true;
-                        rb.detectCollisions = true;
-
-                        break;
-
-                    case ColliderStatus.RaycastOnly:
-
-                        if (rb)
-                            rb.detectCollisions = false;
-                        m_Collider.enabled = true;
-
-                        break;
-
-                    case ColliderStatus.Disabled:
-
-                        if (rb)
-                            rb.detectCollisions = false;
-                        m_Collider.enabled = false;
-
-                        break;
-                }
+                m_Collider.SetStatus(value);
             }
         }
     }

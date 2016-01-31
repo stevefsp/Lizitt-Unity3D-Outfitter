@@ -87,21 +87,23 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// There are several common reasons the mounter will return false.  The mounter can't
-        /// perform unmount operations.  The accessory is not is a supported state.  The type of 
-        /// the accessory is not supported.  Etc.
-        /// </para>
-        /// <para>
         /// Accessories are always required to provide built-in unmount capabilities.  (An unmount
         /// can never fail.)  But using a mounter to perform an unmount allows implementation of
         /// custom behavior.
+        /// </para>
+        /// <para>
+        /// The default behavior is to always return false.  Override this method to change this
+        /// behavior.
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory to check. (Required)</param>
         /// <returns>
         /// True if the mounter can be used to unmount the accessory.
         /// </returns>
-        public abstract bool CanUnmount(Accessory accessory);
+        public virtual bool CanUnmount(Accessory accessory)
+        {
+            return false;
+        }
 
         /// <summary>
         /// Initializes the mount operation for the specified accessory and location.

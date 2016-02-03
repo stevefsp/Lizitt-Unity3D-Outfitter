@@ -152,9 +152,109 @@ namespace com.lizitt.outfitter
             get { return m_Owner; }
         }
 
-        public override void SetStatus(OutfitStatus status, GameObject owner)
+        [SerializeField]
+        [Tooltip("Use the default storage for this outfit.  Activate/deactivate the"
+            + " component's GameObject as appropriate.")]
+        private bool m_UseDefaultStorage = true;
+
+        /// <summary>
+        /// Use the default storage for this outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If true, deactivates the component's GameObject when it transitions into 'stored', and
+        /// activates it when it transitions out of 'stored'.
+        /// </para>
+        /// </remarks>
+        public bool UseDefaultStorage
         {
-            //switch ()
+            get { return m_UseDefaultStorage; }
+        }
+
+        /// <summary>
+        /// Set the value of <see cref="UseDefaultStorage"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Behavior is undefined if the value of <see cref="UseDefaultStorage"/> is changed 
+        /// after outfit initialization.
+        /// </para>
+        /// </remarks>
+        public static void UnsafeSetUseDefaultStorage(OutfitCore outfit, bool useDefaultStorage)
+        {
+            /*
+             * Design note: The reason this is unsafe is because of unpredicable beahvior if
+             * the value is changed during use of the outfit.  E.g. What should the outfit do
+             * if default storage is turned off when it is already in storage?  What will the
+             * user expect?
+             */
+
+            outfit.m_UseDefaultStorage = useDefaultStorage;
+        }
+
+        [SerializeField]
+        [HideInInspector]
+        private OutfitStatus m_Status;
+
+        public sealed override  OutfitStatus Status
+        {
+            get { return m_Status; }
+        }
+
+        /// <summary>
+        /// Set the outfit status.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <paramref name="owner"/> must be non-null for all states except 'unmanaged'.
+        /// </para>
+        /// <para>
+        /// Activates and deactivates the component's GameObject as appropriate based on the value 
+        /// of <see cref="UseDefaultStorage"/>.
+        /// </para>
+        /// <para>
+        /// If using default storage: The 'stored' event will be sent before GameObject
+        /// deactivation.  The other events will be sent after activation.  (I.e. Events will 
+        /// always be sent while the GameObject is active.)
+        /// </para>
+        /// </remarks>
+        /// <param name="status">The status.</param>
+        /// <param name="owner">The owner.  (Required for all status except 'unmanaged'.)</param>
+        /// <returns>
+        /// True if the operation was successful.  False on error.
+        /// </returns>
+        public override bool SetState(OutfitStatus status, GameObject owner)
+        {
+            if (!(status == OutfitStatus.Unmanaged || owner))
+            {
+                Debug.LogError("Can't set status with a null owner: " + status, this);
+                return false;
+            }
+
+            if (m_Status == status && m_Owner == owner)
+                return true;
+
+            m_Owner = owner;
+            m_Status = status;
+
+            if (m_Status == OutfitStatus.Stored)
+            {
+                // Event before deactivation.
+                m_Observers.SendStateChange(this);
+
+                if (m_UseDefaultStorage)
+                    gameObject.SetActive(false);
+            }
+            else
+            {
+                // Event after activation.
+                if (m_UseDefaultStorage)
+                    gameObject.SetActive(true);
+
+                m_Observers.SendStateChange(this);
+            }
+
+            return true;
         }
 
         private void ResetCoreSettings()
@@ -162,6 +262,8 @@ namespace com.lizitt.outfitter
             m_MotionRoot = null;
             m_PrimaryCollider = null;
             m_Owner = null;
+            m_Status = OutfitStatus.Unmanaged;
+            m_UseDefaultStorage = true;
         }
 
         #endregion

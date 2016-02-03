@@ -73,13 +73,12 @@ namespace com.lizitt.outfitter
         public abstract Rigidbody PrimaryRigidbody { get; }
 
         /// <summary>
-        /// The owner of the outfit. (Optional.)
+        /// The owner of the outfit.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is an informational field.  It can be set to provide information about the
-        /// the outfit owner.  E.g. The Body, Outfitter, agent, or object pool that currently
-        /// controls the the outfit.
+        /// This value is changed using <see cref="SetState"/>.  A value is required for all
+        /// states except 'unmanaged'.
         /// </para>
         /// </remarks>
         public abstract GameObject Owner { get; }
@@ -87,16 +86,28 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The status of the outfit.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This value is changed using <see cref="SetState"/>.  An <see cref="Owner"/> is 
+        /// required for all states except 'unmanaged'.
+        /// </para>
+        /// </remarks>
         public abstract OutfitStatus Status { get; }
 
         /// <summary>
-        /// Apply the outfit status.
+        /// Set the outfit status.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <paramref name="owner"/> must be non-null for all states except 'unmanaged'.
+        /// </para>
+        /// </remarks>
         /// <param name="status">The status.</param>
-        /// <param name="owner">
-        /// The owner.  (Required for all but 'unmanaged', optional for 'unmanaged'.)
-        /// </param>
-        public abstract void SetStatus(OutfitStatus status, GameObject owner);
+        /// <param name="owner">The owner.  (Required for all status except 'unmanaged'.)</param>
+        /// <returns>
+        /// True if the operation was successful.  False on error.
+        /// </returns>
+        public abstract bool SetState(OutfitStatus status, GameObject owner);
 
         #endregion
 

@@ -35,6 +35,16 @@ namespace com.lizitt.outfitter
     /// </remarks>
     public interface IOutfitObserver
     {
+        /// <summary>
+        /// Process a state change event.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This event is sent when (<see cref="Outfit.Owner"/> and/or <see cref="Outfit.Status"/> 
+        /// have changed.
+        /// </para>
+        /// </remarks>
+        /// <param name="sender"></param>
         void OnStateChange(Outfit sender);
 
         /// <summary>

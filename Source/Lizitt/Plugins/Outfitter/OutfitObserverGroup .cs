@@ -39,6 +39,20 @@ namespace com.lizitt.outfitter
         {
         }
 
+        public void SendStateChange(Outfit sender)
+        {
+            bool hasNull = false;
+            for (int i = 0; i < Count; i++)
+            {
+                if (this[i] == null)
+                    hasNull = true;
+                else
+                    this[i].OnStateChange(sender);
+            }
+            if (hasNull)
+                PurgeNulls();
+        }
+
         /// <summary>
         /// Send the <see cref="IOutfitObserver.OnMountAccessory"/> event.
         /// </summary>
@@ -51,8 +65,8 @@ namespace com.lizitt.outfitter
             {
                 if (this[i] == null)
                     hasNull = true;
-
-                this[i].OnMountAccessory(sender, accessory);
+                else
+                    this[i].OnMountAccessory(sender, accessory);
             }
             if (hasNull)
                 PurgeNulls();
@@ -70,8 +84,8 @@ namespace com.lizitt.outfitter
             {
                 if (this[i] == null)
                     hasNull = true;
-
-                this[i].OnReleaseAccessory(sender, accessory);
+                else
+                    this[i].OnReleaseAccessory(sender, accessory);
             }
             if (hasNull)
                 PurgeNulls();

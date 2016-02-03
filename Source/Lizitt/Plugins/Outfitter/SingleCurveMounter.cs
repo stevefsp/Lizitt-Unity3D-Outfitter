@@ -24,14 +24,17 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A mounter that animates a mount between two mount locations using a single animation curve
-    /// for both position and rotation.
+    /// Transfers an accessory from one mount point to another, easing its position and rotation
+    /// based on a single animation cureve.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This mounter can only be used for one mount operation at a time, so it is either assigned
-    /// to a single accessory or shared using a pooling system in a manner that prevents concurrent
-    /// use.
+    /// The same animation curve is used for all position and rotation axes.
+    /// </para>
+    /// <para>
+    /// This mounter can only be used for one mount operation at a time, so it must is either be
+    /// assigned to a single accessory or shared using a pooling system in a manner that prevents 
+    /// concurrent use.
     /// </para>
     /// <para>
     /// Will complete immediately if used outside of play mode. (No animation.)
@@ -47,8 +50,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The normalized animation curve applied to all position and rotation axes."
-            + " (Both time and value axes are normalized.)"
-            )]
+            + " (Both time and value axes are normalized.)")]
         private AnimationCurve m_EaseCurve = new AnimationCurve();
 
         /// <summary>

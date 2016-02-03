@@ -66,8 +66,8 @@ namespace com.lizitt.outfitter
 
         public override bool InitializeMount(Accessory accessory, MountPoint location)
         {
-            if (location == null)
-                return CanUnmount(accessory);
+            if (!location)
+                return false;
 
             return CanMount(accessory, location.LocationType);
         }

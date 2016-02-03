@@ -46,11 +46,10 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Send the <see cref="IAccessoryObserver.OnStatusChange"/> event to all observers.
+        /// Send the <see cref="IAccessoryObserver.OnStateChange"/> event to all observers.
         /// </summary>
         /// <param name="sender">The accessory sending the event.</param>
-        /// <param name="status">The status of the accessory.</param>
-        public void SendStatusChange(Accessory sender, AccessoryStatus status)
+        public void SendStateChange(Accessory sender)
         {
             bool hasNull = false;
             for (int i = 0; i < Count; i++)
@@ -58,35 +57,23 @@ namespace com.lizitt.outfitter
                 if (this[i] == null)
                     hasNull = true;
                 else
-                    this[i].OnStatusChange(sender, status);
+                    this[i].OnStateChange(sender);
             }
             if (hasNull)
                 PurgeNulls();
         }
 
         /// <summary>
-        /// Send the <see cref="IAccessoryObserver.OnBake"/> event to all observers.
+        /// Send the <see cref="IAccessoryObserver.OnDestroy"/> event to all observers.
         /// </summary>
-        /// <param name="sender">The accessory being baked.</param>
-        public void SendBake(Accessory sender)
+        /// <param name="sender">The accessory sending the event.</param>
+        /// <param name="typ">The type of destroy event underway.</param>
+        public void SendDestroy(Accessory sender, DestroyType typ)
         {
             for (int i = 0; i < Count; i++)
             {
                 if (this[i] != null)
-                    this[i].OnBake(sender);
-            }
-        }
-
-        /// <summary>
-        /// Send the <see cref="IAccessoryObserver.OnBakePost"/> event to all observers.
-        /// </summary>
-        /// <param name="sender">The GameObject of the accessory that has finished baking.</param>
-        public void SendBakePost(GameObject sender)
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                if (this[i] != null)
-                    this[i].OnBakePost(sender);
+                    this[i].OnDestroy(sender, typ);
             }
         }
     }

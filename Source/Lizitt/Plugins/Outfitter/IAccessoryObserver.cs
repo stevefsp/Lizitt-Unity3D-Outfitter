@@ -38,34 +38,34 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Process a change in accessory status.
         /// </summary>
-        /// <param name="sender">The source of the accessory event.</param>
-        /// <param name="status">The accessory status.</param>
-        void OnStatusChange(Accessory sender, AccessoryStatus status);
-
-        /// <summary>
-        /// Process an accessory bake event.
-        /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is called before the accessory performs any of its internal bake 
-        /// operations, but whether or not an accessory feature is still useable depends on
-        /// the call order of the observers.
-        /// </para>
-        /// <param name="sender">The accessory that is being baked.</param>
-        void OnBake(Accessory sender);
-
-        /// <summary>
-        /// Perform post bake operations.  (The accessory component is no longer available.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is called after the acessory is no longer valid.  Its purpose is to 
-        /// allow components that depend on the accessory to clean themselves up.  
-        /// (E.g. Self destroy.)
+        /// This event is sent if any of the following accessory properties changes:
+        /// <see cref="Accessory.Status"/>, <see cref="Accessory.Owner"/>, 
+        /// <see cref="Accessory.CurrentLocation"/>.
         /// </para>
         /// </remarks>
-        /// <param name="outfit">The baked outfit's GameObject.</param>
-        void OnBakePost(GameObject sender);
+        /// <param name="sender">The source of the accessory event.</param>
+        /// <param name="status">The accessory status.</param>
+        void OnStateChange(Accessory sender);
+
+        /// <summary>
+        /// Prepare for the destruction of the accessory.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This event is sent before the accessory performs any internal operations.  So the
+        /// accessory starts out as valid.  Whether it stays they way depends on the actions
+        /// of the observers.
+        /// </para>
+        /// <para>
+        /// Destruction of the accessory is inevitable.  There is nothing an observer can do to
+        /// stop it.
+        /// </para>
+        /// </remarks>
+        /// <param name="sender">The accessory that is to be destroyed.</param>
+        /// <param name="typ">The destruction type.</param>
+        void OnDestroy(Accessory sender, DestroyType typ);
     }
 }
 

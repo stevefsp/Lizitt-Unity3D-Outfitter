@@ -37,43 +37,64 @@ namespace com.lizitt.outfitter
          * around mounting, baking, and storage, none of which are appropriate for a core class.
          */
 
-        #region Status
+        #region State
 
+        /// <summary>
+        /// Don't mutate outside of SetState();
+        /// </summary>
         [SerializeField]
-        [Tooltip("The owner of the accesory. (Various standard implemetations will automatically set"
-            + " this value as control of the accessory is handed off between them.)"
-            + " (Informational, Optional)")]
+        [HideInInspector]
         private GameObject m_Owner = null;
 
         public override GameObject Owner
         {
             get { return m_Owner; }
-            set { m_Owner = value; }
         }
 
+        /// <summary>
+        /// Don't mutate outside of SetState();
+        /// </summary>
         [SerializeField]
         [HideInInspector]
-        private AccessoryStatus m_Status = AccessoryStatus.NotMounted;
+        private AccessoryStatus m_Status = AccessoryStatus.Unmanaged;
 
         public override AccessoryStatus Status
         {
             get { return m_Status; }
         }
 
-        private void SetStatus(AccessoryStatus status)
+        /// <summary>
+        /// Don't mutate outside of SetState();
+        /// </summary>
+        [SerializeField]
+        [HideInInspector]
+        private MountPoint m_CurrentLocation = null;
+
+        public override MountPoint CurrentLocation
         {
-            // Special case:  Always send Mounted -> Mounted events.
-            if (m_Status == status && status != AccessoryStatus.Mounted)
+            get { return m_CurrentLocation; }
+        }
+
+        public override bool IsMountedTo(MountPointType locationType)
+        {
+            return m_CurrentLocation != null && m_CurrentLocation.LocationType == locationType;
+        }
+
+        private void SetState(AccessoryStatus status, GameObject owner, MountPoint location)
+        {
+            if (m_Status == status && m_Owner == owner && m_CurrentLocation == location)
                 return;
 
             m_Status = status;
+            m_Owner = owner;
+            m_CurrentLocation = location;
 
-            m_Observers.SendStatusChange(this, m_Status);
+            m_Observers.SendStateChange(this);
         }
 
         #endregion
 
-        #region Coverage & Limits
+        #region Coverage
 
         [SerializeField]
         [HideInInspector]
@@ -99,8 +120,9 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region  Mounting
+        #region Mounters & Limits
 
+        [Space]
         [SerializeField]
         private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(0);
 
@@ -215,7 +237,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// When mounting/unmounting, mounters are tried in the following order:  The mount method's
+        /// When mounting, mounters are tried in the following order:  The mount method's
         /// priority mounter, this priority mounter, then the 'normal' mounters in the order of their
         /// list.
         /// </para>
@@ -252,18 +274,9 @@ namespace com.lizitt.outfitter
             return false;                
         }
 
-        [SerializeField]
-        [HideInInspector]
-        private MountPoint m_CurrentLocation = null;
-        public override MountPoint CurrentLocation
-        {
-            get { return m_CurrentLocation; }
-        }
+        #endregion
 
-        public override bool IsMountedTo(MountPointType locationType)
-        {
-            return m_CurrentLocation != null && m_CurrentLocation.LocationType == locationType;
-        }
+        #region Mounting
 
         /// <summary>
         /// Mount the accessory to the specified mount point.
@@ -286,44 +299,39 @@ namespace com.lizitt.outfitter
         /// of their list.
         /// </para>
         /// </remarks>
-        /// <param name="location">The mount location.</param>
+        /// <param name="location">The mount location. (Required)</param>
+        /// <param name="owner">
+        /// The object that will own the accessory after a successful mount. (Required)
+        /// </param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (Essentially, a custom mounter.)
+        /// The mounter to attempt before any others are tried.  (I.e. A custom mounter.)
         /// </param>
         /// <param name="additionalCoverage">
         /// Additional coverage to apply on a successful mount, above and beyond the coverage
         /// supplied by the mounter or built into the accessory.
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public override bool Mount(MountPoint location, AccessoryMounter priorityMounter, 
-            BodyCoverage additionalCoverage)
+        public override bool Mount(MountPoint location, GameObject owner, 
+            AccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
         {
-            // Doing minimal validity checks.  Lots of implementation posibilities.
-            // Might not be mounting to an outfit.   Remounting to same mount point might be
-            // expcted.  Etc.
+            // While not expected to be common, it is technically ok to re-attach to the same
+            // mount location.  So there is no optimization check for that.
 
-            CheckCancelMount();
-
-            if (location == null 
-                && !(Status == AccessoryStatus.Mounted || Status == AccessoryStatus.Mounting))
+            if (!(location && owner))
             {
-                // Unmount, but not mounted.  Don't change anything.  
-                // Unmounting always succeeds.
-                //Debug.Log("Unmount with no mounted");
-                return true;
-            }
+                Debug.LogError("Null mount location and/or owner.", this);
+                return false;
+            };
 
             if (priorityMounter && priorityMounter.InitializeMount(this, location))
             {
-                //Debug.Log("Choose priority argument.");
-                StartCoroutine(DoMount(priorityMounter, location, additionalCoverage));
+                LocalMount(priorityMounter, owner, location, additionalCoverage);
                 return true;
             }
 
             if (m_PriorityMounter != null && m_PriorityMounter.InitializeMount(this, location))
             {
-                //Debug.Log("Choose priority internal.");
-                StartCoroutine(DoMount(m_PriorityMounter, location, additionalCoverage));
+                LocalMount(m_PriorityMounter, owner, location, additionalCoverage);
                 return true;
             }
 
@@ -331,64 +339,28 @@ namespace com.lizitt.outfitter
             {
                 if (m_Mounters[i] && m_Mounters[i].InitializeMount(this, location))
                 {
-                    //Debug.Log("Choose normal " + i);
-                    StartCoroutine(DoMount(m_Mounters[i], location, additionalCoverage));
+                    LocalMount(m_Mounters[i], owner, location, additionalCoverage);
                     return true;
                 }
             }
 
-            if (location == null || m_UseDefaultMounter)
+            if (m_UseDefaultMounter)
             {
-                m_CurrentLocation = location;
+                CleanupCurrentState();
 
-                if (m_CurrentLocation == null)
-                {
-                    transform.parent = null;
-                    m_CurrentCoverage = 0;
+                transform.parent = location.transform;
+                transform.localPosition = Vector3.zero;
+                transform.localRotation = Quaternion.identity;
 
-                    SetStatus(AccessoryStatus.NotMounted);
-                }
-                else
-                {
-                    transform.parent = m_CurrentLocation.transform;
-                    transform.localPosition = Vector3.zero;
-                    transform.localRotation = Quaternion.identity;
+                m_CurrentCoverage = additionalCoverage;
 
-                    m_CurrentCoverage = additionalCoverage;
-
-                    SetStatus(AccessoryStatus.Mounted);  // Keep last for event.
-                }
+                SetState(AccessoryStatus.Mounted, owner, location);  // Keep last for event.
 
                 return true;
             }
 
             return false;
         }
-
-        /// <summary>
-        /// Unmount the accessory from its current location.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// An unmount operation will always succeed.  A false return value indicates that an
-        /// unmount was not necessary.
-        /// </para>
-        /// <para>
-        /// When unmounting, mounters are tried in the following order:  This method's
-        /// priority mounter, <see cref="PriortyMounter"/>, then the 'normal' mounters in the order 
-        /// of their list.
-        /// </para>
-        /// </remarks>
-        /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (Essentially, a custom unmounter.)
-        /// </param>
-        /// <returns>True if the mount status of the accessory has changed.</returns>
-        public override bool Unmount(AccessoryMounter priorityMounter)
-        {
-            return Mount(null, priorityMounter, 0);
-        }
-
-        #region Mount Utilities
 
         [SerializeField]
         [HideInInspector]
@@ -401,61 +373,62 @@ namespace com.lizitt.outfitter
         [HideInInspector]
         private int m_MounterId = 0;
 
-        /// <summary>
-        /// Cancels the currently running mounter if it exists.
-        /// </summary>
-        private void CheckCancelMount()
+        public void LocalMount(AccessoryMounter mounter, GameObject owner, MountPoint location, 
+            BodyCoverage additionalCoverage)
         {
-            if (m_CurrentMounter != null)
-            {
-                m_CurrentMounter.CancelMount(this, CurrentLocation);
-                m_CurrentMounter = null;
-            }
-        }
+            CleanupCurrentState();
 
-        private System.Collections.IEnumerator DoMount(
-            AccessoryMounter mounter, MountPoint location, BodyCoverage additionalCoverage)
-        {
             int id = m_MounterId + 1;
             m_MounterId = id;
-            m_CurrentMounter = mounter;
 
-            m_CurrentLocation = location;
-            AccessoryStatus status;
+            m_CurrentCoverage = mounter.GetCoverageFor(location.LocationType) | additionalCoverage;
 
-            if (m_CurrentLocation == null)
-            {
-                m_CurrentCoverage = 0;
-                status = AccessoryStatus.Unmounting;
-            }
+            if (mounter.UpdateMount(this, location))
+                StartCoroutine(DoDurationMount(mounter, owner, location));
             else
-            {
-                m_CurrentCoverage = mounter.GetCoverageFor(location.LocationType) | additionalCoverage;
-                status = AccessoryStatus.Mounting;
-            }
+                SetState(AccessoryStatus.Mounted, owner, location);
+        }
 
-            while (m_MounterId == id && mounter.UpdateMount(this, location))  // Might immediately complete.
-            {
-                SetStatus(status);
+        // TODO: EVAL: Convert mounting to a method that supports serialization.  
+        // This is not a high proiority, especially since the standard mounters support
+        // immediate completion outside of play mode.  But having all major features except
+        // mounting provide support for serialization might be an issue. 
+
+        private System.Collections.IEnumerator DoDurationMount(
+            AccessoryMounter mounter, GameObject owner, MountPoint location)
+        {
+            m_CurrentMounter = mounter;
+            var id = m_MounterId;
+
+            SetState(AccessoryStatus.Mounting, owner, location);
+
+            yield return null;
+
+            while (m_MounterId == id && mounter.UpdateMount(this, location))
                 yield return null;
-            }
 
             if (m_MounterId == id)
             {
-                status = status == AccessoryStatus.Mounting
-                    ? AccessoryStatus.Mounted
-                    : AccessoryStatus.NotMounted;
-
-                SetStatus(status);
+                SetState(AccessoryStatus.Mounted, owner, location);
                 m_CurrentMounter = null;
             }
         }
 
         #endregion
 
+        #region Release
+
+        public override void Release()
+        {
+            if (Status != AccessoryStatus.Unmanaged)
+                CleanupCurrentState();
+
+            SetState(AccessoryStatus.Unmanaged, null, null);
+        }
+
         #endregion
 
-        #region Storage
+        #region Store
 
         [SerializeField]
         [Tooltip("Deactivate and activate the accessory's GameObject when it transitions into"
@@ -479,61 +452,90 @@ namespace com.lizitt.outfitter
             set { m_UseDefaultStorage = value; }
         }
 
-        public override bool Store()
+        public override bool Store(GameObject owner)
         {
-            switch (Status)
+            if (!owner)
             {
-                case AccessoryStatus.Stored:
-                case AccessoryStatus.NotMounted:
-
-                    SetStatus(AccessoryStatus.Stored);
-
-                    if (m_UseDefaultStorage)  // After status change event.
-                        gameObject.SetActive(true);
-
-                    return true;
+                Debug.LogError("Can't store with a null owner.", this);
+                return false;
             }
 
-            return false;
-        }
-
-        public override bool Unstore()
-        {
             if (Status == AccessoryStatus.Stored)
             {
-                if (m_UseDefaultStorage)
-                    gameObject.SetActive(false);
-
-                SetStatus(AccessoryStatus.NotMounted);
+                if (Owner != owner)
+                    SetState(AccessoryStatus.Stored, owner, null);
 
                 return true;
             }
 
-            return false;
+            CleanupCurrentState();
+
+            SetState(AccessoryStatus.Stored, owner, null);
+
+            if (m_UseDefaultStorage)  // After status change event.
+                gameObject.SetActive(false);
+
+            return true;
         }
 
         #endregion
 
-        #region Baking
+        #region Destroy
 
-        public override void Bake()
+        public override void Destroy(DestroyType typ)
         {
-            m_Observers.SendBake(this);
-
-            SetStatus(AccessoryStatus.Invalid);
+            m_Observers.SendDestroy(this, typ);
 
             if (m_PriorityMounter)
-                m_PriorityMounter.BakePost(gameObject);
+                m_PriorityMounter.OnAccessoryDestroy(this, typ);
 
             for (int i = 0; i < m_Mounters.BufferSize; i++)
             {
                 if (m_Mounters[i])
-                    m_Mounters[i].BakePost(gameObject);
+                    m_Mounters[i].OnAccessoryDestroy(this, typ);
             }
+             
+            if (typ == DestroyType.GameObject)
+                gameObject.SafeDestroy();
+            else
+                this.SafeDestroy();
+        }
 
-            m_Observers.SendBakePost(gameObject);
+        #endregion
 
-            this.SafeDestroy();
+        #region Transitions
+
+        /// <summary>
+        /// Performs cleanups of settings unique to the current state.  
+        /// (Call before all state transitions.)
+        /// </summary>
+        private void CleanupCurrentState()
+        {
+            // Remember, transition is out of the current status.
+
+            switch (Status)
+            {
+                case AccessoryStatus.Stored:
+
+                    if (m_UseDefaultStorage)
+                        gameObject.SetActive(true);
+
+                    break;
+
+                case AccessoryStatus.Mounted:
+                case AccessoryStatus.Mounting:
+
+                    transform.parent = null;
+                    m_CurrentCoverage = 0;
+
+                    if (m_CurrentMounter)  // Is mounting.
+                    {
+                        m_CurrentMounter.CancelMount(this, CurrentLocation);
+                        m_CurrentMounter = null;
+                    }
+
+                    break;
+            }
         }
 
         #endregion
@@ -555,6 +557,8 @@ namespace com.lizitt.outfitter
         }
 
         #endregion
+
+#if UNITY_EDITOR
 
         #region Context Menu
 
@@ -626,5 +630,7 @@ namespace com.lizitt.outfitter
         }
 
         #endregion
+
+#endif
     }
 }

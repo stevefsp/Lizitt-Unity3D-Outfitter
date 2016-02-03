@@ -298,37 +298,10 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory. (Required.)</param>
-        /// <param name="priorityMounter">
-        /// The mounter that should be tried before any other mounters.  (A custom unmounter.)  
-        /// (Optional)
-        /// </param>
         /// <returns>
         /// True if an unmount occurred, false if the accessory is not known to the outfit.
         /// </returns>
-        public abstract bool Unmount(Accessory accessory, AccessoryMounter priorityMounter);
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
-
-        /// <summary>
-        /// Unmount the accessory from the outfit.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// An unmount operation will always succeed if the accessory is currently mounted to the
-        /// outfit.
-        /// </para>
-        /// </remarks>
-        /// <param name="accessory">The accessory. (Required.)</param>
-        /// <returns>
-        /// True if an unmount occurred, false if the accessory is not known to the outfit.
-        /// </returns>
-        public bool Unmount(Accessory accessory)
-        {
-            return Unmount(accessory, null);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
+        public abstract bool Unmount(Accessory accessory);
 
         #endregion
 

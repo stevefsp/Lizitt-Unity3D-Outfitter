@@ -22,14 +22,38 @@
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// An accessory status.
+    /// Accessory status types.
     /// </summary>
     public enum AccessoryStatus
     {
+        /*
+         * Design notes:
+         * 
+         * There are five potential states:
+         * 
+         * Mounted(Mounting)/Managed
+         * Stored/Managed
+         * Not-mounted/Unmanaged
+         * Not-mounted/Managed
+         * Destroyed
+         * 
+         * Where: Owned <-> Managed
+         * 
+         * Not-mounted/Managed is excluded as a type because it adds complexity with minimal
+         * benefit.  The only use case I can think of is a component that wants to move the 
+         * accessory around the scene while it is in an not-mounted visual state.  But this
+         * minor use case can be handled in other ways, such as allowing the accessory's visual
+         * state to be controlled separately from its mount state.
+         * 
+         * Destroyed is not included because it is very brief and could cause confusion as to
+         * where to respond to it.  The proper place to respond is in the OnDestroy event, not
+         * the OnStateChange event. 
+         */
+
         /// <summary>
-        /// The accessory is inactive and unmanaged.  (Not mounted, not managed.)
+        /// The accessory is unmanaged.  (Not mounted, not managed.)
         /// </summary>
-        NotMounted = 0,
+        Unmanaged = 0,
 
         /// <summary>
         /// The accessory is attached to a mount point. (Mounted and managed.)
@@ -42,18 +66,8 @@ namespace com.lizitt.outfitter
         Mounting,
 
         /// <summary>
-        /// The accessory is transitioning to 'not mounted'. (Unmount in progress, not managed.)
-        /// </summary>
-        Unmounting,
-
-        /// <summary>
-        /// The accessory is stored/inactive.  (Not mounted, managed.)
+        /// The accessory is inactive.  (Stored and managed.)
         /// </summary>
         Stored,
-
-        /// <summary>
-        /// The accessory has become invalid.  (Usually due to baking.)
-        /// </summary>
-        Invalid,
     }
 }

@@ -368,14 +368,14 @@ namespace com.lizitt.outfitter
                 }
             }
 
-            var mountPoint = GetMountPoint(locationType);
-            if (!mountPoint)
+            var location = GetMountPoint(locationType);
+            if (!location)
                 return MountStatus.NoMountPoint;
-            else if (mountPoint.IsBlocked)
+            else if (location.IsBlocked)
                 return MountStatus.LocationBlocked;
 
             //Debug.Log("ACCMR: " + !accessory.Mount(mountPoint, priorityMounter, additionalCoverage));
-            if (!accessory.Mount(mountPoint, priorityMounter, additionalCoverage))
+            if (!accessory.Mount(location, gameObject, priorityMounter, additionalCoverage))
                 return MountStatus.RejectedByAccessory;
 
             LinkAccessory(accessory);
@@ -385,11 +385,11 @@ namespace com.lizitt.outfitter
             return MountStatus.Success;
         }
 
-        public sealed override bool Unmount(Accessory accessory, AccessoryMounter priorityMounter)
+        public sealed override bool Unmount(Accessory accessory)
         {
             if (UnlinkAccessory(accessory))
             {
-                accessory.Unmount(priorityMounter);
+                accessory.Release();
                 SendUnmount(accessory);
 
                 return true;
@@ -406,7 +406,6 @@ namespace com.lizitt.outfitter
         private void LinkAccessory(Accessory accessory)
         {
             accessory.AddObserver(this);
-            accessory.Owner = gameObject;
             m_Accessories.Add(accessory);
         }
 
@@ -414,9 +413,6 @@ namespace com.lizitt.outfitter
         {
             if (m_Accessories.Remove(accessory))
             {
-                if (accessory.Owner == gameObject)
-                    accessory.Owner = null;
-
                 accessory.RemoveObserver(this);
                 return true;
             }
@@ -428,58 +424,43 @@ namespace com.lizitt.outfitter
 
         #region Accessory Observer
 
-        void IAccessoryObserver.OnStatusChange(Accessory sender, AccessoryStatus status)
+        void IAccessoryObserver.OnStateChange(Accessory sender)
         {
-            switch (status)
+            bool release = false;
+
+            switch (sender.Status)
             {
-                case AccessoryStatus.NotMounted:
-                case AccessoryStatus.Unmounting:
-                case AccessoryStatus.Invalid:
-                case AccessoryStatus.Stored:
-
-                    // Unmounting is usually ok.  E.g. An auto-unmount as the accessory is 'killed'.
-                    // Staying silent on the rest to support the most use cases.
-                    UnlinkAccessory(sender);
-                    SendUnmount(sender);
-
-                    break;
-
                 case AccessoryStatus.Mounted:
                 case AccessoryStatus.Mounting:
 
-                    if (IsLocalMountPoint(sender.CurrentLocation))
-                    {
-                        // This might be overkill...
-                        if (sender.Owner != gameObject)
-                        {
-                            Debug.LogWarning(
-                                "Unexpected accessory remount owner.  Auto-recovered: " + sender.Owner);
-                            sender.Owner = gameObject;
-                        }
-                    }
-                    else
-                    {
-                        // Ownership transfer is uncommon, but ok.  E.g. An accessory hops between 
-                        // outfits on its own and doesn't want to unmount/deactivate during the hops.
+                    release = 
+                        !(sender.Owner == gameObject && IsLocalMountPoint(sender.CurrentLocation));
 
-                        UnlinkAccessory(sender);
-                        SendUnmount(sender);
-                    }
                     break;
+
+                default:
+
+                    release = true;
+                    break;
+            }
+
+            if (release)
+            {
+                UnlinkAccessory(sender);
+                SendUnmount(sender);
             }
         }
 
-        void IAccessoryObserver.OnBake(Accessory sender)
+        void IAccessoryObserver.OnDestroy(Accessory sender, DestroyType typ)
         {
-            Debug.LogError("Released accessory: Accessory baked, but not by this outfit: " 
-                + sender.name, this);
+            if (typ == DestroyType.Bake)
+            {
+                Debug.LogError("Released accessory: Accessory baked, but not by this outfit: "
+                    + sender.name, this);
+            }
 
             UnlinkAccessory(sender);
             SendUnmount(sender);
-        }
-
-        void IAccessoryObserver.OnBakePost(GameObject gameObject)
-        {
         }
 
         #endregion
@@ -541,7 +522,7 @@ namespace com.lizitt.outfitter
                 if (m_Accessories[i])
                 {
                     m_Accessories[i].RemoveObserver(this);
-                    m_Accessories[i].Bake();
+                    m_Accessories[i].Destroy(DestroyType.Bake);
                 }
             }
 

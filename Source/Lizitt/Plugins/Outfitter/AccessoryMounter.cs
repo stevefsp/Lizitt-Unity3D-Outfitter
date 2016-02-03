@@ -24,7 +24,7 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A component responsible for mounting and/or unmounting an accessory.
+    /// A component responsible for mounting an accessory.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -82,30 +82,6 @@ namespace com.lizitt.outfitter
         public abstract bool CanMount(Accessory accessory, MountPointType locationType);
 
         /// <summary>
-        /// Determines if the mounter can unmount the accessory based on the accessory's current 
-        /// state.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Accessories are always required to provide built-in unmount capabilities.  (An unmount
-        /// can never fail.)  But using a mounter to perform an unmount allows implementation of
-        /// custom behavior.
-        /// </para>
-        /// <para>
-        /// The default behavior is to always return false.  Override this method to change this
-        /// behavior.
-        /// </para>
-        /// </remarks>
-        /// <param name="accessory">The accessory to check. (Required)</param>
-        /// <returns>
-        /// True if the mounter can be used to unmount the accessory.
-        /// </returns>
-        public virtual bool CanUnmount(Accessory accessory)
-        {
-            return false;
-        }
-
-        /// <summary>
         /// Initializes the mount operation for the specified accessory and location.
         /// </summary>
         /// <remarks>
@@ -115,22 +91,21 @@ namespace com.lizitt.outfitter
         /// operation.
         /// </para>
         /// <para>
-        /// This method is guarenteed to return true if <see cref="CanMount"/> or 
-        /// <see cref="CanUnmount"/> (as appropriate) return true.  But it is
-        /// valid to use a call to this method without pre-checking mountability.  E.g. As an
+        /// This method is guarenteed to return true if <see cref="CanMount"/> returns true.  But 
+        /// it is valid to use a call to this method without pre-checking mountability.  E.g. As an
         /// optimitation, it is valid to simply call this method on a list of all available 
         /// mounters until one succeeds or all fail.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to mount/unmount. (Required)</param>
-        /// <param name="location">The mount location, or null to unmount.</param>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <param name="location">The mount location (Required)</param>
         /// <returns>
         /// True if initialization was successful.  False if the mount operation is not supported.
         /// </returns>
         public abstract bool InitializeMount(Accessory accessory, MountPoint location);
 
         /// <summary>
-        /// Processes the mount/unmount operation until it completes.
+        /// Processes the mount operation until it completes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -139,8 +114,8 @@ namespace com.lizitt.outfitter
         /// <see cref="CancelMount"/> used to cancel the operation.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory mount operation to update. (Required)</param>
-        /// <param name="location">The mount location, or null to unmount.</param>
+        /// <param name="accessory">The accessory to update. (Required)</param>
+        /// <param name="location">The mount location. (Required)</param>
         /// <returns>
         /// True while the mount operation is in-progress.  False when the operation is
         /// complete.
@@ -148,7 +123,7 @@ namespace com.lizitt.outfitter
         public abstract bool UpdateMount(Accessory accessory, MountPoint location);
 
         /// <summary>
-        /// Immediately cancels an in-progress mount/unmount operation.
+        /// Immediately cancel an in-progress mount operation.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -157,29 +132,29 @@ namespace com.lizitt.outfitter
         /// cancellation is implementation dependant.
         /// </para>
         /// </remarks>
-        /// <param name="accessory">The accessory to update. (Required)</param>
-        /// <param name="location">The mount location, or null for unmount operations.</param>
+        /// <param name="accessory">The accessory. (Required)</param>
+        /// <param name="location">The mount location. (Required).</param>
         public abstract void CancelMount(Accessory accessory, MountPoint location);
 
         /// <summary>
-        /// Instructs the mounter that its owner has been baked and is no longer avaiable.
+        /// Informs the mounter that an accessory is about to be destroyed.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// What a mounter does when this method is called is implementation specific.
-        /// The default behavior is for the mounter to self-destory if <paramref name="gameObject"/>
-        /// is equal to the mounter's GameObject.  But some mounters are designed to be 
-        /// shared between between multiple owners, in which case it may ignore the bake call 
-        /// completely.
+        /// What a mounter does is implementation specific. The default behavior is for the 
+        /// mounter to self-destory if the mounter and <paramref name="accessory"/> share the 
+        /// same GameObject.  But a mounter may be designed to be shared between between 
+        /// multiple owners, in which case it may choose to ignore the call completely.
         /// </para>
         /// <para>
-        /// Override this method in order to replace or extend the default behavior.
+        /// Override this method in order to extend or replace the default behavior.
         /// </para>
         /// </remarks>
-        /// <param name="gameObject">The mounter owner's GameObject. (Required)</param>
-        public virtual void BakePost(GameObject gameObject)
+        /// <param name="accessory">The accessory about to be destroyed. (Required)</param>
+        /// <param name="type">The type of destroy being performed.</param>
+        public virtual void OnAccessoryDestroy(Accessory accessory, DestroyType type)
         {
-            if (gameObject == this.gameObject)
+            if (gameObject == accessory.gameObject)
                 this.SafeDestroy();
         }
     }

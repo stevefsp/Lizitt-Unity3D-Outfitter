@@ -31,7 +31,7 @@ namespace com.lizitt.outfitter
     /// Accessories are any game object that needs to be attached to a mount point.  They can
     /// be visible, such as a hat, sun glasses, a baseball bat, etc.  Or they can be
     /// purely functional such as a perception system. Accessories are usually components meant 
-    /// to be attached to outfits.  But an accessory can be attached to any mount point, no matter 
+    /// to be attached to outfits. But they can be attached to any mount point, no matter 
     /// the owner.  
     /// </para>
     /// <para>
@@ -46,14 +46,27 @@ namespace com.lizitt.outfitter
     public abstract class Accessory
         : MonoBehaviour
     {
+        #region Core State
+
+        /// <summary>
+        /// The owner of the outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Ownership is managed by the accessory, and required in order to mount or store
+        /// the accessory.  Otherwise it is null.  It is an informational/data field and has
+        /// no control functionality.
+        /// </para>
+        /// </remarks>
+        public abstract GameObject Owner { get; }
+
         /// <summary>
         /// The current accessory status.
         /// </summary>
         public abstract AccessoryStatus Status { get; }
          
         /// <summary>
-        /// The location the accessory is mounted to, or null if not mounted.  (Mount operation
-        /// may still be in progress.)
+        /// The location the accessory is mounted to, or null if not mounted.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -65,12 +78,11 @@ namespace com.lizitt.outfitter
 
         /// <summary>
         /// True if the accessory is currently attached to the specified mount location.
-        /// (Mount operation may still be in progress.)
         /// </summary>
         /// <remarks>
         /// <para>
         /// This is a convenience method that can be used rather than null checking then getting
-        /// the type of <see cref="CurrentLocation"/>.  It will always return true if the
+        /// the type of <see cref="CurrentLocation"/>.  It will return true if the
         /// location type of <see cref="CurrentLocation"/> is <paramref name="locationType"/>.
         /// Otherwise it will be false.
         /// </para>
@@ -81,17 +93,9 @@ namespace com.lizitt.outfitter
         /// </returns>
         public abstract bool IsMountedTo(MountPointType locationType);
 
-        /// <summary>
-        /// The owner of the outfit. (Optional.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is an informational field.  It can be set to provide information about the
-        /// the accessory owner.  E.g. The Body, Outfit, agent, or object pool that currently
-        /// controls the the accessory.
-        /// </para>
-        /// </remarks>
-        public abstract GameObject Owner { get; set; }
+        #endregion
+
+        #region Coverage and Limits
 
         /// <summary>
         /// If true, the accessory can be attached to a mount point no matter the value of
@@ -140,6 +144,10 @@ namespace com.lizitt.outfitter
         /// </returns>
         /// <seealso cref="CanMount"/>
         public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
+
+        #endregion
+
+        #region Mounting
 
         /// <summary>
         /// True if the accessory can be mounted to the location without violating the
@@ -193,18 +201,18 @@ namespace com.lizitt.outfitter
         /// decide whether or not it can mount.
         /// </para>
         /// <para>
-        /// A null <paramref name="location"/> will result in an unmount.
-        /// </para>
-        /// <para>
         /// <paramref name="additionalCoverage"/> is useful in situations where an accessory 
         /// uses a generic mounter that doesn't provide coverage information.  On a successful
         /// mount the additional coverage will be added to the coverage
         /// supplied by the mounter or built into the accessory.
         /// </para>
         /// </remarks>
-        /// <param name="location">The mount point.</param>
+        /// <param name="location">The mount point. (Required)</param>
+        /// <param name="owner">
+        /// The object that will own the accessory after a successful mount. (Required)
+        /// </param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt to use before any others are tried.  (A custom mounter.)
+        /// The mounter to attempt to use before any others are tried.  (I.e. A custom mounter.)
         /// (Optional)
         /// </param>
         /// <param name="additionalCoverage">
@@ -212,8 +220,8 @@ namespace com.lizitt.outfitter
         /// supplied by the mounter or built into the accessory.
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public abstract bool Mount(
-            MountPoint location, AccessoryMounter priorityMounter, BodyCoverage additionalCoverage);
+        public abstract bool Mount(MountPoint location, GameObject owner, 
+            AccessoryMounter priorityMounter, BodyCoverage additionalCoverage);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
@@ -229,18 +237,16 @@ namespace com.lizitt.outfitter
         /// simply call this method on a list of all available accessories to let the accessory 
         /// decide whether or not it can mount.
         /// </para>
-        /// <para>
-        /// A null <paramref name="location"/> will result in an unmount.
-        /// </para>
-        /// <param name="location">The mount point.</param>
+        /// <param name="location">The mount point. (Required.)</param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt to use before any others are tried.  (A custom mounter.)
+        /// The mounter to attempt to use before any others are tried.  (I.e. A custom mounter.)
         /// (Optional)
         /// </param>
+        /// </remarks>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public bool Mount(MountPoint location, AccessoryMounter priorityMounter)
+        public bool Mount(MountPoint location, GameObject owner, AccessoryMounter priorityMounter)
         {
-            return Mount(location, priorityMounter, 0);
+            return Mount(location, owner, priorityMounter, 0);
         }
 
         /// <summary>
@@ -253,50 +259,32 @@ namespace com.lizitt.outfitter
         /// E.g. As an optimitation, it is valid to simply call this method on a list of all
         /// available accessories to let the accessory decide whether or not it can mount.
         /// <para>
-        /// <para>
-        /// A null <paramref name="location"/> will result in an unmount.
+        /// <param name="location">The mount point. (Required)</param>
+        /// <param name="owner">
+        /// The object that will own the accessory after a successful mount. (Required)
+        /// </param>
         /// </para>
-        /// <param name="location">The mount point.</param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public bool Mount(MountPoint location)
+        public bool Mount(MountPoint location, GameObject owner)
         {
-            return Mount(location, null, 0);
+            return Mount(location, owner, null, 0);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
 
+        #endregion
+
+        #region Release & Storage
+
         /// <summary>
-        /// Unmount the accessory from its current location.
+        /// Release the accessory, unmounting or unstoring it as needed.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// An unmount operation will always succeed.  A false return value indicates that an
-        /// unmount was not necessary.
+        /// The release operation will always succeed and always complete immediately.
         /// </para>
         /// </remarks>
-        /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (A custom unmounter.) (Optional)
-        /// </param>
-        /// <returns>True if the mount status of the accessory has changed.</returns>
-        public abstract bool Unmount(AccessoryMounter priorityMounter);
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
-
-        /// <summary>
-        /// Unmount the accessory from its current location.
-        /// </summary>
-        /// <remarks>
-        /// An unmount operation will always succeed.  A false return value indicates that an
-        /// unmount was not necessary.
-        /// </remarks>
-        /// <returns>True if the mount status of the accessory has changed.</returns>
-        public bool Unmount()
-        {
-            return Unmount(null);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
+        public abstract void Release();
 
         /// <summary>
         /// Transition to the stored state.
@@ -309,29 +297,77 @@ namespace com.lizitt.outfitter
         /// the current outfit.
         /// </para>
         /// <para>
-        /// A transition to storage can only occur form the 'not mounted' state. Calling this
-        /// method from any other state except 'stored' will result in a failure.
+        /// The storage opeteration will fail only when <paramref name="owner"/> is null.
         /// </para>
         /// </remarks>
+        /// <param name="owner">
+        /// The object that will own the the stored accessory. (Required)
+        /// </param>
         /// <returns>
-        /// True if the transition to the 'stored' state was successful, or the accessory is
-        /// already in the 'stored' state.
+        /// True if the store was successful, otherwise false.
         /// </returns>
-        public abstract bool Store();
+        public abstract bool Store(GameObject owner);
+
+        #endregion
+
+        #region Destroy
+
+        ///// <summary>
+        ///// Bake the accessory for use as a static, non-accessory object.
+        ///// </summary>
+        ///// <remarks>
+        ///// <para>
+        ///// What happens to an accessory when it is baked is implementation specific.
+        ///// The accessory may bake its skinned meshes, remove colliders, etc.  Baking most often
+        ///// happens when baking the outfit the accessory is attached to.
+        ///// </para>
+        ///// <para>
+        ///// It is a valid behavior for an accessory to reject the bake and simply auto-unmount 
+        ///// as a result of a bake request.  This supports situations where an accessory is 
+        ///// semi-independant. E.g. A fairy that is fluttering around an outfit's head.  
+        ///// A bake (a.k.a death) of the agent results in the fairy being freed.
+        ///// </para>
+        ///// <para>
+        ///// The accessory component is responsible for destroying itself as appropriate.  So
+        ///// the client only needs to call this method then dispose of its references to the 
+        ///// component.
+        ///// </para>
+        ///// </remarks>
+        //public abstract void Bake();
 
         /// <summary>
-        /// Transition out of the 'stored' state. (If needed.)
+        /// Destroy the accessory.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Lazy calling is permitted. Will only take action if the accessory is currently in
-        /// the 'stored' state.
+        /// This is the best way of destroying an accessory since the accessory will send
+        /// out events to its observers and other associated components so they can properly
+        /// respond.
+        /// </para>
+        /// <para>
+        /// The component is responsible for destroying itself as appropriate.  So
+        /// the client only needs to call this method then dispose of its references to the 
+        /// component.
+        /// </para>
+        /// <para><strong>Baking</strong></para>
+        /// <para>
+        /// What happens to an accessory when it is baked is implementation specific.
+        /// The accessory may bake its skinned meshes, remove colliders, etc.  Baking most often
+        /// happens when baking the outfit the accessory is attached to.
+        /// </para>
+        /// <para>
+        /// It is valid behavior for an accessory to reject the bake and simply auto-release 
+        /// as a result of the request.  This supports situations where an accessory is 
+        /// semi-independant. E.g. A fairy that is fluttering around an outfit's head.  
+        /// A bake (a.k.a death) of the agent results in the fairy being freed.
         /// </para>
         /// </remarks>
-        /// <returns>
-        /// True if a transition out of the 'stored' state occurred.  Otherwise false.
-        /// </returns>
-        public abstract bool Unstore();
+        /// <param name="typ">The type of destruction.</param>
+        public abstract void Destroy(DestroyType typ);
+
+        #endregion
+
+        #region Observers
 
         /// <summary>
         /// Add the specified event observer.
@@ -358,28 +394,7 @@ namespace com.lizitt.outfitter
         /// <param name="observer">The observer to remove.</param>
         public abstract void RemoveObserver(IAccessoryObserver observer);
 
-        /// <summary>
-        /// Bake the accessory for use as a static, non-accessory object.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// What happens to an accessory when it is baked is implementation specific.
-        /// The accessory may bake its skinned meshes, remove colliders, etc.  Baking most often
-        /// happens when baking the outfit the accessory is attached to.
-        /// </para>
-        /// <para>
-        /// It is a valid behavior for an accessory to reject the bake and simply auto-unmount 
-        /// as a result of a bake request.  This supports situations where an accessory is 
-        /// semi-independant. E.g. A fairy that is fluttering around an outfit's head.  
-        /// A bake (a.k.a death) of the agent results in the fairy being freed.
-        /// </para>
-        /// <para>
-        /// The accessory component is responsible for destroying itself as appropriate.  So
-        /// the client only needs to call this method then dispose of its references to the 
-        /// component.
-        /// </para>
-        /// </remarks>
-        public abstract void Bake();
+        #endregion
     }
 }
 

@@ -261,7 +261,7 @@ namespace com.lizitt.outfitter
         /// <returns>True if the specified mount point is part of the outfit.</returns>
         public bool IsLocalMountPoint(MountPoint location)
         {
-            return m_MountPoints.Contains(location);
+            return location && m_MountPoints.Contains(location);
         }
 
         /// <summary>

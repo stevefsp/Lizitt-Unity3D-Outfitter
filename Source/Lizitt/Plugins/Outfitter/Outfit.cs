@@ -385,11 +385,6 @@ namespace com.lizitt.outfitter
 
         #region Miscellaneous
 
-        /// <summary>
-        /// True if the outfit is in a valid state.
-        /// </summary>
-        public abstract bool IsOutfitValid();
-
         //////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>

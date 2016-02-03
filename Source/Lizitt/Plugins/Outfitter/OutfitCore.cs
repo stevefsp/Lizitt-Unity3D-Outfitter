@@ -57,7 +57,13 @@ namespace com.lizitt.outfitter
 
         public sealed override Transform MotionRoot
         {
-            get { return m_MotionRoot; }
+            get 
+            {
+                if (!m_MotionRoot)
+                    m_MotionRoot = transform;
+
+                return m_MotionRoot; 
+            }
         }
 
         /// <summary>
@@ -404,14 +410,6 @@ namespace com.lizitt.outfitter
         #region Utility Features
 
         // Note: Static untility members specific to a feature are colocated with their feature.
-
-        public override bool IsOutfitValid()
-        {
-            if (MotionRoot)
-                return true;
-
-            return false;
-        }
 
         /// <summary>
         /// Resets all field values except the observers.

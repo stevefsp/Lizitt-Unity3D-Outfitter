@@ -35,6 +35,8 @@ namespace com.lizitt.outfitter
     /// </remarks>
     public interface IOutfitObserver
     {
+        void OnStateChange(Outfit sender);
+
         /// <summary>
         /// Process an accessory mount event.
         /// </summary>

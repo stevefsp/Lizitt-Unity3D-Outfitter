@@ -400,7 +400,7 @@ namespace com.lizitt.outfitter
 
         private void SendUnmount(Accessory accessory)
         {
-            Observers.SendUnmount(this, accessory);
+            Observers.SendRelease(this, accessory);
         }
 
         private void LinkAccessory(Accessory accessory)

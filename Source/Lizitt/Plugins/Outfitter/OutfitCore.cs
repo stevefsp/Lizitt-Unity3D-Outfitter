@@ -150,7 +150,11 @@ namespace com.lizitt.outfitter
         public sealed override GameObject Owner
         {
             get { return m_Owner; }
-            set { m_Owner = value; }
+        }
+
+        public override void SetStatus(OutfitStatus status, GameObject owner)
+        {
+            //switch ()
         }
 
         private void ResetCoreSettings()

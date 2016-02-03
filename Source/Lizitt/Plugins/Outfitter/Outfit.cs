@@ -23,6 +23,13 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
+    public enum OutfitStatus
+    {
+        Unmanaged = 0,
+        InUse,
+        Stored,
+    }
+
     /// <summary>
     /// A body outfit representing the physical presence of an agent.
     /// </summary>
@@ -75,7 +82,21 @@ namespace com.lizitt.outfitter
         /// controls the the outfit.
         /// </para>
         /// </remarks>
-        public abstract GameObject Owner { get; set; }
+        public abstract GameObject Owner { get; }
+
+        /// <summary>
+        /// The status of the outfit.
+        /// </summary>
+        public abstract OutfitStatus Status { get; }
+
+        /// <summary>
+        /// Apply the outfit status.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <param name="owner">
+        /// The owner.  (Required for all but 'unmanaged', optional for 'unmanaged'.)
+        /// </param>
+        public abstract void SetStatus(OutfitStatus status, GameObject owner);
 
         #endregion
 

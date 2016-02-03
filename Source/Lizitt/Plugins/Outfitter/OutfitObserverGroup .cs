@@ -63,7 +63,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="sender">The outfit sending the event.</param>
         /// <param name="accessory">The accesosry that has been unmounted from the outfit.</param>
-        public void SendUnmount(Outfit sender, Accessory accessory)
+        public void SendRelease(Outfit sender, Accessory accessory)
         {
             bool hasNull = false;
             for (int i = 0; i < Count; i++)

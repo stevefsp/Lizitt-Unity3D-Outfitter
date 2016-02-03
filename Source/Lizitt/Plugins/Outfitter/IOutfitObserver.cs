@@ -47,17 +47,20 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="sender">The outfit that unmounted the accessory.</param>
         /// <param name="accessory">The accessory that was unmounted.</param>
-        void OnUnmountAccessory(Outfit sender, Accessory accessory);
+        void OnReleaseAccessory(Outfit sender, Accessory accessory);
 
         /// <summary>
-        /// Perform outfit bake operations.
+        /// Prepare for the destruction of the outfit.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is called before the outfit performs any of its internal bake operations, 
-        /// but whether or not an outfit feature is still useable depends on the call order
-        /// of the observers. (E.g. Once an observer that is responsible for deleting all colliders
-        /// has been called, the outfit's collider features will not be avaiable to later observers.)
+        /// This event is sent before the outfit performs any internal operations.  So the
+        /// outfit starts out as valid.  Whether it stays they way depends on the actions
+        /// of the observers.
+        /// </para>
+        /// <para>
+        /// Destruction of the outfit is inevitable.  There is nothing an observer can do to
+        /// stop it.
         /// </para>
         /// <para>
         /// Observers must only interact with outfit accessories through normal outfit operations.
@@ -65,28 +68,19 @@ namespace com.lizitt.outfitter
         /// accessories owned by the outfit.
         /// </para>
         /// <para>
-        /// The outfit reference is useful for certain types of synchronization operations.
-        /// (E.g. To bake the skinned mesh state from a source instance to its cloned instance.)
+        /// The outfit reference is useful for certain types of bake related synchronization 
+        /// operations. (E.g. To bake the skinned mesh state from a source instance to its 
+        /// cloned instance.)
         /// </para>
         /// </remarks>
-        /// <param name="outfit">The outfit being baked.</param>
+        /// <param name="sender">The outfit that is to be destroyed.</param>
+        /// <param name="typ">The destruction type.</param>
         /// <param name="referenceOutfit">
-        /// The outfit that the outfit being baked is derived from.  (E.g. Was instanced from.)
-        /// Or null if the outfit has no applicable reference.
-        /// </param>
-        void OnBake(Outfit sender, Outfit referenceOutfit = null);
-
-        /// <summary>
-        /// Perform post bake operations.  (The outfit component is no longer available.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This method is called after the outfit is no longer valid.  Its purpose is to 
-        /// allow components that depend on the outfit to clean themselves up.  (E.g. Self destroy.)
-        /// </para>
-        /// </remarks>
-        /// <param name="outfit">The baked outfit's GameObject.</param>
-        void OnBakePost(GameObject sender);
+        /// The outfit that the outfit being baked is derived from.
+        /// E.g. Was instanced from. Or null if the outfit has no applicable reference.
+        /// (Only applies to the 'bake' type.)
+        /// </param>s
+        void OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit);
     }
 }
 

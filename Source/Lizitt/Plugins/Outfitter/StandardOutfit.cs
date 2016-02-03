@@ -385,7 +385,7 @@ namespace com.lizitt.outfitter
             return MountStatus.Success;
         }
 
-        public sealed override bool Unmount(Accessory accessory)
+        public sealed override bool Release(Accessory accessory)
         {
             if (UnlinkAccessory(accessory))
             {
@@ -481,38 +481,9 @@ namespace com.lizitt.outfitter
 
         // Note: Static utility members specific to a feature colocated with the feature.
 
-        /// <summary>
-        /// Deletes all outfit related sub-components.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The bake process runs as follows:
-        /// </para>
-        /// <para>
-        /// <ol>
-        /// <li>
-        /// Notify all observers that a bake is being started to allow them to perform
-        /// custom bake operations.
-        /// </li>
-        /// <li>
-        /// Bake all accessories.
-        /// </li>
-        /// <li>
-        /// Invalidate the outfit.  (Outfit is no longer useable.)
-        /// </li>
-        /// <li>
-        /// Notify all observers that the bake operation is complete to allow them to do any
-        /// required cleanup.
-        /// </li>
-        /// <li>
-        /// Destroy self.
-        /// </li>
-        /// </ol>
-        /// </para>
-        /// </remarks>
-        public override void Bake(Outfit source)
+        public override void Destroy(DestroyType typ, Outfit referenceOutfit)
         {
-            Observers.SendBake(this, source);
+            Observers.SendDestroy(this, typ, referenceOutfit);
 
             // Don't worry about unknown assessories/components added improperly to the outfit.
             // If that is important to the user, the user can create a bake extension to handle it.
@@ -522,18 +493,16 @@ namespace com.lizitt.outfitter
                 if (m_Accessories[i])
                 {
                     m_Accessories[i].RemoveObserver(this);
-                    m_Accessories[i].Destroy(DestroyType.Bake);
+                    m_Accessories[i].Destroy(typ);
                 }
             }
 
-            m_Accessories.Clear();
+            Reset();
 
-            Reset();  // Invalidates the outfit, except for the observers.
-
-            Observers.SendBakePost(gameObject);
-            Observers.Clear();
-
-            this.SafeDestroy();
+            if (typ == DestroyType.GameObject)
+                gameObject.SafeDestroy();
+            else
+                this.SafeDestroy();
         }
 
         protected override void Reset()
@@ -541,6 +510,8 @@ namespace com.lizitt.outfitter
             m_BlendRenderer = null;
             m_OutfitMaterials = new OutfitMaterialGroup();  // Materials Reset() is not as safe.
             m_Parts.Clear(0);
+            m_Accessories.Clear();
+            Observers.Clear();
             base.Reset();
         }
 

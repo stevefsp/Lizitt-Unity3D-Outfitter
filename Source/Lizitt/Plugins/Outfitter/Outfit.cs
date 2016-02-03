@@ -289,19 +289,18 @@ namespace com.lizitt.outfitter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Unmount the accessory from the outfit.
+        /// Unmount and release the the accessory.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// An unmount operation will always succeed if the accessory is currently mounted to the
-        /// outfit.
+        /// The release operation will always succeed if the accessory is is known to the outfit.
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory. (Required.)</param>
         /// <returns>
-        /// True if an unmount occurred, false if the accessory is not known to the outfit.
+        /// True if an release occurred, false if the accessory is not known to the outfit.
         /// </returns>
-        public abstract bool Unmount(Accessory accessory);
+        public abstract bool Release(Accessory accessory);
 
         #endregion
 
@@ -391,34 +390,72 @@ namespace com.lizitt.outfitter
         /// </summary>
         public abstract bool IsOutfitValid();
 
+        //////////////////////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
-        /// Bake the outfit into a non-outfit static state and self delete the outfit component.
+        /// Destroy the outfit.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Important: This method must only be called by the owner of the outfit.
+        /// Important: Only the owner of the oufit should call this method.
         /// </para>
+        /// <para>
+        /// This is the best way of destroying an outfit since the outfit will send
+        /// events to its observers and other associated components so they can properly
+        /// respond.
+        /// </para>
+        /// <para>
+        /// The component is responsible for destroying itself as appropriate.  So
+        /// the client only needs to call this method then dispose of its references to the 
+        /// component.
+        /// </para>
+        /// <para><strong>Baking</strong>
+        /// </para>
+        /// Baking is the process of converting the outfit into a non-outfit state.  What
+        /// exactly happens during the bake is implemenation specific.  It may result in
+        /// the baking of skinned meshes into static meshes.  It may result in conversion to
+        /// a ragdoll configuration. Etc.
+        /// <para>
         /// </remarks>
-        /// <param name="reference">
+        /// <param name="typ">The type of destruction.</param>
+        /// <param name="referenceOutfit">
         /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.)
-        /// Or null if the outfit has no known source.
+        /// Or null if the outfit has no known source. (Only applies to the 'bake' type.)
         /// </param>
-        public abstract void Bake(Outfit reference);
+        public abstract void Destroy(DestroyType typ, Outfit referenceOutfit);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
 
         /// <summary>
-        /// Bake the outfit into a non-outfit static state and self delete the outfit component.
+        /// Destroy the outfit.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Important: This method must only be called by the owner of the outfit.
+        /// Important: Only the owner of the oufit should call this method.
         /// </para>
+        /// <para>
+        /// This is the best way of destroying an outfit since the outfit will send
+        /// events to its observers and other associated components so they can properly
+        /// respond.
+        /// </para>
+        /// <para>
+        /// The component is responsible for destroying itself as appropriate.  So
+        /// the client only needs to call this method then dispose of its references to the 
+        /// component.
+        /// </para>
+        /// <para><strong>Baking</strong>
+        /// </para>
+        /// Baking is the process of converting the outfit into a non-outfit state.  What
+        /// exactly happens during the bake is implemenation specific.  It may result in
+        /// the baking of skinned meshes into static meshes.  It may result in conversion to
+        /// a ragdoll configuration. Etc.
+        /// <para>
         /// </remarks>
-        public void Bake()
+        /// <param name="typ">The type of destruction.</param>
+        public void Destory(DestroyType typ)
         {
-            Bake(null);
+            Destroy(typ, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////

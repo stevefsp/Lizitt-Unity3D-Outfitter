@@ -59,7 +59,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Send the <see cref="IOutfitObserver.OnUnmountAccessory"/> event.
+        /// Send the <see cref="IOutfitObserver.OnReleaseAccessory"/> event.
         /// </summary>
         /// <param name="sender">The outfit sending the event.</param>
         /// <param name="accessory">The accesosry that has been unmounted from the outfit.</param>
@@ -71,39 +71,27 @@ namespace com.lizitt.outfitter
                 if (this[i] == null)
                     hasNull = true;
 
-                this[i].OnUnmountAccessory(sender, accessory);
+                this[i].OnReleaseAccessory(sender, accessory);
             }
             if (hasNull)
                 PurgeNulls();
         }
 
         /// <summary>
-        /// Send the <see cref="IOutfitObserver.OnBake"/> event.
+        /// Send the <see cref="IOutfitObserver.OnDestroy"/> event.
         /// </summary>
-        /// <param name="sender">The outfit being baked.</param>
+        /// <param name="sender">The outfit being destroyed.</param>
         /// <param name="referenceOutfit">
         /// The outfit that the sender is derived from.  (E.g. Was instanced from.)
-        /// Or null if the sender has no applicable reference.
+        /// Or null if the sender has no applicable reference. (Only applicable to the
+        /// 'bake' type.)
         /// </param>
-        public void SendBake(Outfit sender, Outfit referenceOutfit = null)
+        public void SendDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit)
         {
             for (int i = 0; i < Count; i++)
             {
                 if (this[i] != null)
-                    this[i].OnBake(sender, referenceOutfit);
-            }
-        }
-
-        /// <summary>
-        /// Send the <see cref="IOutfitObserver.OnBakePost"/> event.
-        /// </summary>
-        /// <param name="sender">The GameObject of the outfit that has finished baking.</param>
-        public void SendBakePost(GameObject sender)
-        {
-            for (int i = 0; i < Count; i++)
-            {
-                if (this[i] != null)
-                    this[i].OnBakePost(sender);
+                    this[i].OnDestroy(sender, typ, referenceOutfit);
             }
         }
     }

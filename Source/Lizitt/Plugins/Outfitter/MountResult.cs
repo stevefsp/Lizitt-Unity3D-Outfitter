@@ -22,21 +22,28 @@
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Represents the possible results of a body accessory add operation.
+    /// The result of an accessory add or mount operation.
     /// </summary>
-    public enum MountStatus
+    public enum MountResult
     {
         /// <summary>
-        /// Added successfully. (Transfer of ownership succeeded.)
-        /// </summary>
-        Success = 1,
-
-        /// <summary>
-        /// Not immediately added.  Stored for a later attempt.  (Transfer of ownership succeeded.)
+        /// Successfully mounted and, if applicable added.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This status may be returned my components that support accessory management.
+        /// The exact meaning of this result is context senstive.  If it is returned by an outfit mount operation
+        /// it means the mount was successful.  If returned by an accessory manager, such as a Body component, it 
+        /// means that both the mount was successful and the manager accepted management of the accessory.
+        /// </para>
+        /// </remarks>
+        Success = 1,
+
+        /// <summary>
+        /// Not immediately mounted.  Stored for a later attempt.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This status will only be returned by accessory managers that support storage, such as a Body component.
         /// </para>
         /// </remarks>
         Stored,
@@ -63,12 +70,25 @@ namespace com.lizitt.outfitter
 
         /// <summary>
         /// Failed: Accessory rejected mount.  
-        /// (E.g. No mounter available for location and/or state.)
+        /// (E.g. No mounter available and/or invalid state.)
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Mounters and accessories are designed to be used lazily.  It is acceptable to try to mount an accessory
+        /// to a mount point, or try to use a mounter with an accessory, without first checking to see if the operation
+        /// will succeed.  This status indicates a failure to mount due to the accessory deciding it can't mount
+        /// when asked to mount.
+        /// </para>
+        /// <para>
+        /// There are three main reasons an accessory will reject a mount request:  It doesn't know how to mount to the
+        /// requested location.  For complex accessories, the state of the accessory doesn't allow the mount.  Or 
+        /// there was an error in the requrest, such as a null mount location.
+        /// </para>
+        /// </remarks>
         RejectedByAccessory,
 
         /// <summary>
-        /// Failed due to an error.
+        /// Failed due to an error.  (E.g. Invalid argument value).
         /// </summary>
         FailedOnError,
     }

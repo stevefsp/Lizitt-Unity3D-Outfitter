@@ -340,7 +340,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public sealed override MountStatus Mount(Accessory accessory, MountPointType locationType,
+        public sealed override MountResult Mount(Accessory accessory, MountPointType locationType,
             bool ignoreRestrictions, AccessoryMounter priorityMounter, 
             BodyCoverage additionalCoverage)
         {
@@ -353,36 +353,36 @@ namespace com.lizitt.outfitter
                     + accessory.name);
 
                 // It is a success since the accessory is mounted. But no event.
-                return MountStatus.Success;
+                return MountResult.Success;
             }
 
             if (!ignoreRestrictions)
             {
                 if (AccessoriesLimited && !accessory.IgnoreLimited)
-                    return MountStatus.OutfitIsLimited;
+                    return MountResult.OutfitIsLimited;
 
                 if (((accessory.GetCoverageFor(locationType) | additionalCoverage) 
                     & CurrentCoverage) != 0)
                 {
-                    return MountStatus.CoverageBlocked;
+                    return MountResult.CoverageBlocked;
                 }
             }
 
             var location = GetMountPoint(locationType);
             if (!location)
-                return MountStatus.NoMountPoint;
+                return MountResult.NoMountPoint;
             else if (location.IsBlocked)
-                return MountStatus.LocationBlocked;
+                return MountResult.LocationBlocked;
 
             //Debug.Log("ACCMR: " + !accessory.Mount(mountPoint, priorityMounter, additionalCoverage));
             if (!accessory.Mount(location, gameObject, priorityMounter, additionalCoverage))
-                return MountStatus.RejectedByAccessory;
+                return MountResult.RejectedByAccessory;
 
             LinkAccessory(accessory);
 
             Observers.SendMount(this, accessory);
 
-            return MountStatus.Success;
+            return MountResult.Success;
         }
 
         public sealed override bool Release(Accessory accessory)

@@ -100,9 +100,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="status">The status to evaluate.</param>
         /// <returns>The status is not 'success' and not 'stored'.</returns>
-        public static bool IsFailed(this MountStatus status)
+        public static bool IsFailed(this MountResult status)
         {
-            return !(status == MountStatus.Success || status == MountStatus.Stored);
+            return !(status == MountResult.Success || status == MountResult.Stored);
         }
 
         #endregion

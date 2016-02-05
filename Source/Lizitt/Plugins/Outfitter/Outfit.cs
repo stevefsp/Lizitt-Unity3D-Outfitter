@@ -268,7 +268,7 @@ namespace com.lizitt.outfitter
         /// coverage inherent in the accessory.
         /// </param>
         /// <returns>The result of the mount attempt.</returns>
-        public abstract MountStatus Mount(Accessory accessory, MountPointType locationType,
+        public abstract MountResult Mount(Accessory accessory, MountPointType locationType,
             bool ignoreRestrictions, AccessoryMounter priorityMounter, 
             BodyCoverage additionalCoverage);
 
@@ -286,7 +286,7 @@ namespace com.lizitt.outfitter
         /// <param name="priorityMounter">The mounter that should be tried before any other
         /// mounters.  (A custom mounter.)  (Optional)</param>
         /// <returns>The result of the mount attempt.</returns>
-        public MountStatus Mount(Accessory accessory, MountPointType locationType,
+        public MountResult Mount(Accessory accessory, MountPointType locationType,
             bool ignoreRestrictions, AccessoryMounter priorityMounter)
         {
             return Mount(accessory, locationType, ignoreRestrictions, priorityMounter, 0);
@@ -301,7 +301,7 @@ namespace com.lizitt.outfitter
         /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
         /// </param>
         /// <returns>The result of the mount attempt.</returns>
-        public MountStatus Mount(Accessory accessory, MountPointType locationType,
+        public MountResult Mount(Accessory accessory, MountPointType locationType,
             bool ignoreRestrictions)
         {
             return Mount(accessory, locationType, ignoreRestrictions, null, 0);
@@ -313,7 +313,7 @@ namespace com.lizitt.outfitter
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <param name="locationType">The location to mount the accessory to.</param>
         /// <returns>The result of the mount attempt.</returns>
-        public MountStatus Mount(Accessory accessory, MountPointType locationType)
+        public MountResult Mount(Accessory accessory, MountPointType locationType)
         {
             return Mount(accessory, locationType, false, null, 0);
         }
@@ -323,7 +323,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <returns>The result of the mount attempt.</returns>
-        public MountStatus Mount(Accessory accessory)
+        public MountResult Mount(Accessory accessory)
         {
             return Mount(accessory, accessory.DefaultLocationType, false, null);
         }

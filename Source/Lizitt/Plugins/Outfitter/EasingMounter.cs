@@ -89,6 +89,11 @@ namespace com.lizitt.outfitter
             m_To = to;
         }
 
+        public override MountPointType DefaultLocationType
+        {
+            get { return m_To; }
+        }
+
         public override bool CanMount(Accessory accessory, MountPointType locationType)
         {
             return accessory && locationType == m_To && accessory.IsMountedTo(m_From);

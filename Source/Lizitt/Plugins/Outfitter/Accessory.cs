@@ -150,13 +150,26 @@ namespace com.lizitt.outfitter
         #region Mounting
 
         /// <summary>
+        /// The location type the accessory can mount to as long as there are no state restrictions.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// All acceessories must be able to mount to at least one type of mount point.  This property defines 
+        /// that type. But there is no quarentee that the accessory will successfully mount to all mount 
+        /// points of this type since an accessory is allowed to have complex prerequisites.  E.g. Only mount to
+        /// locations that are part of an outfit and the outfit is in a particular configuration.
+        /// </para>
+        /// </remarks>
+        public abstract MountPointType DefaultLocationType { get; }
+
+        /// <summary>
         /// True if the accessory can be mounted to the location without violating the
         /// specified coverage restrictions.
         /// </summary>
         /// <remarks>
         /// <para>
         /// When an accessory can mount to multiple locations it will often have different 
-        /// coverage for each location.  In such cases, the <paramref name="restrictions"/> 
+        /// coverage for each location.  In such cases, <paramref name="restrictions"/> 
         /// allows the accessory to evaluate whether it should be mounted to the specified location.
         /// This method will return false if the accessory's coverage for the location overlaps 
         /// with <paramref name="restrictions"/>. 

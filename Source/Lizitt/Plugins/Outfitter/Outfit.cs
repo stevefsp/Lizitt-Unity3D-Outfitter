@@ -318,6 +318,16 @@ namespace com.lizitt.outfitter
             return Mount(accessory, locationType, false, null, 0);
         }
 
+        /// <summary>
+        /// Mount the accessory to its default location.
+        /// </summary>
+        /// <param name="accessory">The accessory to mount. (Required)</param>
+        /// <returns>The result of the mount attempt.</returns>
+        public MountStatus Mount(Accessory accessory)
+        {
+            return Mount(accessory, accessory.DefaultLocationType, false, null);
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>

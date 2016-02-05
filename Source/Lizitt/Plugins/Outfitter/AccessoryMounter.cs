@@ -61,6 +61,19 @@ namespace com.lizitt.outfitter
         public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
 
         /// <summary>
+        /// The default location type the of the mounter.
+        /// <remarks>
+        /// <para>
+        /// All mounters must be able to mount to at least one type of mount point.  This property defines that type.
+        /// But there is no quarentee that the mounter will successfully mount all accessories and to all all 
+        /// locations of this type since a mounter is allowed to have complex prerequisites.  E.g. Only mount to 
+        /// locations that are part of an outfit and the outfit is in a particular configuration.  The only way to
+        /// guarentee a successful mount is to first check <see cref="CanMount"/>.
+        /// </para>
+        /// </remarks>
+        public abstract MountPointType DefaultLocationType { get; }
+
+        /// <summary>
         /// Determines if the mounter can mount the accessory to the specified location based on 
         /// the accessory's current state.
         /// </summary>

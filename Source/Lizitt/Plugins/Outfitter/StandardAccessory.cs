@@ -248,6 +248,28 @@ namespace com.lizitt.outfitter
             set { m_PriorityMounter = value; }
         }
 
+        /// <summary>
+        /// The location type the accessory can mount to.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This value is the default location of the highest priority mounter assigned to the accessory, either
+        /// <see cref="PriorityMounter"/> or the first avaiable 'normal' mounter.  If, due to a configuration issue,
+        /// there are no mounters, then 'root' will be returned.  In this case the accessory will use the default
+        /// mounter to mount to 'root' no matter the value of <see cref="UseDefaultMounter"/>.
+        /// </para>
+        /// </remarks>
+        public override MountPointType DefaultLocationType
+        {
+            get 
+            { 
+                if (m_PriorityMounter)
+                    return m_PriorityMounter.DefaultLocationType;
+
+                return m_Mounters.DefaultLocationType;
+            }
+        }
+
         public override bool CanMount(MountPointType locationType, BodyCoverage restrictions)
         {
             if (m_UseDefaultMounter)
@@ -256,6 +278,7 @@ namespace com.lizitt.outfitter
             if (CanMount(m_PriorityMounter, locationType, restrictions))
                 return true;
 
+            // TODO: Transfer this functionality tot he mounter group.
             for (int i = 0; i < m_Mounters.BufferSize; i++)
             {
                 if (CanMount(m_Mounters[i], locationType, restrictions))
@@ -265,6 +288,7 @@ namespace com.lizitt.outfitter
             return false;
         }
 
+        // TODO: Convert this to a static utility method.
         private bool CanMount(
             AccessoryMounter mounter, MountPointType locationType, BodyCoverage restrictions)
         {
@@ -335,6 +359,7 @@ namespace com.lizitt.outfitter
                 return true;
             }
 
+            // TODO: EVAL: Move this to the mounter group?
             for (int i = 0; i < m_Mounters.BufferSize; i++)
             {
                 if (m_Mounters[i] && m_Mounters[i].InitializeMount(this, location))
@@ -344,8 +369,14 @@ namespace com.lizitt.outfitter
                 }
             }
 
-            if (m_UseDefaultMounter)
+            if (m_UseDefaultMounter || location.LocationType == DefaultLocationType)
             {
+                if (!m_UseDefaultMounter)
+                {
+                    Debug.LogWarning("Unexpected configuation: No mounter found for default mount location."
+                        + " Used default mounter: " + location.LocationType, this);
+                }
+
                 CleanupCurrentState();
 
                 transform.parent = location.transform;
@@ -489,6 +520,7 @@ namespace com.lizitt.outfitter
             if (m_PriorityMounter)
                 m_PriorityMounter.OnAccessoryDestroy(this, typ);
 
+            // TODO: Move this to the mounter group.
             for (int i = 0; i < m_Mounters.BufferSize; i++)
             {
                 if (m_Mounters[i])

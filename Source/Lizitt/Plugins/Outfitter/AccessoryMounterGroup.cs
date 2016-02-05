@@ -126,16 +126,36 @@ namespace com.lizitt.outfitter
         /// </returns>
         public bool Contains(AccessoryMounter item)
         {
+            if (!item)
+                return false;
+
             if (item)
             {
-                foreach (var existingItems in m_Items)
+                for (int i = 0; i < m_Items.Length; i++)
                 {
-                    if (existingItems == item)
+                    if (m_Items[i] == item)
                         return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// The default location type of the first non-null mounter in the group, or 'root' if there isn't one.
+        /// </summary>
+        public MountPointType DefaultLocationType
+        {
+            get
+            {
+                for (int i = 0; i < m_Items.Length; i++)
+                {
+                    if (m_Items[i])
+                        return m_Items[i].DefaultLocationType;
+                }
+
+                return (MountPointType)0;
+            }
         }
     }
 }

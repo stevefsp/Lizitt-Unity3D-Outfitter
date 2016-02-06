@@ -76,6 +76,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public abstract MountPoint CurrentLocation { get; }
 
+        // TODO: Get rid of this method.  It is not worth the maintenance.
         /// <summary>
         /// True if the accessory is currently attached to the specified mount location.
         /// </summary>
@@ -406,6 +407,40 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="observer">The observer to remove.</param>
         public abstract void RemoveObserver(IAccessoryObserver observer);
+
+        #endregion
+
+        #region Utility Methods
+
+        /// <summary>
+        /// Determines if the mounter can mount the accessory to the specified location based on 
+        /// the accessory's current state and without violating the coverage restrictions.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method implements the standard method for this check, including all appropriate null checks.
+        /// (E.g. If there is no accessory, it will return false.)
+        /// </para>
+        /// <para>
+        /// The coverage restrictions are violated if a successful mount will result in a coverage that overlaps
+        /// <paramref name="restrictions"/>.
+        /// </para>
+        /// </remarks>
+        /// <param name="accessory">The accessory. (Optional)</param>
+        /// <param name="mounter">The mounter. (Optional)</param>
+        /// <param name="locationType">The mount location type.</param>
+        /// <param name="restrictions">The body coverage restrictions.</param>
+        /// <returns>
+        /// True if accessory and mounter are non-null and the mounter can mount the accessory to the specified 
+        /// location based on the accessory's current state and coverage restrictions.</returns>
+        public static bool CanMount(
+            Accessory accessory, AccessoryMounter mounter, MountPointType locationType, BodyCoverage restrictions)
+        {
+            if (accessory && mounter && (mounter.GetCoverageFor(locationType) & restrictions) == 0)
+                return mounter.CanMount(accessory, locationType);
+
+            return false;
+        }
 
         #endregion
     }

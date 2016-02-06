@@ -76,24 +76,6 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public abstract MountPoint CurrentLocation { get; }
 
-        // TODO: Get rid of this method.  It is not worth the maintenance.
-        /// <summary>
-        /// True if the accessory is currently attached to the specified mount location.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is a convenience method that can be used rather than null checking then getting
-        /// the type of <see cref="CurrentLocation"/>.  It will return true if the
-        /// location type of <see cref="CurrentLocation"/> is <paramref name="locationType"/>.
-        /// Otherwise it will be false.
-        /// </para>
-        /// </remarks>
-        /// <param name="locationType">The mount location.</param>
-        /// <returns>
-        /// True if the accessory is currently attached to the specified mount location.
-        /// </returns>
-        public abstract bool IsMountedTo(MountPointType locationType);
-
         #endregion
 
         #region Coverage and Limits

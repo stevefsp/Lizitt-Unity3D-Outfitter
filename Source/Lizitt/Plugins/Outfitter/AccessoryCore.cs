@@ -85,11 +85,6 @@ namespace com.lizitt.outfitter
             get { return m_CurrentLocation; }
         }
 
-        public sealed override bool IsMountedTo(MountPointType locationType)
-        {
-            return m_CurrentLocation != null && m_CurrentLocation.LocationType == locationType;
-        }
-
         private void SetState(AccessoryStatus status, GameObject owner, MountPoint location)
         {
             if (m_Status == status && m_Owner == owner && m_CurrentLocation == location)

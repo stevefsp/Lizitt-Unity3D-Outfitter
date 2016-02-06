@@ -96,7 +96,8 @@ namespace com.lizitt.outfitter
 
         public override bool CanMount(Accessory accessory, MountPointType locationType)
         {
-            return accessory && locationType == m_To && accessory.IsMountedTo(m_From);
+            return locationType == m_To && accessory && accessory.CurrentLocation 
+                && accessory.CurrentLocation.LocationType == m_From;
         }
 
         public override BodyCoverage GetCoverageFor(MountPointType locationType)

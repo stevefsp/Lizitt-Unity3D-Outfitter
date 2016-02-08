@@ -167,7 +167,7 @@ namespace com.lizitt.outfitter
         public abstract bool CanMount(MountPointType locationType, BodyCoverage restrictions);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
         /// True if the accessory can be mounted to the specified location, without regard for
@@ -220,7 +220,7 @@ namespace com.lizitt.outfitter
             IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
         /// Mount the accessory to the specified mount point.

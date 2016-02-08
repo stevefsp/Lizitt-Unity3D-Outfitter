@@ -273,7 +273,7 @@ namespace com.lizitt.outfitter
             BodyCoverage additionalCoverage);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
         /// Mount the accessory to the specified location.
@@ -451,7 +451,7 @@ namespace com.lizitt.outfitter
         public abstract void Destroy(DestroyType typ, Outfit referenceOutfit);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
         /// Destroy the outfit.

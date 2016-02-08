@@ -39,9 +39,6 @@ namespace com.lizitt.outfitter
     /// <para>
     /// Will complete immediately if used outside of play mode. (No animation.)
     /// </para>
-    /// <para>
-    /// Does not support unmounting.
-    /// </para>
     /// </remarks>
     public class SixCurveMounter
         : EasingMounter

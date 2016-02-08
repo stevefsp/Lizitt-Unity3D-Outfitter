@@ -202,7 +202,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// a null or destoryed <paramref name="item"/> always returns false.
+        /// a null or destroyed <paramref name="item"/> always returns false.
         /// </para>
         /// </remarks>
         /// <param name="item">The item to check. (Required)</param>

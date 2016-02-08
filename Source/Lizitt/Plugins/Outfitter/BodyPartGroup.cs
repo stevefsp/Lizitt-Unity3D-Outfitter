@@ -21,16 +21,6 @@
  */
 using UnityEngine;
 
-/*
- * TODO: EVAL: Implement 'owned component'?
- * 
- * Several components implement ownership.  Can save some maintenance/testing cause by creating 
- * a base 'owned' component then implement a shared owned group component and GUI control.
- * 
- * See the ObjectList <- Observers design. Candidates are BodyParts and MountPoints.
- * 
- */
-
 namespace com.lizitt.outfitter
 {
     /// <summary>

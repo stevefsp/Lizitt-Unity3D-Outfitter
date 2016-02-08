@@ -106,17 +106,5 @@ namespace com.lizitt.outfitter
         }
 
         #endregion
-
-        #region Pooling
-
-        // TODO: POOLING
-        //public static bool IsLessRestrictiveThan(
-        //    this PoolingType typ, PoolingType otherTyp)
-        //{
-        //    // Exension exists for future proofing.  Might not always be such a simple test.
-        //    return typ > otherTyp;
-        //}
-
-        #endregion
     }
 }

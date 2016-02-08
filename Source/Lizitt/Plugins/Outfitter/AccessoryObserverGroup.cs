@@ -60,7 +60,7 @@ namespace com.lizitt.outfitter
                     this[i].OnStateChange(sender);
             }
             if (hasNull)
-                PurgeNulls();
+                PurgeDestroyed();
         }
 
         /// <summary>

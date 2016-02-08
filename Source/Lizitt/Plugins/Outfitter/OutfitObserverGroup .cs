@@ -50,7 +50,7 @@ namespace com.lizitt.outfitter
                     this[i].OnStateChange(sender);
             }
             if (hasNull)
-                PurgeNulls();
+                PurgeDestroyed();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace com.lizitt.outfitter
                     this[i].OnMountAccessory(sender, accessory);
             }
             if (hasNull)
-                PurgeNulls();
+                PurgeDestroyed();
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace com.lizitt.outfitter
                     this[i].OnReleaseAccessory(sender, accessory);
             }
             if (hasNull)
-                PurgeNulls();
+                PurgeDestroyed();
         }
 
         /// <summary>

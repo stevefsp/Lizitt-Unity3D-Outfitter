@@ -76,7 +76,7 @@ namespace com.lizitt.outfitter
         [Space(10)]
 
         [SerializeField]
-        [ObjectList("Body Parts", typeof(BodyPart))]
+        [ObjectList("Body Parts")]
         private BodyPartGroup m_Parts = new BodyPartGroup(0);         // Refactor note: Field name used in the editor.
 
         public sealed override bool HasBodyParts

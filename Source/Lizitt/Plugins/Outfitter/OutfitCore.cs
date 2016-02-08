@@ -333,7 +333,7 @@ namespace com.lizitt.outfitter
         [Space(10)]
 
         [SerializeField]
-        [ObjectList("Mount Points", typeof(MountPoint))]
+        [ObjectList("Mount Points")]
         private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Refactor note: Field name used in the editor.
 
         public sealed override bool HasMountPoints 

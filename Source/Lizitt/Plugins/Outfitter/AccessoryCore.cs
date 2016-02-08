@@ -28,6 +28,10 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
+    /// In short, with a few minor expceptions, the only feature that extensions of this class need to implemment is
+    /// mounting, and most of the plumbing for mounting is handled by this class.
+    /// </para>
+    /// <para>
     /// This class manages state, state transtions, observers, and events.  It also handles storage, release, and 
     /// implements a framework for mounting.  Concrete implementations can intercept observer events by overriding 
     /// local event methods.  (E.g. <see cref="OnStateChangeLocal"/>.  Mount behavior is implemented by overriding 
@@ -35,8 +39,8 @@ namespace com.lizitt.outfitter
     /// be overridden.)
     /// </para>
     /// <para>
-    /// Mount priority is as follows:  The priority mounter supplied by the mount method, 
-    /// the mounter provided by <see cref="GetInitializedMounter"/>, <see cref="MountInternal"/> if 
+    /// Mounter priority is as follows:  The priority mounter supplied to the mount method, 
+    /// then the mounter provided by <see cref="GetInitializedMounter"/>, then <see cref="MountInternal"/> if 
     /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion
     /// mounting.
     /// </para>
@@ -270,7 +274,7 @@ namespace com.lizitt.outfitter
 
             m_CurrentCoverage = mounter.GetCoverageFor(location.LocationType) | additionalCoverage;
 
-            if (mounter.UpdateMount(this, location))
+            if (mounter.UpdateMount(this, location, !Application.isPlaying))
                 StartCoroutine(DoDurationMount(mounter, owner, location));
             else
                 SetState(AccessoryStatus.Mounted, owner, location);
@@ -313,6 +317,7 @@ namespace com.lizitt.outfitter
             if (Status != AccessoryStatus.Unmanaged)
                 CleanupCurrentState();
 
+            transform.parent = null;
             SetState(AccessoryStatus.Unmanaged, null, null);
         }
 
@@ -358,6 +363,7 @@ namespace com.lizitt.outfitter
             }
 
             CleanupCurrentState();
+            transform.parent = null;
 
             SetState(AccessoryStatus.Stored, owner, null);
 
@@ -416,7 +422,6 @@ namespace com.lizitt.outfitter
                 case AccessoryStatus.Mounted:
                 case AccessoryStatus.Mounting:
 
-                    transform.parent = null;
                     m_CurrentCoverage = 0;
 
                     if (!LizittUtil.IsUnityDestroyed(m_CurrentMounter))  // Is mounting.

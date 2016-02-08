@@ -24,16 +24,13 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A mounter that will snap the accessory to a location with optional position and
+    /// A mounter that will immediately snap the accessory to a location with optional position and
     /// rotation offsets.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Update completes immediately.  Instances of this type supports multiple concurrent mount 
-    /// operations.  (E.g. It an be safely shared by multiple accessories.)
-    /// </para>
-    /// <para>
-    /// Does not support unmounting.
+    /// operations.  (I.e. It an be safely shared by multiple accessories.)
     /// </para>
     /// </remarks>
     public class StandardMounter
@@ -77,7 +74,7 @@ namespace com.lizitt.outfitter
             return CanMount(accessory, location.LocationType);
         }
 
-        public override bool UpdateMount(Accessory accessory, MountPoint location)
+        public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
             FinalizeMount(accessory, location);
             return false;

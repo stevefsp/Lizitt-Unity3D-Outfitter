@@ -132,7 +132,17 @@ namespace com.lizitt.outfitter
         /// True while the mount operation is in-progress.  False when the operation is
         /// complete.
         /// </returns>
-        public abstract bool UpdateMount(Accessory accessory, MountPoint location);
+        public abstract bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
+
+        public bool UpdateMount(Accessory accessory, MountPoint location)
+        {
+            return UpdateMount(accessory, location, false);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Immediately cancel an in-progress mount operation.

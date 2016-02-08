@@ -142,13 +142,13 @@ namespace com.lizitt.outfitter
             return false;
         }
 
-        public override bool UpdateMount(Accessory accessory, MountPoint location)
+        public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
             m_EaseTime += Time.deltaTime;
 
             var ntime = Mathf.Clamp01(m_EaseTime / m_EaseDuration);
 
-            if (!Application.isPlaying || ntime >= 1)
+            if (!Application.isPlaying || immediateComplete || ntime >= 1)
             {
                 FinalizeMount(accessory, location);
                 return false;

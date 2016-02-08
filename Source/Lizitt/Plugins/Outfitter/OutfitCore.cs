@@ -333,7 +333,7 @@ namespace com.lizitt.outfitter
         [Space(10)]
 
         [SerializeField]
-        [Tooltip("Available mount points.")]
+        [ObjectList("Mount Points", typeof(MountPoint))]
         private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Refactor note: Field name used in the editor.
 
         public sealed override bool HasMountPoints 
@@ -485,6 +485,7 @@ namespace com.lizitt.outfitter
         #region Outfit Observers (Editor Section)
 
         [SerializeField]
+        [ObjectList("IOutfitObserver Objects", typeof(IOutfitObserver))]
         private OutfitObserverGroup m_Observers = new OutfitObserverGroup(0);   // Refactor note: Field name used in the editor.
 
         protected OutfitObserverGroup Observers

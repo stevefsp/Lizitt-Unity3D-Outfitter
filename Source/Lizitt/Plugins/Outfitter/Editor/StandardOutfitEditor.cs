@@ -169,12 +169,7 @@ namespace com.lizitt.outfitter.editor
                 m_ObserverProperty.isExpanded, m_ObserverProperty.displayName);
 
             if (m_ObserverProperty.isExpanded)
-            {
-                EditorGUILayout.HelpBox(
-                    "Objects that implement the '" + typeof(IOutfitObserver).Name + "' interface.",
-                    MessageType.Info, true);
                 EditorGUILayout.PropertyField(m_ObserverProperty);
-            }
 
             m_ObserverProperty = null;
         }

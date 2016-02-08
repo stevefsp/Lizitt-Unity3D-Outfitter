@@ -21,6 +21,7 @@
  */
 using UnityEditor;
 using UnityEngine;
+using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -31,7 +32,13 @@ namespace com.lizitt.outfitter.editor
     public class StandardAccessoryEditor
         : Editor
     {
-        private const string ObserversPath = "m_Observers";
+        private static BehaviourPropertyHelper<StandardAccessory> m_Helper = null;
+
+        void OnEnable()
+        {
+            if (m_Helper == null)
+                m_Helper = new BehaviourPropertyHelper<StandardAccessory>();
+        }
 
         /// <summary>
         /// See Unity documentation.
@@ -40,20 +47,21 @@ namespace com.lizitt.outfitter.editor
         {
             serializedObject.Update();
 
-            var prop = serializedObject.GetIterator();
-            prop.NextVisible(true);
-
-            EditorGUILayout.PropertyField(prop);
+            m_Helper.LoadProperties(serializedObject, true);
 
             EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(m_Helper.ExtractProperty<MountPointType>());
+            EditorGUILayout.Space();
 
-            while (prop.NextVisible(false))
-            {
-                if (prop.propertyPath == ObserversPath)
-                    DrawObservers(prop);
-                else
-                    EditorGUILayout.PropertyField(prop, true);
-            }
+            var observerProp = m_Helper.ExtractProperty<AccessoryObserverGroup>();
+            var mounterProp = m_Helper.ExtractProperty<AccessoryMounterGroup>();
+
+            m_Helper.DrawProperties();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(mounterProp);
+
+            DrawObservers(observerProp);
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -63,12 +71,7 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
             prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, new GUIContent(prop.displayName, prop.tooltip));
             if (prop.isExpanded)
-            {
-                EditorGUILayout.HelpBox(
-                    "Objects that implement the '" + typeof(IAccessoryObserver).Name + "' interface.",
-                    MessageType.Info, true);
                 EditorGUILayout.PropertyField(prop);
-            }
             else
                 EditorGUILayout.Space();
         }

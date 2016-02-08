@@ -24,7 +24,7 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// An accessory that supports multiple <see cref="AccessoryMounter"/> components.
+    /// An accessory that supports multiple <see cref="IAccessoryMounter"/> components.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -38,10 +38,10 @@ namespace com.lizitt.outfitter
 
         public sealed override BodyCoverage GetCoverageFor(MountPointType locationType)
         {
-            if (Accessory.CanMount(this, m_PriorityMounter, locationType, 0))
-                return m_PriorityMounter.GetCoverageFor(locationType);
+            if (Accessory.CanMount(this, PriorityMounter, locationType, 0))
+                return PriorityMounter.GetCoverageFor(locationType);
 
-            for (int i = 0; i < m_Mounters.BufferSize; i++)
+            for (int i = 0; i < m_Mounters.Count; i++)
             {
                 if (Accessory.CanMount(this, m_Mounters[i], locationType, 0))
                     return m_Mounters[i].GetCoverageFor(locationType);
@@ -76,8 +76,8 @@ namespace com.lizitt.outfitter
             set { m_UseDefaultMounter = value; }
         }
 
-        [Space]
         [SerializeField]
+        [ObjectList("IAccessoryMounter Objects", typeof(IAccessoryMounter))]
         private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(0);
 
         /// <summary>
@@ -85,31 +85,24 @@ namespace com.lizitt.outfitter
         /// </summary>
         public int MounterBufferSize
         {
-            get { return m_Mounters.BufferSize; }
+            get { return m_Mounters.Count; }
         }
 
         /// <summary>
         /// Get the mounter at the specified index, or null if there is none.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method will never return a reference to a destroyed object.  (Always returns a true null.)
+        /// </para>
+        /// </remarks>
         /// <param name="index">
         /// The index [0 &tl= value &lt; <see cref="MounterBufferSize"/>]
         /// </param>
         /// <returns>The mounter at the specified index, or null if there is none.</returns>
-        public AccessoryMounter GetMounter(int index)
+        public IAccessoryMounter GetMounter(int index)
         {
             return m_Mounters[index];
-        }
-
-        /// <summary>
-        /// Set the mounter at the specified index.  (Nulls allowed.)
-        /// </summary>
-        /// <param name="index">
-        /// The index  [0 &tl= value &lt; <see cref="MounterBufferSize"/>]
-        /// </param>
-        /// <param name="mounter">The mounter. (Null allowed.)</param>
-        public void SetMounter(int index, AccessoryMounter mounter)
-        {
-            m_Mounters[index] = mounter;
         }
 
         /// <summary>
@@ -128,10 +121,9 @@ namespace com.lizitt.outfitter
         /// <param name="asReference">If true the accessory will use the reference to the array.  
         /// Otherwise the array will be copied.</param>
         /// <param name="mountPoints">The mounters, or null to clear all mounters.</param>
-        public static bool UnsafeReplaceMounters(
-            StandardAccessory accessory, bool asReference, params AccessoryMounter[] mounters)
+        public static bool UnsafeReplaceMounters(StandardAccessory accessory, params IAccessoryMounter[] mounters)
         {
-            AccessoryMounterGroup.UnsafeReplaceItems(accessory.m_Mounters, asReference, mounters);
+            AccessoryMounterGroup.UnsafeReplaceItems(accessory, accessory.m_Mounters, mounters);
             return true;
         }
 
@@ -142,17 +134,14 @@ namespace com.lizitt.outfitter
         /// Behavior is undefined if this method if used after accessory initialization.
         /// </para>
         /// <param name="accessory">The accessory. (Required.)</param>
-        /// <param name="bufferSize">
-        /// The new buffer size or -1 for no change in the buffer size. [Limit: >= 0, or -1]
-        /// </param>
-        public static void UnSafeClearMounters(StandardAccessory accessory, int bufferSize = -1)
+        public static void UnSafeClearMounters(StandardAccessory accessory)
         {
-            accessory.m_Mounters.Clear(bufferSize);
+            accessory.m_Mounters.Clear();
         }
 
         [SerializeField]
         [HideInInspector]
-        private AccessoryMounter m_PriorityMounter = null;
+        private Object m_PriorityMounter = null;
 
         /// <summary>
         /// The mounter that will be tried before the 'normal' mounters.
@@ -164,32 +153,48 @@ namespace com.lizitt.outfitter
         /// list.
         /// </para>
         /// </remarks>
-        public AccessoryMounter PriorityMounter
+        public IAccessoryMounter PriorityMounter
         {
-            get { return m_PriorityMounter; }
-            set { m_PriorityMounter = value; }
+            get { return m_PriorityMounter as IAccessoryMounter; }
+            set
+            {
+                if (value == null)
+                    m_PriorityMounter = null;
+                else if (value is Object)
+                {
+                    var obj = value as Object;
+                    m_PriorityMounter = obj ? obj : null;
+                }
+                else
+                    Debug.LogError(value.GetType().Name + " is not a Unity Object.");
+            }
         }
 
+        [SerializeField]
+        [Tooltip("The location type the accessory can always mount to. (The default mounter will be used if no"
+            + " other mounter is avaiable.)")]
+        private MountPointType m_DefaultLocation;
+
         /// <summary>
-        /// The location type the accessory can mount to.
+        /// The location type the accessory can always mount to.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This value is the default location of the highest priority mounter assigned to the accessory, either
-        /// <see cref="PriorityMounter"/> or the first avaiable 'normal' mounter.  If, due to a configuration issue,
-        /// there are no mounters, then 'root' will be returned.  In this case the accessory will use the default
-        /// mounter to mount to 'root' no matter the value of <see cref="UseDefaultMounter"/>.
+        /// It no other mounter is available, then the default mounter will be used, even if it is disabled.
         /// </para>
         /// </remarks>
         public sealed override MountPointType DefaultLocationType
         {
-            get
-            {
-                if (m_PriorityMounter)
-                    return m_PriorityMounter.DefaultLocationType;
+            get { return m_DefaultLocation; }
+        }
 
-                return m_Mounters.DefaultLocationType;
-            }
+        /// <summary>
+        /// Sets the value of <see cref="DefaultLocationType"/>.
+        /// </summary>
+        /// <param name="locationType">The new default location type.</param>
+        public void SetDefaultLocationType(MountPointType locationType)
+        {
+            m_DefaultLocation = locationType;
         }
 
         public sealed override bool CanMount(MountPointType locationType, BodyCoverage restrictions)
@@ -197,36 +202,22 @@ namespace com.lizitt.outfitter
             if (m_UseDefaultMounter)
                 return true;
 
-            if (Accessory.CanMount(this, m_PriorityMounter, locationType, restrictions))
+            if (Accessory.CanMount(this, PriorityMounter, locationType, restrictions))
                 return true;
 
-            // TODO: Transfer this functionality tot he mounter group.
-            for (int i = 0; i < m_Mounters.BufferSize; i++)
-            {
-                if (Accessory.CanMount(this, m_Mounters[i], locationType, restrictions))
-                    return true;
-            }
-
-            return false;
+            return m_Mounters.CanMount(this, locationType, restrictions) != -1;
         }
 
         #endregion
 
         #region Mounting
 
-        protected override AccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner)
+        protected override IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner)
         {
-            if (m_PriorityMounter != null && m_PriorityMounter.InitializeMount(this, location))
-                return m_PriorityMounter;
+            if (!LizittUtil.IsUnityDestroyed(m_PriorityMounter) && PriorityMounter.InitializeMount(this, location))
+                return PriorityMounter;
 
-            // TODO: EVAL: Move this to the mounter group?
-            for (int i = 0; i < m_Mounters.BufferSize; i++)
-            {
-                if (m_Mounters[i] && m_Mounters[i].InitializeMount(this, location))
-                    return m_Mounters[i];
-            }
-
-            return null;
+            return m_Mounters.GetInitializedMounter(this, location);
         }
 
         protected sealed override bool CanMountInternal(MountPoint location, GameObject owner)
@@ -257,14 +248,9 @@ namespace com.lizitt.outfitter
         protected override void OnDestroyLocal(DestroyType typ)
         {
             if (m_PriorityMounter)
-                m_PriorityMounter.OnAccessoryDestroy(this, typ);
+                PriorityMounter.OnAccessoryDestroy(this, typ);
 
-            // TODO: Move this to the mounter group.
-            for (int i = 0; i < m_Mounters.BufferSize; i++)
-            {
-                if (m_Mounters[i])
-                    m_Mounters[i].OnAccessoryDestroy(this, typ);
-            }
+            m_Mounters.SendAccessoryDestroy(this, typ);
         }
 
         #endregion
@@ -286,15 +272,28 @@ namespace com.lizitt.outfitter
             // Design note: This process is designed to support mounters that have been linked
             // from other game objects.
 
-            var refreshItems = GetComponents<AccessoryMounter>();
+            m_Mounters.PurgeDestroyed();
+
+            var seen = new System.Collections.Generic.List<IAccessoryMounter>();
+
+            // TODO: Remove this once the GUI properly prevents duplicates.
+            for (int i = m_Mounters.Count - 1; i >= 0; i--)
+            {
+                if (seen.Contains(m_Mounters[i]))
+                    m_Mounters.Remove(m_Mounters[i]);
+                else
+                    seen.Add(m_Mounters[i]);
+            }
+
+            var refreshItems = GetComponents<IAccessoryMounter>();
             if (refreshItems.Length == 0)
                 return;  // Leave existing alone.
 
-            var items = new System.Collections.Generic.List<AccessoryMounter>(refreshItems.Length);
+            var items = new System.Collections.Generic.List<IAccessoryMounter>(refreshItems.Length);
 
-            for (int i = 0; i < m_Mounters.BufferSize; i++)
+            for (int i = 0; i < m_Mounters.Count; i++)
             {
-                if (m_Mounters[i])
+                if (m_Mounters[i] != null)
                     items.Add(m_Mounters[i]);
             }
 
@@ -305,13 +304,13 @@ namespace com.lizitt.outfitter
                     items.Add(refreshItem);
             }
 
-            AccessoryMounterGroup.UnsafeReplaceItems(m_Mounters, true, items.ToArray());
+            AccessoryMounterGroup.UnsafeReplaceItems(this, m_Mounters, items.ToArray());
         }
 
         [ContextMenu("Reset Mounters")]
         private void ResetMounters_Menu()
         {
-            m_Mounters.Clear(0);
+            m_Mounters.Clear();
         }
 
         #endregion

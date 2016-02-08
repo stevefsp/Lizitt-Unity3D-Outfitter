@@ -105,7 +105,7 @@ namespace com.lizitt.outfitter
         protected virtual void OnStateChangeLocal()
         {
             // Do nothing.
-            // Don't use OnStateChange() naming convension because can't use OnDestory() for the destory event.
+            // Don't use OnStateChange() naming convension because can't use OnDestroy() for the destroy event.
         }
 
         #endregion
@@ -172,7 +172,7 @@ namespace com.lizitt.outfitter
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
         public sealed override bool Mount(MountPoint location, GameObject owner, 
-            AccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
+            IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
         {
             // While not expected to be common, it is technically ok to re-attach to the same
             // mount location.  So there is no optimization check for that.
@@ -183,14 +183,14 @@ namespace com.lizitt.outfitter
                 return false;
             };
 
-            if (priorityMounter && priorityMounter.InitializeMount(this, location))
+            if (!LizittUtil.IsUnityDestroyed(priorityMounter) && priorityMounter.InitializeMount(this, location))
             {
                 RunMounter(priorityMounter, owner, location, additionalCoverage);
                 return true;
             }
 
             var mounter = GetInitializedMounter(location, owner);
-            if (mounter)
+            if (!LizittUtil.IsUnityDestroyed(mounter))
             {
                 RunMounter(mounter, owner, location, additionalCoverage);
                 return true;
@@ -221,7 +221,7 @@ namespace com.lizitt.outfitter
         /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The owner on a successful mount. (Required)</param>
         /// <returns>A mounter that initialized and ready to update, or null if none is avaiable.</returns>
-        protected abstract AccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner);
+        protected abstract IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner);
 
         /// <summary>
         /// True if <see cref="MountInternal"/> can mount to the specified location using an immediate completion
@@ -247,7 +247,7 @@ namespace com.lizitt.outfitter
         protected abstract BodyCoverage MountInternal(MountPoint location, GameObject owner);
 
         // Don't serialize.  Will only be assigned if a coroutine is required.
-        private AccessoryMounter m_CurrentMounter = null;
+        private IAccessoryMounter m_CurrentMounter = null;
 
         /// <summary>
         /// Used so mouter coroutines know if they are still valid.
@@ -260,7 +260,7 @@ namespace com.lizitt.outfitter
         /// Performs the first update on the mounter and takes the appropriate action if it completes or needs
         /// more updates.
         /// </summary>
-        private void RunMounter(AccessoryMounter mounter, GameObject owner, MountPoint location, 
+        private void RunMounter(IAccessoryMounter mounter, GameObject owner, MountPoint location, 
             BodyCoverage additionalCoverage)
         {
             CleanupCurrentState();
@@ -285,7 +285,7 @@ namespace com.lizitt.outfitter
         /// Kicks off a coroutine to run the mounter through to completion.
         /// </summary>
         private System.Collections.IEnumerator DoDurationMount(
-            AccessoryMounter mounter, GameObject owner, MountPoint location)
+            IAccessoryMounter mounter, GameObject owner, MountPoint location)
         {
             m_CurrentMounter = mounter;
             var id = m_MounterId;
@@ -294,7 +294,7 @@ namespace com.lizitt.outfitter
 
             yield return null;
 
-            while (m_MounterId == id && mounter.UpdateMount(this, location))
+            while (m_MounterId == id && !LizittUtil.IsUnityDestroyed(mounter) && mounter.UpdateMount(this, location))
                 yield return null;
 
             if (m_MounterId == id)
@@ -322,8 +322,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("Deactivate and activate the accessory's GameObject when it transitions into"
-            + " and out of the 'stored' state. (This will happen after the 'store' event and"
-            + " before the 'unstore' event.)")]
+            + " and out of the 'stored' state.")]
         private bool m_UseDefaultStorage = true;
 
         /// <summary>
@@ -385,7 +384,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Called on the destory event before any other action is taken.
+        /// Called on the destroy event before any other action is taken.
         /// </summary>
         /// <param name="typ"></param>
         protected virtual void OnDestroyLocal(DestroyType typ)
@@ -420,7 +419,7 @@ namespace com.lizitt.outfitter
                     transform.parent = null;
                     m_CurrentCoverage = 0;
 
-                    if (m_CurrentMounter)  // Is mounting.
+                    if (!LizittUtil.IsUnityDestroyed(m_CurrentMounter))  // Is mounting.
                     {
                         m_CurrentMounter.CancelMount(this, CurrentLocation);
                         m_CurrentMounter = null;
@@ -436,6 +435,7 @@ namespace com.lizitt.outfitter
 
         [Space(5)]
         [SerializeField]
+        [ObjectList("IAccessoryObserver Objects", typeof(IAccessoryObserver))]
         private AccessoryObserverGroup m_Observers = new AccessoryObserverGroup(0);
 
         public sealed override bool AddObserver(IAccessoryObserver observer)
@@ -460,7 +460,18 @@ namespace com.lizitt.outfitter
             // Design note: This process is designed to support observers that have been linked
             // from other game objects.
 
-            m_Observers.PurgeNulls();
+            m_Observers.PurgeDestroyed();
+
+            var seen = new System.Collections.Generic.List<IAccessoryObserver>();
+
+            // TODO: Remove this once the GUI properly prevents duplicates.
+            for (int i = m_Observers.Count - 1; i >= 0; i--)
+            {
+                if (seen.Contains(m_Observers[i]))
+                    m_Observers.Remove(m_Observers[i]);
+                else
+                    seen.Add(m_Observers[i]);
+            }
 
             var refreshItems = this.GetComponents<IAccessoryObserver>();
             if (refreshItems.Length == 0)

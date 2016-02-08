@@ -217,7 +217,7 @@ namespace com.lizitt.outfitter
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
         public abstract bool Mount(MountPoint location, GameObject owner, 
-            AccessoryMounter priorityMounter, BodyCoverage additionalCoverage);
+            IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // HACK: Unity 5.3.1: Optional parameter key duplication bug workaround.
@@ -240,7 +240,7 @@ namespace com.lizitt.outfitter
         /// </param>
         /// </remarks>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public bool Mount(MountPoint location, GameObject owner, AccessoryMounter priorityMounter)
+        public bool Mount(MountPoint location, GameObject owner, IAccessoryMounter priorityMounter)
         {
             return Mount(location, owner, priorityMounter, 0);
         }
@@ -416,10 +416,13 @@ namespace com.lizitt.outfitter
         /// True if accessory and mounter are non-null and the mounter can mount the accessory to the specified 
         /// location based on the accessory's current state and coverage restrictions.</returns>
         public static bool CanMount(
-            Accessory accessory, AccessoryMounter mounter, MountPointType locationType, BodyCoverage restrictions)
+            Accessory accessory, IAccessoryMounter mounter, MountPointType locationType, BodyCoverage restrictions)
         {
-            if (accessory && mounter && (mounter.GetCoverageFor(locationType) & restrictions) == 0)
+            if (accessory && !LizittUtil.IsUnityDestroyed(mounter)
+                && (mounter.GetCoverageFor(locationType) & restrictions) == 0)
+            {
                 return mounter.CanMount(accessory, locationType);
+            }
 
             return false;
         }

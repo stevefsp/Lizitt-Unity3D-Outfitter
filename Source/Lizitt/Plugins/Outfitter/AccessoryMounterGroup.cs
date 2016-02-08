@@ -28,8 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Designed for use as a field in a Unity component.  It provides a
-    /// better editor experience than is available for arrays.
+    /// Designed for use as a field in a Unity component.  It provides a better editor experience than is 
+    /// available for arrays.
     /// </para>
     /// <para>
     /// WARNING: This class can't be used in an array.  E.g. An array of AccessoryMounterGroup objects, 
@@ -38,40 +38,15 @@ namespace com.lizitt.outfitter
     /// </remarks>
     [System.Serializable]
     public class AccessoryMounterGroup
+        : ObjectList<IAccessoryMounter>
     {
-        [SerializeField]
-        private AccessoryMounter[] m_Items;
-
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="bufferSize">The size of the internal buffer.</param>
         public AccessoryMounterGroup(int bufferSize)
+            : base(bufferSize)
         {
-            m_Items = new AccessoryMounter[Mathf.Max(0, bufferSize)];
-        }
-
-        /// <summary>
-        /// The items at the specified index, or null if there is none.
-        /// </summary>
-        /// <param name="index">
-        /// The index. [Limit: 0 &lt;= value &lt; <see cref="BufferSize"/>]
-        /// </param>
-        /// <returns>
-        /// The item at the specified index, or null if there is none.
-        /// </returns>
-        public AccessoryMounter this[int index]
-        {
-            get { return m_Items[index]; }
-            set { m_Items[index] = value; }
-        }
-
-        /// <summary>
-        /// The size of the buffer.
-        /// </summary>
-        public int BufferSize
-        {
-            get { return m_Items.Length; }
         }
 
         /// <summary>
@@ -90,71 +65,61 @@ namespace com.lizitt.outfitter
         /// </param>
         /// <param name="items">The items to put into the buffer.</param>
         public static void UnsafeReplaceItems(
-            AccessoryMounterGroup mounters, bool asReference, params AccessoryMounter[] items)
+            Object refObj, AccessoryMounterGroup mounters, params IAccessoryMounter[] items)
         {
-            // Null and null elements allowed.
-            if (items == null)
-                mounters.Clear(0);
-            else
-                mounters.m_Items = asReference ? items : (AccessoryMounter[])items.Clone();
+            mounters.AddItems(refObj, items);
         }
 
         /// <summary>
-        /// Clear all items and optionally resize the internal buffer.
+        /// Performs a <see cref="IAccessoryMounter.CanMount"/> check on the mounters and returns the index of the
+        /// first one that returns true, or -1 if none was found.
         /// </summary>
-        /// <param name="bufferSize">
-        /// The new size of the internal buffer or -1 to keep the current buffer.
-        /// [Limites: >= 0, or -1]
-        /// </param>
-        public void Clear(int bufferSize = -1)
+        /// <param name="accessory">The accessory. (Required)</param>
+        /// <param name="locationType">The location type.</param>
+        /// <param name="restrictions">The body converage restrictions.</param>
+        /// <returns>The index of the mounter than can mount the accessory, or -1 if none was found.</returns>
+        public int CanMount(Accessory accessory, MountPointType locationType, BodyCoverage restrictions)
         {
-            if (bufferSize == -1)
-                bufferSize = m_Items.Length;
-
-            if (m_Items.Length != bufferSize)
-                m_Items = new AccessoryMounter[Mathf.Max(0, bufferSize)];
-            else
-                System.Array.Clear(m_Items, 0, m_Items.Length);
-        }
-
-        /// <summary>
-        /// True if the buffer contains the specified item.
-        /// </summary>
-        /// <param name="item">The item to check. (Required)</param>
-        /// <returns>
-        /// True if the buffer contains the specified item.
-        /// </returns>
-        public bool Contains(AccessoryMounter item)
-        {
-            if (!item)
-                return false;
-
-            if (item)
+            for (int i = 0; i < Count; i++)
             {
-                for (int i = 0; i < m_Items.Length; i++)
-                {
-                    if (m_Items[i] == item)
-                        return true;
-                }
+                if (Accessory.CanMount(accessory, this[i], locationType, restrictions))
+                    return i;
             }
 
-            return false;
+            return -1;
         }
 
         /// <summary>
-        /// The default location type of the first non-null mounter in the group, or 'root' if there isn't one.
+        /// Return the first mounter found that can mount the accessory, initialized and ready to update.  Or null if 
+        /// none is avaiable.
         /// </summary>
-        public MountPointType DefaultLocationType
+        /// <param name="accessory">The accessory. (Required)</param>
+        /// <param name="location">The mount location. (Required)</param>
+        /// <returns></returns>
+        public IAccessoryMounter GetInitializedMounter(Accessory accessory, MountPoint location)
         {
-            get
+            for (int i = 0; i < Count; i++)
             {
-                for (int i = 0; i < m_Items.Length; i++)
-                {
-                    if (m_Items[i])
-                        return m_Items[i].DefaultLocationType;
-                }
+                var mounter = this[i];
+                if (mounter != null && mounter.InitializeMount(accessory, location))
+                    return mounter;
+            }
 
-                return (MountPointType)0;
+            return null;
+        }
+
+        /// <summary>
+        /// Send the <see cref="IAccessoryMounter.OnAccessoryDestroy"/> event to all mounters.
+        /// </summary>
+        /// <param name="sender">The accessory to be destroyed.</param>
+        /// <param name="typ">The destroy type being applied to the accessory.</param>
+        public void SendAccessoryDestroy(Accessory sender, DestroyType typ)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                var mounter = this[i];
+                if (mounter != null)
+                   mounter.OnAccessoryDestroy(sender, typ);
             }
         }
     }

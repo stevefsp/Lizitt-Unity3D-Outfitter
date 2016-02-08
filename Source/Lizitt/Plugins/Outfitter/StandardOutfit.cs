@@ -76,7 +76,7 @@ namespace com.lizitt.outfitter
         [Space(10)]
 
         [SerializeField]
-        [Tooltip("Outfit body parts.")]
+        [ObjectList("Body Parts", typeof(BodyPart))]
         private BodyPartGroup m_Parts = new BodyPartGroup(0);         // Refactor note: Field name used in the editor.
 
         public sealed override bool HasBodyParts
@@ -341,7 +341,7 @@ namespace com.lizitt.outfitter
         }
 
         public sealed override MountResult Mount(Accessory accessory, MountPointType locationType,
-            bool ignoreRestrictions, AccessoryMounter priorityMounter, 
+            bool ignoreRestrictions, IAccessoryMounter priorityMounter, 
             BodyCoverage additionalCoverage)
         {
             // Error checks are optimized with the assumption that the mount will succeed.
@@ -374,7 +374,12 @@ namespace com.lizitt.outfitter
             else if (location.IsBlocked)
                 return MountResult.LocationBlocked;
 
-            //Debug.Log("ACCMR: " + !accessory.Mount(mountPoint, priorityMounter, additionalCoverage));
+            if (priorityMounter != null && LizittUtil.IsUnityDestroyed(priorityMounter))
+            {
+                Debug.LogError("The priority mounter is a reference to a destroyed object.", this);
+                return MountResult.FailedOnError;
+            }
+
             if (!accessory.Mount(location, gameObject, priorityMounter, additionalCoverage))
                 return MountResult.RejectedByAccessory;
 
@@ -609,7 +614,7 @@ namespace com.lizitt.outfitter
 
         private int RefreshObservers()
         {
-            Observers.PurgeNulls();
+            Observers.PurgeDestroyed();
 
             var refreshItems = this.GetComponents<IOutfitObserver>();
 
@@ -647,39 +652,6 @@ namespace com.lizitt.outfitter
         {
             Observers.Clear();
         }
-
-        #endregion
-
-        #region Pooling
-
-        // TODO: POOLING
-        // TOOD: EVAL: Should pooling be moved to the OutfitCore.
-
-        //[Header("Pooling")]
-
-        //[SerializeField]
-        //private int m_PoolingId;
-        //public override int PoolingId
-        //{
-        //    get { return m_PoolingId; }
-        //    set { m_PoolingId = value; }
-        //}
-
-        //[SerializeField]
-        //private PoolingType m_PoolingMode;
-        //public override PoolingType PoolingType
-        //{
-        //    get { return m_PoolingMode; }
-        //    set { m_PoolingMode = value; }
-        //}
-
-        //public override void SetPoolingType(PoolingType value, bool safe = true)
-        //{
-        //    if (safe && value.IsLessRestrictiveThan(PoolingType))
-        //        return;
-
-        //    PoolingType = value;
-        //}
 
         #endregion
     }

@@ -269,7 +269,7 @@ namespace com.lizitt.outfitter
         /// </param>
         /// <returns>The result of the mount attempt.</returns>
         public abstract MountResult Mount(Accessory accessory, MountPointType locationType,
-            bool ignoreRestrictions, AccessoryMounter priorityMounter, 
+            bool ignoreRestrictions, IAccessoryMounter priorityMounter, 
             BodyCoverage additionalCoverage);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,7 +287,7 @@ namespace com.lizitt.outfitter
         /// mounters.  (A custom mounter.)  (Optional)</param>
         /// <returns>The result of the mount attempt.</returns>
         public MountResult Mount(Accessory accessory, MountPointType locationType,
-            bool ignoreRestrictions, AccessoryMounter priorityMounter)
+            bool ignoreRestrictions, IAccessoryMounter priorityMounter)
         {
             return Mount(accessory, locationType, ignoreRestrictions, priorityMounter, 0);
         }
@@ -414,17 +414,6 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Pooling
-        //TODO: POOLING
-
-
-        //public abstract PoolingType PoolingType { get; set; }
-        //public abstract void SetPoolingType(PoolingType value, bool safe = true);
-
-        //public abstract int PoolingId { get; set; }  // Don't use 'group' in the name.  That is a pooling type.
-
-        #endregion
-
         #region Miscellaneous
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -490,7 +479,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
-        public void Destory(DestroyType typ)
+        public void Destroy(DestroyType typ)
         {
             Destroy(typ, null);
         }

@@ -28,20 +28,19 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// All accessories are required to support custom mounters.  But not all accessories use
-    /// mounters.  Some have built-in mount capatilities.
+    /// All accessories are required to support custom mounters via their  <see cref="Accessory.Mounter"/> method.  
+    /// But some accessories have built-in mount capabilities and don't use mounters for normal operation.
     /// </para>
     /// <para>
-    /// A specific mounter may only be able to mount an accessory to a single location, or 
-    /// multiple locations.  It may require the accessory to be in a specifc state before
-    /// performing a mount.  (E.g. A mounter that can only transfer an accessory from the
-    /// 'right hand' to the 'left hand'.)  A mounter may perform a simple mount that completes 
-    /// immediately, or a complex mount involving animations.  There are very few limitations
+    /// A specific mounter may only be able to mount an accessory to a single location, or multiple locations.  
+    /// It may require the accessory to be in a specifc state before performing a mount.  (E.g. A mounter that can
+    /// only transfer an accessory from the 'right hand' to the 'left hand'.)  A mounter may perform a simple 
+    /// mount that completes immediately, or a complex mount involving animations.  There are very few limitations
     /// on what a mounter can do.
     /// </para>
     /// </remarks>
     public abstract class AccessoryMounter
-        : MonoBehaviour
+        : MonoBehaviour, IAccessoryMounter
     {
         /// <summary>
         /// The coverage of the accessory when it is attached to the specified location using the
@@ -155,7 +154,7 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// What a mounter does is implementation specific. The default behavior is for the 
-        /// mounter to self-destory if the mounter and <paramref name="accessory"/> share the 
+        /// mounter to self-destroy if the mounter and <paramref name="accessory"/> share the 
         /// same GameObject.  But a mounter may be designed to be shared between between 
         /// multiple owners, in which case it may choose to ignore the call completely.
         /// </para>

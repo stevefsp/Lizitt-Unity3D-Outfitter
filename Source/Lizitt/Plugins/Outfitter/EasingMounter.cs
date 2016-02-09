@@ -20,24 +20,20 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
     /// <summary>
     /// Provides common settings and behavior for a mounter that performs position and rotation
-    /// easing during accessory mount operations.
+    /// easing during an accessory mount operation.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// A mounter based on this class can only be used for one mount operation at a time, so it 
-    /// is either assigned to a single accessory or shared using a pooling system in a 
-    /// manner that prevents concurrent use.
+    /// <see cref="UpdateMount"/> will complete immediately if used outside of play mode.
     /// </para>
     /// <para>
-    /// Will complete immediately if used outside of play mode. (No animation.)
-    /// </para>
-    /// <para>
-    /// Does not implement unmounting.
+    /// Supports concurrent mount operations. Does not support mount state serialization.
     /// </para>
     /// </remarks>
     public abstract class EasingMounter
@@ -46,9 +42,11 @@ namespace com.lizitt.outfitter
         /*
          * Design notes:
          * 
-         * It is technically ok for both mount points (to/from) to be the same.  The purpose may 
-         * be to use the mounter to transfer from the same location but on two different outfits.
+         * It is technically ok for both mount points (to/from) to be the same.  This is useful for mounters 
+         * designed to transfer an accessory between the same mount point type on different outfits.
          */
+
+        #region Configuration Settings
 
         [Space(10)]
 
@@ -121,20 +119,102 @@ namespace com.lizitt.outfitter
             set { m_EaseDuration = Mathf.Max(0, value); }
         }
 
-        private float m_EaseTime = 0;
-        private Vector3 m_LocalStartPosition;
-        private Vector3 m_LocalStartRotation;
+        [SerializeField]
+        [Tooltip("The initial size of the mount state buffer.  (Set to the estimated maximum expected number of"
+            + " concurrent mount operations.  Too small of a value will result in play mode memory"
+            + " allocation(s)/garbage collection.  Too large of a value will waste memory.)")]
+        [ClampMinimum(0)]
+        private int m_MountBufferSize = 5;
+
+        #endregion
+
+        #region  Mount State
+
+        // Design note:  Serialization friendly. (Hence the use of a list rather than a dictionary.)
+        // But not worth fully implementing until properly supported by the accessory core. 
+
+        private struct MountState
+        {
+            public Accessory accessory;
+            public float easeTime;
+            public Vector3 localStartPosition;
+            public Vector3 localStartRotation;
+        }
+
+        private List<MountState> m_MountState;
+
+        private MountState GetMountState(Accessory accessory)
+        {
+            CheckStateInitialized();
+            for (int i = 0; i < m_MountState.Count; i++)
+            {
+                var item = m_MountState[i];
+
+                if (item.accessory == accessory)
+                    return item;
+            }
+
+            // Do not set accessory.  An unssigned accessory indicates a new state.
+            return new MountState();
+        }
+
+        private void SetMountState(MountState state)
+        {
+            CheckStateInitialized();
+            for (int i = 0; i < m_MountState.Count; i++)
+            {
+                var item = m_MountState[i];
+
+                if (item.accessory == state.accessory)
+                {
+                    m_MountState[i] = state;
+                    return;
+                }
+            }
+
+            m_MountState.Add(state);
+        }
+
+        private void RemoveMountState(Accessory accessory)
+        {
+            CheckStateInitialized();
+            for (int i = 0; i < m_MountState.Count; i++)
+            {
+                var item = m_MountState[i];
+
+                if (item.accessory == accessory)
+                {
+                    m_MountState.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        private void CheckStateInitialized()
+        {
+            if (m_MountState == null)
+                m_MountState = new List<MountState>(m_MountBufferSize);
+        }
+
+        #endregion
+
+        #region Mounting
 
         public override bool InitializeMount(Accessory accessory, MountPoint location)
         {
             if (location && CanMount(accessory, location.LocationType))
             {
-                m_EaseTime = 0;
+                var state = GetMountState(accessory);
+
+                state.accessory = accessory;  // Might be a new state.
+                state.easeTime = state.easeTime == 0 ? 0 : state.easeTime;
 
                 accessory.transform.parent = location.transform;
 
-                m_LocalStartPosition = accessory.transform.localPosition;
-                m_LocalStartRotation = accessory.transform.localEulerAngles;
+                state.localStartPosition = accessory.transform.localPosition;
+                state.localStartRotation = accessory.transform.localEulerAngles;
+
+                SetMountState(state);
 
                 return true;
             }
@@ -144,24 +224,54 @@ namespace com.lizitt.outfitter
 
         public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
-            m_EaseTime += Time.deltaTime;
+            // Optimized for non-immediate completion.
 
-            var ntime = Mathf.Clamp01(m_EaseTime / m_EaseDuration);
+            var state = GetMountState(accessory);
+
+            if (!state.accessory)
+            {
+                Debug.LogError(
+                    "Accessory not initialized. Update failed: " + (accessory ? accessory.name : "Null"), accessory);
+                return false;
+            }
+
+            state.easeTime += Time.deltaTime;
+
+            var ntime = Mathf.Clamp01(state.easeTime / m_EaseDuration);
 
             if (!Application.isPlaying || immediateComplete || ntime >= 1)
             {
                 FinalizeMount(accessory, location);
+                RemoveMountState(accessory);
                 return false;
             }
 
             accessory.transform.localPosition =
-                GetLocalPosition(m_LocalStartPosition, PositionOffset, ntime);
+                GetLocalPosition(state.localStartPosition, PositionOffset, ntime);
 
             accessory.transform.localEulerAngles = 
-                GetLocalEulerAngles(m_LocalStartRotation, RotationOffset, ntime);
+                GetLocalEulerAngles(state.localStartPosition, RotationOffset, ntime);
+
+            SetMountState(state);
 
             return true;
         }
+
+        public override void CancelMount(Accessory accessory, MountPoint location)
+        {
+            // Don't finalize the mount.  Assume that another mounter is taking over and that it is designed to take
+            // over easing as needed.  (Since that is the best design.)
+            RemoveMountState(accessory);
+        }
+
+        public override void OnAccessoryDestroy(Accessory accessory, DestroyType type)
+        {
+            RemoveMountState(accessory);
+        }
+
+        #endregion
+
+        #region Abstract Members
 
         /// <summary>
         /// Get the local position for the specified time.
@@ -195,5 +305,7 @@ namespace com.lizitt.outfitter
         /// <returns>The local position for the specified time.</returns>
         public abstract Vector3 GetLocalEulerAngles(
             Vector3 start, Vector3 end, float normalizedTime);
+
+        #endregion
     }
 }

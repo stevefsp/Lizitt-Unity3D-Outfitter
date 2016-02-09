@@ -29,7 +29,15 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all ScriptableObject based mounters inherit from this class.  It is simply a
-    /// base from which to provide common utility features.
+    /// useful base from which to provide common utility features.
+    /// </para>
+    /// <para>
+    /// It is important to support concurrent mount operations for mounters that are designed to be project assets.  
+    /// This is easy for immediate-complete mounters, but care must be taken for mounters that take time to complete.
+    /// </para>
+    /// <para>
+    /// Mounters based on this class can support both concurrent mount operations and full state serialization.
+    /// Actual support dependeds on the concrete implemenation.
     /// </para>
     /// </remarks>
     public abstract class AccessoryMounter
@@ -55,11 +63,17 @@ namespace com.lizitt.outfitter
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public abstract void CancelMount(Accessory accessory, MountPoint location);
+        public virtual void CancelMount(Accessory accessory, MountPoint location)
+        {
+            // Do nothing.
+            // Most mounters are expected to be immediate-complete.  So don't make them all implement this method.
+        }
 
         public virtual void OnAccessoryDestroy(Accessory accessory, DestroyType type)
         {
             // Do nothing.
+            // For most scriptable object mounters the main purpose for this is state cleanup of in-progress mounts.
+            // So likelihood of use is similar to CancelMount.
         }
     }
 }

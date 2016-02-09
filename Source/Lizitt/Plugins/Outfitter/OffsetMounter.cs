@@ -29,11 +29,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This class does not have any internal state that prevents its use by concurrent
-    /// mount operations.
-    /// </para>
-    /// <para>
-    /// Does not implement unmounting.
+    /// Mounters based on this class can support both concurrent mount operations and full state serialization.
+    /// Actual support dependeds on the concrete implemenation.
     /// </para>
     /// </remarks>
     public abstract class OffsetMounter
@@ -96,11 +93,6 @@ namespace com.lizitt.outfitter
                 accessory.transform.localPosition = PositionOffset;
                 accessory.transform.localEulerAngles = RotationOffset;
             }
-        }
-
-        public override void CancelMount(Accessory accessory, MountPoint location)
-        {
-            // Does nothing.
         }
     }
 }

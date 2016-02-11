@@ -441,7 +441,7 @@ namespace com.lizitt.outfitter
         [Space(5)]
         [SerializeField]
         [ObjectList("IAccessoryObserver Objects", typeof(IAccessoryObserver))]
-        private AccessoryObserverGroup m_Observers = new AccessoryObserverGroup(0);
+        private AccessoryObserverGroup m_Observers = new AccessoryObserverGroup(0);   // Required by custom editor. <<<<
 
         public sealed override bool AddObserver(IAccessoryObserver observer)
         {

@@ -78,7 +78,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [ObjectList("IAccessoryMounter Objects", typeof(IAccessoryMounter))]
-        private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(0);
+        private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(0);  // Required by custom editor. <<<<<<<<
 
         /// <summary>
         /// The size of the mounter buffer.
@@ -173,7 +173,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The location type the accessory can always mount to. (The default mounter will be used if no"
             + " other mounter is avaiable.)")]
-        private MountPointType m_DefaultLocation;
+        private MountPointType m_DefaultLocation;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         /// <summary>
         /// The location type the accessory can always mount to.

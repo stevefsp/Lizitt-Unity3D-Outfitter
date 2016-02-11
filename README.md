@@ -2,7 +2,7 @@
 
 ## Notice
 
-**This project is in flux.**  It has undergone a major redesign.  The redesign is undergoing final testing, with components being checked-in as their testing is completed.  This message will be removed and release v0.2.0 created once the entire process is complete.
+**This project is in flux** as its undergoes a major redesign.  Components are checked-in as individual unit testing is completed. Changes will be frequent and proper integration testing is limited during this phase. Release v0.2.0 will be created once the design has stabilized and all testing completed.
 
 ## Overview
 
@@ -11,7 +11,7 @@ Test Status: Beta
 Language: C#  
 Target: [Unity3D](http://unity3d.com/unity) 5.3+ (Personal & Professional)
 
-The Outfitter helps a user to define prototypes (usually prefabs) that represent outfits and accessories.  These components are combined at run-time to represent an agent's body.  Certain parts of the outfits, such as materials can be overriden in order to support outfit varients.  At run-time the outfits and accessories are instantiated as needed to create a body.
+The Outfitter helps a user to define prototypes (usually prefabs) that represent outfits and accessories.  These components are combined at run-time to represent an agent's body.  Certain parts of the outfits, such as materials can be overriden in order to support outfit variants.  At run-time the outfits and accessories are instantiated as needed to create a body.
 
 ## Installation
 

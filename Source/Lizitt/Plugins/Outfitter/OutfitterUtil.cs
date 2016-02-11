@@ -71,10 +71,19 @@ namespace com.lizitt.outfitter
          */
 
         /// <summary>
-        /// The base menu order for Outfitter assets. (E.g. For use With the CreateAssetMenu
-        /// attribute.)
+        /// The base menu order for Outfitter assets. (For use With the CreateAssetMenu attribute.)
         /// </summary>
         public const int BaseMenuOrder = LizittUtil.BaseMenuOrder + 200;
+
+        /// <summary>
+        /// The base menu order for accessory mounter assets. (For use With the CreateAssetMenu attribute.)
+        /// </summary>
+        public const int BaseMounterOrder = BaseMenuOrder;
+
+        /// <summary>
+        /// The base menu order for outfit factory assets. (For use With the CreateAssetMenu attribute.)
+        /// </summary>
+        public const int BaseOutfitFactoryOrder = BaseMounterOrder + 20;
 
         #endregion
 

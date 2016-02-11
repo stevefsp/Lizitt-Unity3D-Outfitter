@@ -84,12 +84,12 @@ namespace com.lizitt.outfitter
         /// Parents the accessory to the location and applies the offsets.
         /// </summary>
         /// <param name="accessory">The accessory</param>
-        /// <param name="location">The location to mount the accessory to.</param>
-        protected void FinalizeMount(Accessory accessory, MountPoint location)
+        /// <param name="location">The mount location's transform.</param>
+        protected void FinalizeMount(Accessory accessory, Transform parent)
         {
-            if (accessory && location)
+            if (accessory && parent)
             {
-                accessory.transform.parent = location.transform;
+                accessory.transform.parent = parent;
                 accessory.transform.localPosition = PositionOffset;
                 accessory.transform.localEulerAngles = RotationOffset;
             }

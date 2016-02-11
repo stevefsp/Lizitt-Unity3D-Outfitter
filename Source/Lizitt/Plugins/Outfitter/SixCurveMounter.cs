@@ -40,6 +40,8 @@ namespace com.lizitt.outfitter
     /// Will complete immediately if used outside of play mode. (No animation.)
     /// </para>
     /// </remarks>
+    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Six Curve Mounter",
+        order = OutfitterUtil.BaseMounterOrder + 4)]
     public class SixCurveMounter
         : EasingMounter
     {

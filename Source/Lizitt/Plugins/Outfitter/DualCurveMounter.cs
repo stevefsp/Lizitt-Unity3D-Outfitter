@@ -44,6 +44,8 @@ namespace com.lizitt.outfitter
     /// Does not support unmounting.
     /// </para>
     /// </remarks>
+    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Dual Curve Mounter",
+        order = OutfitterUtil.BaseMounterOrder + 3)]
     public class DualCurveMounter
         : EasingMounter
     {

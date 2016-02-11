@@ -49,7 +49,6 @@ namespace com.lizitt.outfitter
         #region Configuration Settings
 
         [Space(10)]
-
         [SerializeField]
         [Tooltip("The location the mounter can transfer the accessory from.")]
         private MountPointType m_From = (MountPointType)0;
@@ -106,6 +105,29 @@ namespace com.lizitt.outfitter
         [Space]
 
         [SerializeField]
+        [Tooltip("The initial size of the mount state buffer.  (Set to the maximum expected number of"
+            + " concurrent mount operations.  Too small of a value will result in play mode memory"
+            + " allocation(s)/garbage collection.  Too large of a value will waste memory.)")]
+        [ClampMinimum(0)]
+        private int m_MountBufferSize = 5;
+
+
+        /// <summary>
+        /// The initial size of the mount state buffer.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Set to the maximum expected number of concurrent mount operations.  Too small of a value will result
+        /// in play mode memory allocation(s)/garbage collection.  Too large of a value will waste memory.
+        /// </para>
+        /// </remarks>
+        public int MountBufferSize
+        {
+            get { return m_MountBufferSize; }
+            set { m_MountBufferSize = Mathf.Max(0, value); }
+        }
+
+        [SerializeField]
         [Tooltip("The length of the ease operation, in seconds.")]
         [ClampMinimum(0)]
         private float m_EaseDuration = 1;
@@ -119,13 +141,6 @@ namespace com.lizitt.outfitter
             set { m_EaseDuration = Mathf.Max(0, value); }
         }
 
-        [SerializeField]
-        [Tooltip("The initial size of the mount state buffer.  (Set to the estimated maximum expected number of"
-            + " concurrent mount operations.  Too small of a value will result in play mode memory"
-            + " allocation(s)/garbage collection.  Too large of a value will waste memory.)")]
-        [ClampMinimum(0)]
-        private int m_MountBufferSize = 5;
-
         #endregion
 
         #region  Mount State
@@ -138,10 +153,22 @@ namespace com.lizitt.outfitter
             public Accessory accessory;
             public float easeTime;
             public Vector3 localStartPosition;
-            public Vector3 localStartRotation;
+            public Vector3 localStartEulers;
         }
 
         private List<MountState> m_MountState;
+
+        /// <summary>
+        /// The number of currently active mount operations.
+        /// </summary>
+        public int ActiveMountCount
+        {
+            get 
+            {
+                CheckStateInitialized();
+                return m_MountState.Count; 
+            }
+        }
 
         private MountState GetMountState(Accessory accessory)
         {
@@ -212,7 +239,7 @@ namespace com.lizitt.outfitter
                 accessory.transform.parent = location.transform;
 
                 state.localStartPosition = accessory.transform.localPosition;
-                state.localStartRotation = accessory.transform.localEulerAngles;
+                state.localStartEulers = accessory.transform.localEulerAngles;
 
                 SetMountState(state);
 
@@ -224,8 +251,28 @@ namespace com.lizitt.outfitter
 
         public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
-            // Optimized for non-immediate completion.
+            float deltaTime = (Application.isPlaying && !immediateComplete) ? Time.deltaTime : m_EaseDuration + 0.1f; 
+            return UpdateMount(accessory, location, deltaTime);
+        }
 
+        /// <summary>
+        /// Process the mount operation until it completes using the provided time increment.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// <see cref="InitializeMount"/> must be called and return true before calling this method, then either
+        /// this method must be called through to completion or <see cref="CancelMount"/> used to cancel the operation.
+        /// </para>
+        /// <para>
+        /// No matter the value of <see cref="deltaTime"/>, the normalized time is clamped to the zero to one range.
+        /// </para>
+        /// </remarks>
+        /// <param name="accessory">The accessory to update. (Required)</param>
+        /// <param name="location">The mount location. (Required)</param>
+        /// <param name="deltaTime">The number of seconds to to apply to the update.</param>
+        /// <returns>True while the mount operation is in-progress.  False when the operation is complete.</returns>
+        public bool UpdateMount(Accessory accessory, MountPoint location, float deltaTime)
+        {
             var state = GetMountState(accessory);
 
             if (!state.accessory)
@@ -235,13 +282,12 @@ namespace com.lizitt.outfitter
                 return false;
             }
 
-            state.easeTime += Time.deltaTime;
-
-            var ntime = Mathf.Clamp01(state.easeTime / m_EaseDuration);
-
-            if (!Application.isPlaying || immediateComplete || ntime >= 1)
+            state.easeTime += deltaTime;
+            
+            var ntime = Mathf.Max(0, state.easeTime / m_EaseDuration);
+            if (ntime >= 1)
             {
-                FinalizeMount(accessory, location);
+                FinalizeMount(accessory, location.transform);
                 RemoveMountState(accessory);
                 return false;
             }
@@ -249,8 +295,8 @@ namespace com.lizitt.outfitter
             accessory.transform.localPosition =
                 GetLocalPosition(state.localStartPosition, PositionOffset, ntime);
 
-            accessory.transform.localEulerAngles = 
-                GetLocalEulerAngles(state.localStartPosition, RotationOffset, ntime);
+            accessory.transform.localEulerAngles =
+                GetLocalEulerAngles(state.localStartEulers, RotationOffset, ntime);
 
             SetMountState(state);
 
@@ -278,7 +324,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// All positions are local to the target location.
+        /// All positions are local offsets to the target location.
         /// </para>
         /// </remarks>
         /// <param name="start">The local start position.</param>
@@ -292,7 +338,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// All rotations are local to the target location.  (I.e. The mount point.)
+        /// All rotations are local offsets from the target.
         /// </para>
         /// <para>
         /// Note: <see cref="Easing.Clerp"/> is useful for obtaining the shortest rotation 
@@ -303,8 +349,7 @@ namespace com.lizitt.outfitter
         /// <param name="end">The local end rotation.</param>
         /// <param name="normalizedTime">The normalized time. [0 &lt;= value &lt;= 1]</param>
         /// <returns>The local position for the specified time.</returns>
-        public abstract Vector3 GetLocalEulerAngles(
-            Vector3 start, Vector3 end, float normalizedTime);
+        public abstract Vector3 GetLocalEulerAngles(Vector3 start, Vector3 end, float normalizedTime);
 
         #endregion
     }

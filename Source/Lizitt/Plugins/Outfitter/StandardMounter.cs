@@ -29,10 +29,11 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Update completes immediately.  Instances of this type supports multiple concurrent mount 
-    /// operations.  (I.e. It an be safely shared by multiple accessories.)
+    /// Update completes immediately.  Supports multiple concurrent mount operations.
     /// </para>
     /// </remarks>
+    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Standard Mounter", 
+        order=OutfitterUtil.BaseMounterOrder + 0)]
     public class StandardMounter
         : OffsetMounter
     {
@@ -76,7 +77,7 @@ namespace com.lizitt.outfitter
 
         public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
-            FinalizeMount(accessory, location);
+            FinalizeMount(accessory, location.transform);
             return false;
         }
     }

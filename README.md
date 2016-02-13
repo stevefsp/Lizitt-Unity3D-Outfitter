@@ -17,7 +17,7 @@ The Outfitter helps a user to define prototypes (usually prefabs) that represent
 
 Requires:
 
-[Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore
+[Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore  
 [Unity3D v5.3+](http://unity3d.com/)
 
 1. Install [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore

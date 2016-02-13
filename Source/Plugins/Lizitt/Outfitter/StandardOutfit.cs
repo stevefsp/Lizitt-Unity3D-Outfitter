@@ -249,12 +249,22 @@ namespace com.lizitt.outfitter
         [Space(5)]
 
         [SerializeField]
-        [OutfitMaterialGroup(true)]
-        private OutfitMaterialGroup m_OutfitMaterials = new OutfitMaterialGroup();         // Refactor note: Field name used in the editor.
+        [OutfitMaterialTargetGroup(true)]
+        private OutfitMaterialTargetGroup m_OutfitMaterials = new OutfitMaterialTargetGroup();         // Refactor note: Field name used in the editor.
 
         public sealed override Material GetSharedMaterial(OutfitMaterialType typ)
         {
             return m_OutfitMaterials.GetSharedMaterial(typ);
+        }
+
+        public override int OutfitMaterialCount
+        {
+            get { return m_OutfitMaterials.Count; }
+        }
+
+        public override OutfitMaterial GetOutfitMaterial(int index)
+        {
+            return m_OutfitMaterials[index].SharedOutfitMaterial;
         }
 
         public sealed override int ApplySharedMaterial(OutfitMaterialType typ, Material material)
@@ -513,7 +523,7 @@ namespace com.lizitt.outfitter
         protected override void Reset()
         {
             m_BlendRenderer = null;
-            m_OutfitMaterials = new OutfitMaterialGroup();  // Materials Reset() is not as safe.
+            m_OutfitMaterials = new OutfitMaterialTargetGroup();  // Materials Reset() is not as safe.
             m_Parts.Clear(0);
             m_Accessories.Clear();
             Observers.Clear();

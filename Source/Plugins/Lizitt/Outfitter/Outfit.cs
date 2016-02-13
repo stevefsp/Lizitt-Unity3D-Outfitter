@@ -35,12 +35,12 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The body outfit generally consists of the models, renderers, animators, colliders, 
-    /// and other components the represent an agents physical presence in the scene.
+    /// The body outfit generally consists of the models, renderers, animators, colliders, and other components that
+    /// represent an agents physical presence in the scene.
     /// </para>
     /// <para>
-    /// The functionality of an outfit can extended in one of two ways:  
-    /// Class extension and through the use of <see cref="IOutfitObservers"/>s.  
+    /// The functionality of an outfit can extended in one of two ways:  Class extension and through the use 
+    /// of <see cref="IOutfitObservers"/>s.  
     /// </para>
     /// <para>
     /// Warning: Do not make the Outfit component a required component.  I.e. Don't do this:  
@@ -77,8 +77,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This value is changed using <see cref="SetState"/>.  A value is required for all
-        /// states except 'unmanaged'.
+        /// This value is changed using <see cref="SetState"/>.  A value is required for all states except 'unmanaged'.
         /// </para>
         /// </remarks>
         public abstract GameObject Owner { get; }
@@ -88,8 +87,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This value is changed using <see cref="SetState"/>.  An <see cref="Owner"/> is 
-        /// required for all states except 'unmanaged'.
+        /// This value is changed using <see cref="SetState"/>.  An <see cref="Owner"/> is  required for all
+        /// states except 'unmanaged'.
         /// </para>
         /// </remarks>
         public abstract OutfitStatus Status { get; }
@@ -104,9 +103,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="status">The status.</param>
         /// <param name="owner">The owner.  (Required for all status except 'unmanaged'.)</param>
-        /// <returns>
-        /// True if the operation was successful.  False on error.
-        /// </returns>
+        /// <returns>True if the operation was successful.  False on error.</returns>
         public abstract bool SetState(OutfitStatus status, GameObject owner);
 
         #endregion
@@ -117,9 +114,8 @@ namespace com.lizitt.outfitter
         /// The maximum number of body parts the outfit can have. [Limit: >= 0]
         /// </summary>
         /// <para>
-        /// How body parts are managed and stored is implementation specific.  This value
-        /// may be fixed or dynamic. It may represent a true buffer size, or simply the number
-        /// of currently avaiable body parts.
+        /// How body parts are managed and stored is implementation specific.  This value may be fixed or dynamic. 
+        /// It may represent a true buffer size, or simply the number of currently avaiable body parts.
         /// </para>
         public abstract int BodyPartBufferSize { get; }
 
@@ -131,21 +127,15 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The body part at the specified index, or null if there is none.
         /// </summary>
-        /// <param name="index">
-        /// The index. [0 &lt;= value &lt <see cref="BodyPartBufferSize"/>]
-        /// </param>
-        /// <returns>
-        /// The body part at the specified index, or null if there is none.
-        /// </returns>
+        /// <param name="index">The index. [0 &lt;= value &lt <see cref="BodyPartBufferSize"/>]</param>
+        /// <returns>The body part at the specified index, or null if there is none.</returns>
         public abstract BodyPart GetBodyPart(int index);
 
         /// <summary>
         /// Gets the body part associated with the specified type, or null if there is none.
         /// </summary>
         /// <param name="typ">The type.</param>
-        /// <returns>
-        /// The body part associated with the specified type, or null if there is none.
-        /// </returns>
+        /// <returns>The body part associated with the specified type, or null if there is none.</returns>
         public abstract BodyPart GetBodyPart(BodyPartType typ);
 
         /// <summary>
@@ -169,9 +159,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The purpose of this flag is to allow an outfit to be marked as not appropriate for
-        /// most accessories.  Consider a full body space suit.  It is normally not appropriate
-        /// for hats, glasses, etc. to be mounted to such an outfit.  So it is marked as limited.
+        /// The purpose of this flag is to allow an outfit to be marked as not appropriate for most accessories.  
+        /// Consider a full body space suit.  It is normally not appropriate for hats, glasses, etc. to be mounted
+        /// to such an outfit.  So it is marked as limited.
         /// </para>
         /// </remarks>
         public abstract bool AccessoriesLimited { get; set; }
@@ -181,13 +171,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Built-in coverage blocks represent blocks owned by the outfit rather than accessories.
-        /// Accessories that have coverage that overlaps the blocks will normally no be allowed
-        /// to mount.
-        /// </para>
-        /// <para>
-        /// Example:  An outfit with a built-in hat will have coverage blocks for the top of the 
-        /// head.
+        /// Built-in coverage blocks represent blocks owned by the outfit rather than accessories. Accessories that
+        /// have coverage that overlaps the blocks will normally no be allowed to mount. Example:  An outfit with a
+        /// built-in hat will have coverage blocks for the top of the head.
         /// </para>
         /// </remarks>
         public abstract BodyCoverage CoverageBlocks { get; set; }
@@ -207,9 +193,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// How mount points are managed and stored is implementation specific.  This value
-        /// may be fixed or dynamic. It may represent a true buffer size, or simply the number
-        /// of currently avaiable mount points.
+        /// How mount points are managed and stored is implementation specific.  This value may be fixed or
+        /// dynamic. It may represent a true buffer size, or simply the number of currently avaiable mount points.
         /// </para>
         /// </remarks>
         public abstract int MountPointBufferSize { get; }
@@ -220,12 +205,8 @@ namespace com.lizitt.outfitter
         /// <para>
         /// Depending on the implementation, an index location may contain a null value.
         /// </para>
-        /// <param name="index">
-        /// The index. [0 &lt;= value &lt; <see cref="MountPointBufferSize"/>
-        /// </param>
-        /// <returns>
-        /// The mount point at the specified index, or null if there is none.
-        /// </returns>
+        /// <param name="index">The index. [0 &lt;= value &lt; <see cref="MountPointBufferSize"/></param>
+        /// <returns>The mount point at the specified index, or null if there is none.</returns>
         public abstract MountPoint GetMountPoint(int index);
 
         /// <summary>
@@ -261,11 +242,12 @@ namespace com.lizitt.outfitter
         /// <param name="ignoreRestrictions">
         /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
         /// </param>
-        /// <param name="priorityMounter">The mounter that should be tried before any other
-        /// mounters.  (A custom mounter.)  (Optional)</param>
+        /// <param name="priorityMounter">
+        /// The mounter that should be tried before any other mounters.  (A custom mounter.)  (Optional)
+        /// </param>
         /// <param name="additionalCoverage">
-        /// Coverage to add to the accessory if it is successfully mounted, above and beyond any 
-        /// coverage inherent in the accessory.
+        /// Coverage to add to the accessory if it is successfully mounted, above and beyond any coverage inherent
+        /// in the accessory.
         /// </param>
         /// <returns>The result of the mount attempt.</returns>
         public abstract MountResult Mount(Accessory accessory, MountPointType locationType,
@@ -283,8 +265,9 @@ namespace com.lizitt.outfitter
         /// <param name="ignoreRestrictions">
         /// If true, ignore coverage restrictions and the value of <see cref="AccessoriesLimited"/>.
         /// </param>
-        /// <param name="priorityMounter">The mounter that should be tried before any other
-        /// mounters.  (A custom mounter.)  (Optional)</param>
+        /// <param name="priorityMounter">
+        /// The mounter that should be tried before any other mounters.  (A custom mounter.)  (Optional)
+        /// </param>
         /// <returns>The result of the mount attempt.</returns>
         public MountResult Mount(Accessory accessory, MountPointType locationType,
             bool ignoreRestrictions, IAccessoryMounter priorityMounter)
@@ -339,9 +322,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory. (Required.)</param>
-        /// <returns>
-        /// True if an release occurred, false if the accessory is not known to the outfit.
-        /// </returns>
+        /// <returns>True if an release occurred, false if the accessory is not known to the outfit.</returns>
         public abstract bool Release(Accessory accessory);
 
         #endregion
@@ -353,9 +334,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// All standard implementations require the observer to be a Unity Object for
-        /// serialization purposes, so it is acceptable for an outfit to reject an observer.  An
-        /// error message will be logged if an observer is rejected.
+        /// All standard implementations require the observer to be a Unity Object for serialization purposes, so it is
+        /// acceptable for an outfit to reject an observer.  An error message will be logged if an observer is rejected.
         /// </para>
         /// </para>
         /// <para>
@@ -363,9 +343,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="observer">The observer to add. (Required)</param>
-        /// <returns>
-        /// True if the observer was accepted or already added.  False if the observer was rejected.
-        /// </returns>
+        /// <returns>True if the observer was accepted or already added.  False if the observer was rejected.</returns>
         public abstract bool AddObserver(IOutfitObserver observer);
 
         /// <summary>
@@ -376,7 +354,7 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Renderers
+        #region Renderers / Materials
 
         /// <summary>
         /// The outfit's blend shape renderer. (Optional)
@@ -396,8 +374,14 @@ namespace com.lizitt.outfitter
         public abstract bool IsMaterialDefined(OutfitMaterialType typ);
 
         /// <summary>
-        /// Gets the specified shared material, or null if it is not defined.
+        /// Gets the specified shared material, or null if there is none.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// A null value can mean there are no valid targets for the specified type, or that the target's material 
+        /// is null.  <see cref="IsMaterialDefined"/> is helpful in determining the cause of null.
+        /// </para>
+        /// </remarks>
         /// <param name="typ">The material type.</param>
         /// <returns>
         /// The specified shared material, or null if it is not defined.
@@ -405,11 +389,41 @@ namespace com.lizitt.outfitter
         public abstract Material GetSharedMaterial(OutfitMaterialType typ);
 
         /// <summary>
-        /// Sets the specified shared material.
+        /// The number of outfit materials.
         /// </summary>
+        public abstract int OutfitMaterialCount { get; }
+
+        /// <summary>
+        /// Gets the specified outfit material.  (Material may be null.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The meaning of a null material is implemetnation specific.  It can indicate that the target's material
+        /// is null, that there are no targets for the type, that there is a configuration issue, etc.  
+        /// <see cref="IsMaterialDefined"/> is helpful in determining the cause of a null.
+        /// </para>
+        /// </remarks>
+        /// <param name="typ">The outfit material index. [0 &lt;= value &lt; <see cref="OutfitMaterialCount"/>]</param>
+        /// <returns>
+        /// The specified shared outfit material. (Material may be null.)
+        /// </returns>
+        public abstract OutfitMaterial GetOutfitMaterial(int index);
+
+        /// <summary>
+        /// Sets the material of all material targets of the specified type.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method can be called lazily.  If the material target is not defined the method will simply return 
+        /// zero.
+        /// </para>
+        /// <para>
+        /// This method can't be used to apply a null material.  Null materials will be ignored.
+        /// </para>
+        /// </remarks>
         /// <param name="typ">The material type.</param>
         /// <param name="material">The material to apply. (Required.)</param>
-        /// <returns>True if the material was successfully applied.</returns>
+        /// <returns>The number of targets the material was successfully applied to.</returns>
         public abstract int ApplySharedMaterial(OutfitMaterialType typ, Material material);
 
         #endregion
@@ -426,27 +440,24 @@ namespace com.lizitt.outfitter
         /// Important: Only the owner of the oufit should call this method.
         /// </para>
         /// <para>
-        /// This is the best way of destroying an outfit since the outfit will send
-        /// events to its observers and other associated components so they can properly
-        /// respond.
+        /// This is the best way of destroying an outfit since the outfit will send events to its observers and 
+        /// other associated components so they can properly respond.
         /// </para>
         /// <para>
-        /// The component is responsible for destroying itself as appropriate.  So
-        /// the client only needs to call this method then dispose of its references to the 
-        /// component.
+        /// The component is responsible for destroying itself as appropriate.  So he client only needs to call this
+        /// method then dispose of its references to the component.
         /// </para>
         /// <para><strong>Baking</strong>
         /// </para>
-        /// Baking is the process of converting the outfit into a non-outfit state.  What
-        /// exactly happens during the bake is implemenation specific.  It may result in
-        /// the baking of skinned meshes into static meshes.  It may result in conversion to
-        /// a ragdoll configuration. Etc.
+        /// Baking is the process of converting the outfit into a non-outfit state.  What exactly happens during
+        /// the bake is implemenation specific.  It may result in the baking of skinned meshes into static meshes.  
+        /// It may result in conversion to a ragdoll configuration. Etc.
         /// <para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
         /// <param name="referenceOutfit">
-        /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.)
-        /// Or null if the outfit has no known source. (Only applies to the 'bake' type.)
+        /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.) Or null if the outfit
+        /// has no known source. (Only applies to the 'bake' type.)
         /// </param>
         public abstract void Destroy(DestroyType typ, Outfit referenceOutfit);
 
@@ -461,21 +472,18 @@ namespace com.lizitt.outfitter
         /// Important: Only the owner of the oufit should call this method.
         /// </para>
         /// <para>
-        /// This is the best way of destroying an outfit since the outfit will send
-        /// events to its observers and other associated components so they can properly
-        /// respond.
+        /// This is the best way of destroying an outfit since the outfit will send events to its observers and
+        /// other associated components so they can properly respond.
         /// </para>
         /// <para>
-        /// The component is responsible for destroying itself as appropriate.  So
-        /// the client only needs to call this method then dispose of its references to the 
-        /// component.
+        /// The component is responsible for destroying itself as appropriate.  So the client only needs to call
+        /// this method then dispose of its references to the component.
         /// </para>
         /// <para><strong>Baking</strong>
         /// </para>
-        /// Baking is the process of converting the outfit into a non-outfit state.  What
-        /// exactly happens during the bake is implemenation specific.  It may result in
-        /// the baking of skinned meshes into static meshes.  It may result in conversion to
-        /// a ragdoll configuration. Etc.
+        /// Baking is the process of converting the outfit into a non-outfit state.  What exactly happens during
+        /// the bake is implemenation specific.  It may result in the baking of skinned meshes into static meshes.
+        /// It may result in conversion to a ragdoll configuration. Etc.
         /// <para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
@@ -505,23 +513,6 @@ namespace com.lizitt.outfitter
                 result = MotionRoot.GetComponent<Animator>();
 
             return result ? result : GetComponentInChildren<Animator>();
-        }
-
-        /// <summary>
-        /// Implements a safe, standard way of setting a the outfit's body part layers, 
-        /// if any body parts exist.
-        /// </summary>
-        /// <param name="outfit">The outit. (Required)</param>
-        /// <param name="layer">The desired layer.</param>
-        /// <returns>The clamped layer.</returns>
-        public static int SetBodyPartLayer(Outfit outfit, int layer)
-        {
-            layer = Mathf.Max(0, layer);
-
-            if (outfit)
-                outfit.ApplyBodyPartLayer(layer);
-
-            return layer;
         }
 
         #endregion

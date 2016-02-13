@@ -28,21 +28,21 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// While mount points are normally associated with an <see cref="Outfit"/>, the owner 
-    /// may any Component or GameObject.
+    /// While mount points are normally associated with an <see cref="Outfit"/>, the owner may any GameObject.
+    /// Standard components don't care.
     /// </para>
     /// </remarks>
     /// <seealso cref="Accessory"/>
-    /// <seealso cref="AccessoryMounterGroup"/>
+    /// <seealso cref="Outfit"/>
     public class MountPoint
         : MonoBehaviour
     {
         [SerializeField]
-        [Tooltip("The location of the mount point.")]
+        [Tooltip("The location type of the mount point.")]
         private MountPointType m_Location = (MountPointType)1;
 
         /// <summary>
-        /// The location of the mount point.
+        /// The location type of the mount point.
         /// </summary>
         public MountPointType LocationType
         {
@@ -51,22 +51,27 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The owner of the mount point. (E.g. The mount point's outfit.)  (Optional.)")]
-        private GameObject m_Owner = null;
+        [Tooltip("The data context of the mount point.  (Optional)")]
+        private GameObject m_Context = null;
 
         /// <summary>
-        /// The owner of the mount point. (E.g. The mount point's outfit.)  (Optional.)
+        /// The data context of the mount point.  (Optional)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is an informational field.  It can be set to provide information to users of
-        /// the mount point, such as accessories and mounters.
+        /// This is an informational field.  It can be used to provide information to users of the mount point.  For 
+        /// example, it can be set to the agent that owns the outfit that owns the mount point.
+        /// </para>
+        /// <para>
+        /// Standard components automatically initialize this value to their own GameObject if the value is not
+        /// aleady assigned.  This is meant as a helpful automation.  The value can be reassigned as desired
+        /// without impacting standard component behavior.
         /// </para>
         /// </remarks>
-        public GameObject Owner
+        public GameObject Context
         {
-            get { return m_Owner; }
-            set { m_Owner = value; }
+            get { return m_Context; }
+            set { m_Context = value; }
         }
 
         [SerializeField]
@@ -78,10 +83,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is a hint.  How outfits, accessories, and mounters handle
-        /// this flag is implementation specific.  The general rule is that the component
-        /// responsbile for asking an accessory to mount to a mount point is responsible 
-        /// for first checking and responding to its blocked status.
+        /// This is a hint.  How other components handle this flag is implementation specific.  The general rule is
+        /// that the component responsbile for asking an accessory to mount to a mount point is responsible for 
+        /// first checking and responding to its blocked status.
         /// </para>
         /// </remarks>
         public bool IsBlocked

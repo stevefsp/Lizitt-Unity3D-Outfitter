@@ -154,8 +154,8 @@ namespace com.lizitt.outfitter
             {
                 if (m_Items[i])
                 {
-                    if (!unassignedOnly || m_Items[i].Owner)
-                        m_Items[i].Owner = gameObject;
+                    if (!unassignedOnly || m_Items[i].Context)
+                        m_Items[i].Context = gameObject;
                 }
                 else
                     m_Items[i] = null;  // Auto-clean.  A good place to do it.

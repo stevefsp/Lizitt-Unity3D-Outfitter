@@ -26,7 +26,7 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// <see cref="StandardAccessory"/> custom editor.
+    /// <see cref="SimpleAccessory"/> custom editor.
     /// </summary>
     [CustomEditor(typeof(SimpleAccessory))]
     public class SimpleAccessoryEditor

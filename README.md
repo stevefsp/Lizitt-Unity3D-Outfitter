@@ -17,10 +17,10 @@ The Outfitter helps a user to define prototypes (usually prefabs) that represent
 
 Requires:
 
-[Lizitt-Unity3D-Utilities)](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core.  (The head until the current release is fully rolled out.)  
+[Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore
 [Unity3D v5.3+](http://unity3d.com/)
 
-1. Install [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core.
+1. Install [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore
 2. Download this project and drop the contents of the `Source` directory into the Unity Assets folder.
 
 ## Documentation

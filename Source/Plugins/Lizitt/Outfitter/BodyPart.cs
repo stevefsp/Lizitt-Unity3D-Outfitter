@@ -24,31 +24,35 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A body part.  (Usually part of an outfit.)
+    /// A body part.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Body parts offer a higher resolution collision structure than can be provied by a 
-    /// single outfit collider.  The status of the body part collider is used to to 
-    /// enable/disable collider behavior as needed.
+    /// Body parts provide higher resolution collision data than can be provied by a  single outfit collider.  
+    /// <see cref="Status"/> is used to  modify collider behavior as needed.
+    /// </para>
+    /// <para>
+    /// While body parts are normally associated with an <see cref="Outfit"/>, the owner may any GameObject.
+    /// Standard components don't care.
     /// </para>
     /// </remarks>
+    /// <seealso cref="Outfit"/>
     public class BodyPart
         : MonoBehaviour
     {
         /*
          * Design notes:
          * 
-         * Collision behavior is an important feature of the body part, so it is considered required
-         * and is as strictly enforced as possible.  Rigidbody's are enforced, but less strictly,
-         * on the assumption that the they will exist before they are needed.
+         * Collision behavior is an important feature of the body part, so the collider is treated as required
+         * and is as strictly enforced as possible.  Rigidbody's are enforced, but less strictly, on the assumption
+         * that the they will exist before they are needed.
          * 
-         * Internal access to the collider should always start with calling the property so it
-         * can auto-initialize if needed.  Later calls can be to the field.
+         * Internal access to the collider should always start with calling the property so it can auto-initialize
+         * if needed.  Later calls can be to the field.
          * 
-         * The design assumes one of two use cases:  There is one rigidbody per collider.  Or, if
-         * a rigidbody is shared, all of the rigidbody's colliders will be maintained
-         * with the same status.  I.e. All in raycast mode, all in collision mode, etc.
+         * The design assumes one of two use cases:  There is one rigidbody per collider.  Or, if a rigidbody is
+         * shared, all of the rigidbody's colliders will be maintained with the same status.  I.e. All in raycast
+         * mode, all in collision mode, etc.
          */
 
         [SerializeField]
@@ -95,15 +99,13 @@ namespace com.lizitt.outfitter
                     if (!rb.isKinematic)
                     {
                         rb.isKinematic = true;
-                        Debug.LogWarning(Type + ": Non-kinematic rigidbody detected on body part."
-                            + " Set rigidbody to kinemetic.", this);
+                        Debug.LogWarning(
+                            Type + ": Non-kinematic rigidbody detected on body part. Set rigidbody to kinemetic.", 
+                            this);
                     }
                 }
                 else
-                {
-                    Debug.LogWarning(
-                        Type + ": Body part collider does not have a rigidbody.", this);
-                }
+                    Debug.LogWarning(Type + ": Body part collider does not have a rigidbody.", this);
             }
         }
 
@@ -117,22 +119,27 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The owner of the body part. (Such as an outfit.)  (Optional)")]
-        private GameObject m_Owner = null;
+        [Tooltip("The data context of the body part.  (Optional)")]
+        private GameObject m_Context = null;
 
         /// <summary>
-        /// The owner of the body part. (E.g. An outfit.)  (Optional)
+        /// The data context of the body part.  (Optional)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is an informational field.  It can be set to provide information to users of
-        /// the body part.
+        /// This is an informational field.  It can be used to provide information to users of the body part.  For 
+        /// example, it can be set to the agent that owns the outfit that owns the body part.
+        /// </para>
+        /// <para>
+        /// Standard components automatically initialize this value to their own GameObject if the value is not
+        /// aleady assigned.  This is meant as a helpful automation.  The value can be reassigned as desired
+        /// without impacting standard component behavior.
         /// </para>
         /// </remarks>
-        public GameObject Owner
+        public GameObject Context
         {
-            get { return m_Owner; }
-            set { m_Owner = value; }
+            get { return m_Context; }
+            set { m_Context = value; }
         }
 
         /// <summary>

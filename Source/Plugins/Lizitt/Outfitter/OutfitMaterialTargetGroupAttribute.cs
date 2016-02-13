@@ -25,9 +25,9 @@ namespace com.lizitt.outfitter
 {
     /// <summary>
     /// Provides a user friendly re-orderable list of local outfit materials when added to
-    /// a <see cref="OutfitMaterialGroup"/> field.
+    /// a <see cref="OutfitMaterialTargetGroup"/> field.
     /// </summary>
-    public class OutfitMaterialGroupAttribute
+    public class OutfitMaterialTargetGroupAttribute
         : PropertyAttribute
     {
         /// <summary>
@@ -61,7 +61,7 @@ namespace com.lizitt.outfitter
         /// SerializedProperty.serializedObject, or null if the reference object is 
         /// SerializedProperty.serializedObject.targetObject.
         /// </param>
-        public OutfitMaterialGroupAttribute(bool allowMultipleTargets = false, string searchPropertyPath = null)
+        public OutfitMaterialTargetGroupAttribute(bool allowMultipleTargets = false, string searchPropertyPath = null)
         {
             SearchPropertyPath = searchPropertyPath;
             AllowMultipleTargets = allowMultipleTargets;

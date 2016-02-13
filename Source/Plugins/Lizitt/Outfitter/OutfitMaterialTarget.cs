@@ -24,18 +24,18 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Defines a outfit material item.
+    /// Defines the renderer target of a common (well known) outfit material.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// An outfit material defines a common (well knwon) renderer material that can
-    /// be accessed by clients without the need to know where the renderer or material is.  I.e. A
-    /// client can access the material only using its <see cref="OutfitMaterialType"/>.
+    /// This object is helpful in defining a common (well knwon) renderer material that can be accessed by clients
+    /// without the need to know where the renderer or material is.  I.e. A client can access the material only 
+    /// using its <see cref="OutfitMaterialType"/>.
     /// </para>
     /// </remarks>
     /// <seealso cref="OutfitMaterialType"/>
     [System.Serializable]
-    public struct OutfitMaterial
+    public struct OutfitMaterialTarget
     {
         [SerializeField]
         [Tooltip("The material type.")]
@@ -68,20 +68,46 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="typ">The material type.</param>
         /// <param name="target">The location of the material.</param>
-        public OutfitMaterial(OutfitMaterialType typ, RendererMaterialPtr target)
+        public OutfitMaterialTarget(OutfitMaterialType typ, RendererMaterialPtr target)
         {
             this.m_Type = typ;
             this.m_Target = target;
         }
 
         /// <summary>
+        /// True if the target is fully defined.
+        /// </summary>
+        public bool IsDefined
+        {
+            get { return m_Target != null && m_Target.IsDefined; }
+        }
+
+        /// <summary>
+        /// The target's material, or null if there is none.
+        /// </summary>
+        public Material SharedMaterial
+        {
+            get { return m_Target == null ? null : m_Target.SharedMaterial; }
+        }
+
+        /// <summary>
+        /// The outfit material for the target.
+        /// </summary>
+        public OutfitMaterial SharedOutfitMaterial
+        {
+            get { return new OutfitMaterial(m_Type, SharedMaterial); }
+        }
+
+        /// <summary>
         /// Applies the specified material to the target.
         /// </summary>
         /// <param name="material">The material to apply.</param>
-        public void ApplySharedMaterial(Material material)
+        /// <remarks>True if the material was applied, or false if no change was made.</remarks>
+        public bool ApplySharedMaterial(Material material)
         {
             if (m_Target != null)
-                Target.ApplySharedMaterial(material);
+                return Target.ApplySharedMaterial(material);
+            return false;
         }
     }
 }

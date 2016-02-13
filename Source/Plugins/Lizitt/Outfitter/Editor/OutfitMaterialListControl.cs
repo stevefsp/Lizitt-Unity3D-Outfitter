@@ -27,7 +27,7 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// Displays a user friendly <see cref="OutfitMaterialGroup"/> list GUI control.
+    /// Displays a user friendly <see cref="OutfitMaterialTargetGroup"/> list GUI control.
     /// </summary>
     public class OutfitMaterialListControl
     {

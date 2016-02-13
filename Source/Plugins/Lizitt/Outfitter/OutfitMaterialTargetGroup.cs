@@ -25,16 +25,16 @@ using System.Collections.Generic;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    ///  A group of outfit materials. (Body, head, eyes, etc.)
+    ///  A group of outfit material targets. (Body, head, eyes, etc.)
     /// </summary>
     [System.Serializable]
-    public class OutfitMaterialGroup
+    public class OutfitMaterialTargetGroup
     {
         [SerializeField]
-        private List<OutfitMaterial> m_Items = new List<OutfitMaterial>(0);
+        private List<OutfitMaterialTarget> m_Items = new List<OutfitMaterialTarget>(0);
 
         /// <summary>
-        /// The number of materials defined.
+        /// The maximum number of materials currently defined.
         /// </summary>
         public int Count
         {
@@ -42,23 +42,24 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// The outfit material at the specified index. (May not be fully defined.)
+        /// The outfit material target at the specified index. (May not be fully defined.)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// There is no guarentee that the returned outfit material is fully defined.  
-        /// (See: <see cref="IsDefined"/>)
+        /// There is no guarentee that the returned target is fully defined.  (See: <see cref="IsDefined"/>)
         /// </para>
         /// </remarks>
         /// <param name="index">The index.</param>
-        /// <returns>
-        /// The outfit material at the specified index.  (May not be fully defined.)
-        /// </returns>
-        public OutfitMaterial this[int index]
+        /// <returns>The outfit material target at the specified index.  (May not be fully defined.)</returns>
+        public OutfitMaterialTarget this[int index]
         {
             get { return m_Items[index]; }
         }
 
+        /// <summary>
+        /// Removes the outfit material target at the specified index.
+        /// </summary>
+        /// <param name="index">The index. [0 &lt;= value &lt; <see cref="Count"/>]</param>
         public void RemoveAt(int index)
         {
             m_Items.RemoveAt(index);
@@ -69,21 +70,20 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In order to support the most use cases, the following is allowed:  More than one 
-        /// target per material type, the same target for multiple material types, and undefined 
-        /// targets.
+        /// In order to support the most use cases, the following is allowed:  More than one target per material
+        /// type, the same target for multiple material types, and undefined targets.
         /// </para>
         /// </remarks>
         /// <param name="typ">The material type.</param>
         /// <param name="target">The target.</param>
         public void AddTarget(OutfitMaterialType typ, RendererMaterialPtr target)
         {
-            // Note: Duplicate entries for the same type doesn't matter.  Just extra processing.
-            // Defining the same target for more than one type is odd, but can be a valid use case.
-            // Adding undefined target it odd, but doesn't hurt anything.  So it is not worth 
-            // adding, testing, and maintaining a bunch of error/warning checks.
+            // Note: Duplicate entries for the same type doesn't matter.  Just extra processing. Defining the same
+            // target for more than one type is odd, but can be a valid use case. Adding undefined target it odd, 
+            // but doesn't hurt anything.  So it is not worth  adding, testing, and maintaining a bunch of 
+            // error/warning checks.
 
-            m_Items.Add(new OutfitMaterial(typ, target));
+            m_Items.Add(new OutfitMaterialTarget(typ, target));
         }
 
         /// <summary>
@@ -91,13 +91,12 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Just because an outfit material exists does not mean that it is fully defined.
-        /// It may not have it's renderer assigned, or its material index may be set to an
-        /// undefined value.
+        /// Just because an outfit material exists does not mean that it is fully defined. It may not have it's
+        /// renderer assigned, or its material index may be set to an undefined value.
         /// </para>
         /// <para>
-        /// The group may have more than one target for each material type.  This method just
-        /// makes sure that there is atleast one that is fully defined.
+        /// The group may have more than one target for each material type.  This method just makes sure that there
+        /// is atleast one that is fully defined.
         /// </para>
         /// </remarks>
         /// <param name="typ">The material type.</param>
@@ -118,8 +117,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// There may be more than one target for a material type.  This method will return
-        /// the first found since it is expected all material targets will have the same material.
+        /// There may be more than one target for a material type.  This method will return the first found since
+        /// it is expected all material targets will have the same material.
         /// </para>
         /// </remarks>
         /// <param name="typ">The material type.</param>
@@ -141,8 +140,7 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// The material will be applied if the outfit material exists, is fully defined, and 
-        /// <paramref name="material"/> is not null.  (This method can't be used to apply
-        /// a null material.)
+        /// <paramref name="material"/> is not null.  (This method can't be used to apply a null material.)
         /// </para>
         /// </remarks>
         /// <param name="typ">The material type.</param>
@@ -168,7 +166,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Removeds all outfit matierials from the group.
+        /// Removes all outfit matierials from the group.
         /// </summary>
         public void Clear()
         {

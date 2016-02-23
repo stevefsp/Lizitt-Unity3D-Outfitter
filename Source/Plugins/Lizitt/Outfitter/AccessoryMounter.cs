@@ -66,14 +66,14 @@ namespace com.lizitt.outfitter
         public virtual void CancelMount(Accessory accessory, MountPoint location)
         {
             // Do nothing.
-            // Most mounters are expected to be immediate-complete.  So don't make them all implement this method.
+            // Most mounters are expected to be immediate-complete, so don't make them all implement this method.
         }
 
         public virtual void OnAccessoryDestroy(Accessory accessory, DestroyType type)
         {
             // Do nothing.
-            // For most scriptable object mounters the main purpose for this is state cleanup of in-progress mounts.
-            // So likelihood of use is similar to CancelMount.
+            // For most scriptable object mounters the main purpose for this is state cleanup of in-progress mounts,
+            // so likelihood of use is similar to CancelMount.
         }
     }
 }

@@ -71,23 +71,38 @@ namespace com.lizitt.outfitter
          */
 
         /// <summary>
-        /// The base menu order for Outfitter assets. (For use With the CreateAssetMenu attribute.)
+        /// The base menu order for Outfitter assets. (For use With the menu attributes.)
         /// </summary>
         public const int BaseMenuOrder = LizittUtil.BaseMenuOrder + 200;
 
         /// <summary>
-        /// The base menu order for accessory mounter assets. (For use With the CreateAssetMenu attribute.)
+        /// The base menu order for accessory mounter assets. (For use With the menu attributes.)
         /// </summary>
-        public const int BaseMounterOrder = BaseMenuOrder;
+        public const int MounterMenuOrder = BaseMenuOrder;
 
         /// <summary>
-        /// The base menu order for outfit factory assets. (For use With the CreateAssetMenu attribute.)
+        /// The base menu order for accessory observer assets. (For use With the menu attributes.)
         /// </summary>
-        public const int BaseOutfitFactoryOrder = BaseMounterOrder + 20;
+        public const int AccessoryObserverMenuOrder = BaseMenuOrder + 10;
+
+        /// <summary>
+        /// The base menu order for outfit observer assets. (For use With the menu attributes.)
+        /// </summary>
+        public const int OutfitObserverMenuOrder = BaseMenuOrder + 20;
+
+        /// <summary>
+        /// The base menu order for body observer assets. (For use With the menu attributes.)
+        /// </summary>
+        public const int BodyObserverMenuOrder = BaseMenuOrder + 30;
+
+        /// <summary>
+        /// The base menu order for outfit factory assets. (For use With the menu attributes.)
+        /// </summary>
+        public const int OutfitFactoryMenuOrder = MounterMenuOrder + 80;
 
         #endregion
 
-        #region Miscellaneous
+        #region Body Coverage
 
         /// <summary>
         /// All body coverage flags.
@@ -104,6 +119,10 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public const bool SortBodyCoverage = true;
 
+        #endregion
+
+        #region Mount Result
+
         /// <summary>
         /// The status is not 'success' and not 'stored'.
         /// </summary>
@@ -112,6 +131,20 @@ namespace com.lizitt.outfitter
         public static bool IsFailed(this MountResult status)
         {
             return !(status == MountResult.Success || status == MountResult.Stored);
+        }
+
+        #endregion
+
+        #region Accessory Status
+
+        /// <summary>
+        /// True if the status is 'mounted' or 'mounting'.
+        /// </summary>
+        /// <param name="status">The status.</param>
+        /// <returns>True if the status is 'mounted' or 'mounting'.</returns>
+        public static bool IsMounted(this AccessoryStatus status)
+        {
+            return status == AccessoryStatus.Mounted || status == AccessoryStatus.Mounting;
         }
 
         #endregion

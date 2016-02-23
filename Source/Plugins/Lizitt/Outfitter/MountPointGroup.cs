@@ -181,7 +181,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The number of assigned items in the group.  (Non-null, non-destroyed)
         /// </summary>
-        public int ItemCount
+        public int Count
         {
             get
             {
@@ -217,6 +217,7 @@ namespace com.lizitt.outfitter
                         return true;
                 }
             }
+
             return false;
         }
 

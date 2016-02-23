@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// Body parts provide higher resolution collision data than can be provied by a  single outfit collider.  
-    /// <see cref="Status"/> is used to  modify collider behavior as needed.
+    /// <see cref="ColliderStatus"/> is used to  modify collider behavior as needed.
     /// </para>
     /// <para>
     /// While body parts are normally associated with an <see cref="Outfit"/>, the owner may any GameObject.
@@ -62,7 +62,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The type (location) of the body part.
         /// </summary>
-        public BodyPartType Type
+        public BodyPartType PartType
         {
             get { return m_Type; }
             set { m_Type = value; }
@@ -100,12 +100,12 @@ namespace com.lizitt.outfitter
                     {
                         rb.isKinematic = true;
                         Debug.LogWarning(
-                            Type + ": Non-kinematic rigidbody detected on body part. Set rigidbody to kinemetic.", 
+                            PartType + ": Non-kinematic rigidbody detected on body part. Set rigidbody to kinemetic.", 
                             this);
                     }
                 }
                 else
-                    Debug.LogWarning(Type + ": Body part collider does not have a rigidbody.", this);
+                    Debug.LogWarning(PartType + ": Body part collider does not have a rigidbody.", this);
             }
         }
 
@@ -145,7 +145,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The body part collider's layer.
         /// </summary>
-        public int Layer
+        public int ColliderLayer
         {
             // Property then field.
             get { return Collider ? m_Collider.gameObject.layer : 0; }
@@ -165,14 +165,14 @@ namespace com.lizitt.outfitter
         /// the status result in changes to these components.
         /// </para>
         /// </remarks>
-        public ColliderStatus Status
+        public ColliderStatus ColliderStatus
         {
             get { return Collider ? m_Collider.GetStatus() : ColliderStatus.Disabled; }
             set
             {
                 if (!Collider)
                 {
-                    Debug.LogError(Type + ": Can't set status while the collider is null.", this);
+                    Debug.LogError(PartType + ": Can't set status while the collider is null.", this);
                     return;
                 }
 

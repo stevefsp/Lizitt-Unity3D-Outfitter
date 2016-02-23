@@ -19,49 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
+using UnityEditor;
 
-namespace com.lizitt.outfitter
+namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// Associates a material with an outfit material type.
+    /// <see cref="StandardBody"/> custom editor.
     /// </summary>
-    [System.Serializable]
-    public struct OutfitMaterial
+    [CustomEditor(typeof(StandardBody))]
+    public partial class StandardBodyEditor
+        : BodyEditor
     {
-        [SerializeField]  // Tooltip isn't useful.
-        private OutfitMaterialType m_Type;
+        #region Main Editor
 
-        /// <summary>
-        /// The type of the material.
-        /// </summary>
-        public OutfitMaterialType MaterialType
+        private StandardBody Target
         {
-            get { return m_Type; }
-            set { m_Type = value; }
+            get { return target as StandardBody; }
         }
 
-        [SerializeField]  // Tooltip isn't useful.
-        private Material m_Material;
-
-        /// <summary>
-        /// The material.
-        /// </summary>
-        public Material Material
+        public override bool RequiresConstantRepaint()
         {
-            get { return m_Material; }
-            set { m_Material = value; }
+            // Wasteful, but it is the only way for the button highlight to work correctly.
+            // At least this is a rather light GUI. 
+            return true;
+        }
+
+        private bool m_IsAsset;
+
+        void OnEnable()
+        {
+            m_IsAsset = AssetDatabase.Contains(target);
         }
 
         /// <summary>
-        /// Constructor.
+        /// See Unity documentation.
         /// </summary>
-        /// <param name="typ">The material type.</param>
-        /// <param name="material">The material.</param>
-        public OutfitMaterial(OutfitMaterialType typ, Material material)
+        public override void OnInspectorGUI()
         {
-            m_Type = typ;
-            m_Material = material;
+            base.OnInspectorGUI();
+
+            if (m_IsAsset)
+                return;
+
+            OutfitterEditorUtil.ShowInspectorActions = 
+                EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
+
+            if (OutfitterEditorUtil.ShowInspectorActions)
+                DrawActions();
+            
+            EditorGUILayout.Space();
         }
+
+        #endregion
     }
 }

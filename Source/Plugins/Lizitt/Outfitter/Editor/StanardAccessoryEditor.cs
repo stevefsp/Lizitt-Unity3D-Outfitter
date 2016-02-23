@@ -59,6 +59,7 @@ namespace com.lizitt.outfitter.editor
             m_Helper.DrawProperties();
 
             EditorGUILayout.Space();
+
             EditorGUILayout.PropertyField(mounterProp);
 
             DrawObservers(observerProp);

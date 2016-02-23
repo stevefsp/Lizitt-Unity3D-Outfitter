@@ -19,49 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-using UnityEngine;
-
-namespace com.lizitt.outfitter
+namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// Associates a material with an outfit material type.
+    /// The type of remove operation to perform.
     /// </summary>
-    [System.Serializable]
-    public struct OutfitMaterial
+    public enum RemoveActionType
     {
-        [SerializeField]  // Tooltip isn't useful.
-        private OutfitMaterialType m_Type;
+        // Values match the EditorUtility.DisplayDialogComplex() return values, except for 'undefined'.
 
         /// <summary>
-        /// The type of the material.
+        /// A dialog should be used to make the choice.
         /// </summary>
-        public OutfitMaterialType MaterialType
-        {
-            get { return m_Type; }
-            set { m_Type = value; }
-        }
-
-        [SerializeField]  // Tooltip isn't useful.
-        private Material m_Material;
+        Undefined = -1,
 
         /// <summary>
-        /// The material.
+        /// Remove the item and preserve it.  (E.g. Leave it in the scene.)
         /// </summary>
-        public Material Material
-        {
-            get { return m_Material; }
-            set { m_Material = value; }
-        }
+        RemoveOnly = 0,
 
         /// <summary>
-        /// Constructor.
+        /// Remove the item and destroy it.
         /// </summary>
-        /// <param name="typ">The material type.</param>
-        /// <param name="material">The material.</param>
-        public OutfitMaterial(OutfitMaterialType typ, Material material)
-        {
-            m_Type = typ;
-            m_Material = material;
-        }
+        RemoveAndDestroy = 1,
+
+        /// <summary>
+        /// Cancel the removal operation.
+        /// </summary>
+        Cancel = 2,
     }
 }

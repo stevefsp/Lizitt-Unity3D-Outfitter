@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
@@ -94,6 +95,20 @@ namespace com.lizitt.outfitter
         public abstract OutfitStatus Status { get; }
 
         /// <summary>
+        /// True if the outfit has an owner and is 'in-use' or 'stored'.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Because Unity Objects can be unceremoniously destroyed it is generally best to check both status and
+        /// ownership to determine if an outfit is truly managed.  This property performs all appropriate checks.
+        /// </para>
+        /// </remarks>
+        public bool IsManaged
+        {
+            get { return Owner && Status != OutfitStatus.Unmanaged; }
+        }
+
+        /// <summary>
         /// Set the outfit status.
         /// </summary>
         /// <remarks>
@@ -117,7 +132,7 @@ namespace com.lizitt.outfitter
         /// How body parts are managed and stored is implementation specific.  This value may be fixed or dynamic. 
         /// It may represent a true buffer size, or simply the number of currently avaiable body parts.
         /// </para>
-        public abstract int BodyPartBufferSize { get; }
+        public abstract int BodyPartCount { get; }
 
         /// <summary>
         /// True if there is at least one body part.
@@ -127,7 +142,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The body part at the specified index, or null if there is none.
         /// </summary>
-        /// <param name="index">The index. [0 &lt;= value &lt <see cref="BodyPartBufferSize"/>]</param>
+        /// <param name="index">The index. [0 &lt;= value &lt;<see cref="BodyPartBufferSize"/>]</param>
         /// <returns>The body part at the specified index, or null if there is none.</returns>
         public abstract BodyPart GetBodyPart(int index);
 
@@ -137,6 +152,26 @@ namespace com.lizitt.outfitter
         /// <param name="typ">The type.</param>
         /// <returns>The body part associated with the specified type, or null if there is none.</returns>
         public abstract BodyPart GetBodyPart(BodyPartType typ);
+
+        /// <summary>
+        /// True if the body part is part of the outfit.
+        /// </summary>
+        /// <param name="bodyPart">The body part. (Required)</param>
+        /// <returns>True if the body part is a part of the outfit.</returns>
+        public bool Contains(BodyPart bodyPart)
+        {
+            if (bodyPart)
+            {
+                for (int i = 0; i < BodyPartCount; i++)
+                {
+                    var item = GetBodyPart(i);
+                    if (item && item == bodyPart)
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Applies the colider status to all body parts.
@@ -161,7 +196,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// The purpose of this flag is to allow an outfit to be marked as not appropriate for most accessories.  
         /// Consider a full body space suit.  It is normally not appropriate for hats, glasses, etc. to be mounted
-        /// to such an outfit.  So it is marked as limited.
+        /// to such an outfit, so it is marked as limited.
         /// </para>
         /// </remarks>
         public abstract bool AccessoriesLimited { get; set; }
@@ -197,7 +232,7 @@ namespace com.lizitt.outfitter
         /// dynamic. It may represent a true buffer size, or simply the number of currently avaiable mount points.
         /// </para>
         /// </remarks>
-        public abstract int MountPointBufferSize { get; }
+        public abstract int MountPointCount { get; }
 
         /// <summary>
         /// Get the mount point at the specified index, or null if there is none.
@@ -205,7 +240,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// Depending on the implementation, an index location may contain a null value.
         /// </para>
-        /// <param name="index">The index. [0 &lt;= value &lt; <see cref="MountPointBufferSize"/></param>
+        /// <param name="index">The index. [0 &lt;= value &lt; <see cref="MountPointCount"/></param>
         /// <returns>The mount point at the specified index, or null if there is none.</returns>
         public abstract MountPoint GetMountPoint(int index);
 
@@ -215,6 +250,26 @@ namespace com.lizitt.outfitter
         /// <param name="locationType">The mount location.</param>
         /// <returns>The specified mount point, or null if there is none.</returns>
         public abstract MountPoint GetMountPoint(MountPointType locationType);
+
+        /// <summary>
+        /// True if the mount point is part of the outfit.
+        /// </summary>
+        /// <param name="location">The mount point. (Required)</param>
+        /// <returns>True if the mount point is a part of the outfit.</returns>
+        public bool Contains(MountPoint location)
+        {
+            if (location)
+            {
+                for (int i = 0; i < MountPointCount; i++)
+                {
+                    var item = GetMountPoint(i);
+                    if (item && item == location)
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// The number of accessories mounted to the outfit.
@@ -235,8 +290,34 @@ namespace com.lizitt.outfitter
         public abstract Accessory GetAccessory(int index);
 
         /// <summary>
+        /// True if the accessory is mounted to the outfit.
+        /// </summary>
+        /// <param name="accessory">The accessory. (Required)</param>
+        /// <returns>True if the accessory is mounted to the outfit.</returns>
+        public bool IsMounted(Accessory accessory)
+        {
+            if (accessory)
+            {
+                for (int i = 0; i < AccessoryCount; i++)
+                {
+                    var knownAcc = GetAccessory(i);
+                    if (knownAcc && knownAcc == accessory)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Mount the accessory to the specified location.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Remounting to a different or same location is allowed.  If a remount fails the accessory will remain
+        /// mounted to its original location.
+        /// </para>
+        /// </remarks>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <param name="locationType">The location to mount the accessory to.</param>
         /// <param name="ignoreRestrictions">
@@ -260,6 +341,12 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Mount the accessory to the specified location.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Remounting to a different or same location is allowed.  If a remount fails the accessory will remain
+        /// mounted to its original location.
+        /// </para>
+        /// </remarks>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <param name="locationType">The location to mount the accessory to.</param>
         /// <param name="ignoreRestrictions">
@@ -278,6 +365,14 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Mount the accessory to the specified location.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Remounting to a different or same location is allowed.  If a remount fails the accessory will be
+        /// released.  This behavior is due to the multiple actors involved.  E.g. The outfit, accessory, and 
+        /// possibly a mounter. The outfit can't guarentee behavior of all actors, so it implements a behavior that
+        /// is consistant.
+        /// </para>
+        /// </remarks>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <param name="locationType">The location to mount the accessory to.</param>
         /// <param name="ignoreRestrictions">
@@ -293,6 +388,12 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Mount the accessory to the specified location.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Remounting to a different or same location is allowed.  If a remount fails the accessory will remain
+        /// mounted to its original location.
+        /// </para>
+        /// </remarks>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <param name="locationType">The location to mount the accessory to.</param>
         /// <returns>The result of the mount attempt.</returns>
@@ -304,6 +405,12 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Mount the accessory to its default location.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Remounting to a different or same location is allowed.  If a remount fails the accessory will remain
+        /// mounted to its original location.
+        /// </para>
+        /// </remarks>
         /// <param name="accessory">The accessory to mount. (Required)</param>
         /// <returns>The result of the mount attempt.</returns>
         public MountResult Mount(Accessory accessory)
@@ -319,6 +426,9 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// The release operation will always succeed if the accessory is is known to the outfit.
+        /// </para>
+        /// <para>
+        /// This method can be called lazily.  It will only take action if the accessory is known to the outfit.
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory. (Required.)</param>
@@ -374,6 +484,12 @@ namespace com.lizitt.outfitter
         public abstract bool IsMaterialDefined(OutfitMaterialType typ);
 
         /// <summary>
+        /// Get the material types that are defined and can be set.
+        /// </summary>
+        /// <returns>The material types that are defined and can be set.</returns>
+        public abstract OutfitMaterialType[] GetOutfitMaterialTypes();
+
+        /// <summary>
         /// Gets the specified shared material, or null if there is none.
         /// </summary>
         /// <remarks>
@@ -407,7 +523,7 @@ namespace com.lizitt.outfitter
         /// <returns>
         /// The specified shared outfit material. (Material may be null.)
         /// </returns>
-        public abstract OutfitMaterial GetOutfitMaterial(int index);
+        public abstract OutfitMaterial GetSharedMaterial(int index);
 
         /// <summary>
         /// Sets the material of all material targets of the specified type.
@@ -430,7 +546,42 @@ namespace com.lizitt.outfitter
 
         #region Miscellaneous
 
-        //////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Destroy the outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Important: Only the owner of the oufit should call this method.
+        /// </para>
+        /// <para>
+        /// This is the best way of destroying an outfit since the outfit will send events to its observers and 
+        /// other associated components so they can properly respond.
+        /// </para>
+        /// <para>
+        /// If <paramref name="prepareOnly"/> is false the component will destroying itself as appropriate, so he 
+        /// client only needs to call this method then dispose of its references to the component. 
+        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destory
+        /// the component or its GameObject.  The primary use case for <paramref name="prepareOnly"/> is when
+        /// performing operations in the editor that required Undo behavior.
+        /// </para>
+        /// <para>
+        /// Baking is the process of converting the outfit into a non-outfit state.  What exactly happens during
+        /// the bake is implemenation specific.  It may result in the baking of skinned meshes into static meshes.  
+        /// It may result in conversion to a ragdoll configuration. Etc.
+        /// <para>
+        /// </remarks>
+        /// <param name="typ">The type of destruction.</param>
+        /// <param name="prepareOnly">
+        /// If true, the outfit will only prepare for destruction, but won't actually destroy itself.
+        /// </param>
+        /// <param name="referenceOutfit">
+        /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.) Or null if the outfit
+        /// has no known source. (Only applies to the 'bake' type.)
+        /// </param>
+        public abstract void Destroy(DestroyType typ, bool prepareOnly, Outfit referenceOutfit);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
         /// Destroy the outfit.
@@ -444,25 +595,26 @@ namespace com.lizitt.outfitter
         /// other associated components so they can properly respond.
         /// </para>
         /// <para>
-        /// The component is responsible for destroying itself as appropriate.  So he client only needs to call this
-        /// method then dispose of its references to the component.
+        /// If <paramref name="prepareOnly"/> is false the component will destroy itself, so the client only needs
+        /// to call this method then dispose of its references.  If <paramref name="prepareOnly"/> is true, it is
+        /// the responsiblity of the caller to properly destroy the component or its GameObject.  The primary use 
+        /// case for <paramref name="prepareOnly"/> is when performing operations in the editor that require 
+        /// Undo behavior.
         /// </para>
-        /// <para><strong>Baking</strong>
-        /// </para>
+        /// <para>
         /// Baking is the process of converting the outfit into a non-outfit state.  What exactly happens during
         /// the bake is implemenation specific.  It may result in the baking of skinned meshes into static meshes.  
         /// It may result in conversion to a ragdoll configuration. Etc.
         /// <para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
-        /// <param name="referenceOutfit">
-        /// The outfit that the the current outfit is derived from.  (E.g. Was instanced from.) Or null if the outfit
-        /// has no known source. (Only applies to the 'bake' type.)
+        /// <param name="prepareOnly">
+        /// If true, the component will only prepare for destruction, but won't actually destroy itself.
         /// </param>
-        public abstract void Destroy(DestroyType typ, Outfit referenceOutfit);
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
+        public void Destroy(DestroyType typ, bool prepareOnly)
+        {
+            Destroy(typ, prepareOnly, null);
+        }
 
         /// <summary>
         /// Destroy the outfit.
@@ -476,7 +628,7 @@ namespace com.lizitt.outfitter
         /// other associated components so they can properly respond.
         /// </para>
         /// <para>
-        /// The component is responsible for destroying itself as appropriate.  So the client only needs to call
+        /// The component is responsible for destroying itself as appropriate, so the client only needs to call
         /// this method then dispose of its references to the component.
         /// </para>
         /// <para><strong>Baking</strong>
@@ -489,7 +641,7 @@ namespace com.lizitt.outfitter
         /// <param name="typ">The type of destruction.</param>
         public void Destroy(DestroyType typ)
         {
-            Destroy(typ, null);
+            Destroy(typ, false, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -516,5 +668,62 @@ namespace com.lizitt.outfitter
         }
 
         #endregion
+
+#if UNITY_EDITOR
+
+        #region Editor Only
+
+        /// <summary>
+        /// Add all Unity Objects that may change while performing outfit operations to the provided list. 
+        /// (Including the outfit itself.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
+        /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
+        /// being lost.  When updating the outfit in the editor, this method will be used by the base class to 
+        /// obtain a list of all known Unity Objects that may be impacted by changes to the outfit.
+        /// </para>
+        /// <para>
+        /// Warning: This method is only avaibale in the editor.  Concrete implementaitons must place it
+        /// inside a UNITY_EDITOR conditional compile section.
+        /// </para>
+        /// </remarks>
+        /// <param name="list">The list to add objects to.  (Required)</param>
+        protected abstract void GetUndoObjects(List<Object> list);
+
+        /// <summary>
+        /// Add all Unity Objects that may change while performing outfit operations to the provided list. 
+        /// (Including the oufit itself.)
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
+        /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
+        /// being lost.  When updating the outfit in the editor, this method can be used to obtain a list of all 
+        /// known Unity Objects that may be impacted by changes to the outfit.
+        /// </para>
+        /// <para>
+        /// Warning: This method is only avaibale for use in the editor.
+        /// </para>
+        /// </remarks>
+        /// <param name="outfit">The outfit. (Required.)</param>
+        /// <param name="list">The list to add objects to.</param>
+        /// <returns>
+        /// The reference to <paramref name="list"/> if it is provided.  Otherwise a reference to a newly created list.
+        /// </returns>
+        public static List<Object> UnsafeGetUndoObjects(Outfit outfit, List<Object> list = null)
+        {
+            if (list == null)
+                list = new List<Object>();
+
+            outfit.GetUndoObjects(list);
+
+            return list;
+        }
+
+        #endregion
+
+#endif
     }
 }

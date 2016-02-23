@@ -179,7 +179,7 @@ namespace com.lizitt.outfitter
             IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
         {
             // While not expected to be common, it is technically ok to re-attach to the same
-            // mount location.  So there is no optimization check for that.
+            // mount location, so there is no optimization check for that.
 
             if (!(location && owner))
             {
@@ -377,16 +377,19 @@ namespace com.lizitt.outfitter
 
         #region Destroy
 
-        public sealed override void Destroy(DestroyType typ)
+        public sealed override void Destroy(DestroyType typ, bool prepareOnly)
         {
             OnDestroyLocal(typ);
 
             m_Observers.SendDestroy(this, typ);
-             
-            if (typ == DestroyType.GameObject)
-                gameObject.SafeDestroy();
-            else
-                this.SafeDestroy();
+
+            if (!prepareOnly)
+            {
+                if (typ == DestroyType.GameObject)
+                    gameObject.SafeDestroy();
+                else
+                    this.SafeDestroy();
+            }
         }
 
         /// <summary>
@@ -438,10 +441,13 @@ namespace com.lizitt.outfitter
 
         #region Observer Features
 
+        /// <summary>
+        /// Access only through property.
+        /// </summary>
         [Space(5)]
         [SerializeField]
         [ObjectList("IAccessoryObserver Objects", typeof(IAccessoryObserver))]
-        private AccessoryObserverGroup m_Observers = new AccessoryObserverGroup(0);   // Required by custom editor. <<<<
+        private AccessoryObserverGroup m_Observers = new AccessoryObserverGroup(2);
 
         public sealed override bool AddObserver(IAccessoryObserver observer)
         {
@@ -455,7 +461,37 @@ namespace com.lizitt.outfitter
 
         #endregion
 
+        #region Initialization
+
+        public virtual void Initialize()
+        {
+        }
+
+        protected void Awake()
+        {
+            Initialize();
+        }
+
+        #endregion
+
 #if UNITY_EDITOR
+
+        #region Editor Only
+
+        protected override void GetUndoObjects(System.Collections.Generic.List<Object> list)
+        {
+            for (int i = 0; i < m_Observers.Count; i++)
+            {
+                var item = m_Observers[i];
+
+                if (item != null)
+                    list.Add(item as Object);
+            }
+
+            list.Add(transform);  // Repositioning
+            list.Add(gameObject);  // Activate
+            list.Add(this);
+        }
 
         #region Context Menu
 
@@ -495,6 +531,8 @@ namespace com.lizitt.outfitter
         {
             m_Observers.Clear();
         }
+
+        #endregion
 
         #endregion
 

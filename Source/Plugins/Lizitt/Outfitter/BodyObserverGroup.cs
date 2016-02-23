@@ -27,23 +27,13 @@ namespace com.lizitt.outfitter
     public class BodyObserverGroup
         : ObjectList<IBodyObserver>
     {
-        public BodyObserverGroup(int initialSize)
-            : base(initialSize)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        public BodyObserverGroup(int initialCapacity)
+            : base(initialCapacity)
         {
-        }
-
-        public void SendOutfitChangePre(Body sender)
-        {
-            bool hasNull = false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (this[i] == null)
-                    hasNull = true;
-                else
-                    this[i].OnOutfitChangePre(sender);
-            }
-            if (hasNull)
-                PurgeDestroyed();
         }
 
         public void SendOutfitChange(Body sender, Outfit previous)

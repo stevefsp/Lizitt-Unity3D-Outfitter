@@ -362,6 +362,8 @@ namespace com.lizitt.outfitter.editor
 
         #endregion
 
+        #region Private Utility Members
+
         private static GUIContent[] CreateLabels(List<string> labels)
         {
             var result = new GUIContent[labels.Count];
@@ -371,5 +373,114 @@ namespace com.lizitt.outfitter.editor
 
             return result;
         }
+
+        #endregion
+
+        #region Event Members
+
+        /// <summary>
+        /// If true, the user has pre-authorized a 'destructive edit'.
+        /// </summary>
+        public static bool IsDestructiveConfirmed
+        {
+            get { return !IsNonDestructiveConfirmed && Event.current.control; }
+        }
+
+        /// <summary>
+        /// If true, the user has pre-authorized a 'non-destructive edit'.
+        /// </summary>
+        public static bool IsNonDestructiveConfirmed
+        {
+            get { return Event.current.shift; }
+        }
+
+        #endregion
+
+        #region Shared EditorPrefs
+
+        private static bool m_IsInitialized = false;
+
+        private static void CheckInitialized()
+        {
+            if (m_IsInitialized)
+                return;
+
+            m_IsInitialized = true;
+
+            InitializeShowInspector();
+            InitializeAutoOffset();
+        }
+
+        private const string ShowActionsKey = "com.lizitt.outfitter.editor.ShowInspectorActions";
+        private static bool m_ShowInspectorActions;
+
+        /// <summary>
+        /// If true, the inspector actions foldouts should be displayed open.
+        /// </summary>
+        public static bool ShowInspectorActions
+        {
+            get 
+            {
+                CheckInitialized();
+                return m_ShowInspectorActions; 
+            }
+            set 
+            {
+                CheckInitialized();
+
+                if (m_ShowInspectorActions != value)
+                    EditorPrefs.SetBool(ShowActionsKey, value);
+
+                m_ShowInspectorActions = value; 
+            }
+        }
+
+        private static void InitializeShowInspector()
+        {
+            if (!EditorPrefs.HasKey(ShowActionsKey))
+            {
+                m_ShowInspectorActions = false;
+                EditorPrefs.SetBool(ShowActionsKey, m_ShowInspectorActions);
+            }
+            else
+                m_ShowInspectorActions = EditorPrefs.GetBool(ShowActionsKey);
+        }
+
+        private const string AutoOffsetKey = "com.lizitt.outfitter.editor.AutoOffsetKey";
+        private static float m_AutoOffset;
+
+        /// <summary>
+        /// When an item is removed from its owner, move it out of the way by this distance so that is doesn't obstruct the owner.
+        /// </summary>
+        public static float AutoOffset
+        {
+            get
+            {
+                CheckInitialized();
+                return m_AutoOffset;
+            }
+            set
+            {
+                CheckInitialized();
+
+                if (m_AutoOffset != value)
+                    EditorPrefs.SetFloat(AutoOffsetKey, value);
+                
+                m_AutoOffset = value;
+            }
+        }
+
+        private static void InitializeAutoOffset()
+        {
+            if (!EditorPrefs.HasKey(AutoOffsetKey))
+            {
+                m_AutoOffset = 0;
+                EditorPrefs.SetFloat(AutoOffsetKey, m_AutoOffset);
+            }
+            else
+                m_AutoOffset = EditorPrefs.GetFloat(AutoOffsetKey);
+        }
+
+        #endregion
     }
 }

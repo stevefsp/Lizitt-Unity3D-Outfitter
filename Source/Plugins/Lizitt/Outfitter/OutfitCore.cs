@@ -81,7 +81,7 @@ namespace com.lizitt.outfitter
             // Hack: Naming convention: An overload failure requires this to be unique method name.
             // This method used to be UnsafeSet(Outfit, Transform).  But for some reason 
             // calls meant for this method were redirecting to 
-            // UnsafeSet(StandardOutfit, bool, BodyPart[]) in StandardBody.  So had to 
+            // UnsafeSet(StandardOutfit, bool, BodyPart[]) in StandardBody, so had to 
             // abandon the overload naming convention for this method.
             // Note:  This problem only started to happen when the body part features were
             // moved from OutfitCore to StandardOutfit.
@@ -142,9 +142,7 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The owner of the outfit. (Various standard implemetations will automatically set"
-            + " this value as control of the outfit is handed off between them.)"
-            + " (Informational, Optional)")]
+        //[HideInInspector]
         private GameObject m_Owner = null;
 
         public sealed override GameObject Owner
@@ -193,7 +191,7 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [HideInInspector]
+        //[HideInInspector]
         private OutfitStatus m_Status;
 
         public sealed override  OutfitStatus Status
@@ -240,7 +238,7 @@ namespace com.lizitt.outfitter
             if (m_Status == OutfitStatus.Stored)
             {
                 // Event before deactivation.
-                m_Observers.SendStateChange(this);
+                Observers.SendStateChange(this);
 
                 if (m_UseDefaultStorage)
                     gameObject.SetActive(false);
@@ -251,7 +249,7 @@ namespace com.lizitt.outfitter
                 if (m_UseDefaultStorage)
                     gameObject.SetActive(true);
 
-                m_Observers.SendStateChange(this);
+                Observers.SendStateChange(this);
             }
 
             return true;
@@ -345,7 +343,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public sealed override int MountPointBufferSize
+        public sealed override int MountPointCount
         {
             get 
             {
@@ -364,16 +362,6 @@ namespace com.lizitt.outfitter
         {
             CheckInitializeMountPoints();
             return m_MountPoints[locationType];
-        }
-
-        /// <summary>
-        /// True if the specified mount point is part of the outfit.
-        /// </summary>
-        /// <param name="location">The mount point.</param>
-        /// <returns>True if the specified mount point is part of the outfit.</returns>
-        public bool IsLocalMountPoint(MountPoint location)
-        {
-            return location && m_MountPoints.Contains(location);
         }
 
         /// <summary>
@@ -397,7 +385,7 @@ namespace com.lizitt.outfitter
             OutfitCore outfit, bool asReference, params MountPoint[] mountPoints)
         {
             // Design note: While odd, it is not required that a mount point be
-            // a child of the outfit.  So don't put any restrictions in place for that.
+            // a child of the outfit, so don't put any restrictions in place for that.
 
             if (mountPoints == null)
                 outfit.m_MountPoints.Clear();
@@ -449,11 +437,11 @@ namespace com.lizitt.outfitter
                 return fitems.Length;
             }
 
-            var before = outfit.m_MountPoints.ItemCount;
+            var before = outfit.m_MountPoints.Count;
 
             outfit.m_MountPoints.CompressAndAdd(fitems);
 
-            return outfit.m_MountPoints.ItemCount - before;
+            return outfit.m_MountPoints.Count - before;
         }
 
         // Not destructive.  No need to serialize.
@@ -486,30 +474,35 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [ObjectList("IOutfitObserver Objects", typeof(IOutfitObserver))]
-        private OutfitObserverGroup m_Observers = new OutfitObserverGroup(0);   // Refactor note: Field name used in the editor.
+        private OutfitObserverGroup m_Observers = new OutfitObserverGroup(1);
 
         protected OutfitObserverGroup Observers
         {
-            get { return m_Observers; }
+            get { return m_Observers;  }
         }
 
         public sealed override bool AddObserver(IOutfitObserver observer)
         {
-            return m_Observers.Add(observer, this) != -1;
+            return Observers.Add(observer, this) != -1;
         }
 
         public sealed override void RemoveObserver(IOutfitObserver observer)
         {
-            m_Observers.Remove(observer);
+            Observers.Remove(observer);
         }
 
         #endregion
 
         #region Initialization
 
-        protected virtual void Awake()
+        public virtual void Initialize()
         {
             CheckInitializeMountPoints();
+        }
+
+        protected void Awake()
+        {
+            Initialize();
         }
 
         #endregion
@@ -535,6 +528,69 @@ namespace com.lizitt.outfitter
             ResetMountPointSettings();
         }
 
+        /// <summary>
+        /// Refreshes an outfit's observers, purging all missing items and adding any new observers found on the 
+        /// outfit's GameObject.
+        /// </summary>
+        /// <param name="outfit">The outfit. (Required.)</param>
+        public static void RefreshObservers(OutfitCore outfit)
+        {
+            outfit.Observers.PurgeDestroyed();
+
+            var refreshItems = outfit.GetComponents<IOutfitObserver>();
+
+            if (refreshItems.Length > 0)
+            {
+                // Add new items to end.
+                foreach (var refreshItem in refreshItems)
+                {
+                    if (!outfit.Observers.Contains(refreshItem))
+                        outfit.Observers.Add(refreshItem);
+                }
+            }
+        }
+
         #endregion
+
+#if UNITY_EDITOR
+
+        #region Editor Only
+
+        protected override void GetUndoObjects(System.Collections.Generic.List<Object> list)
+        {
+            for (int i = 0; i < Observers.Count; i++)
+            {
+                var item = Observers[i];
+
+                if (item != null)
+                    list.Add(item as Object);
+            }
+            
+            for (int i = 0; i < m_MountPoints.Count; i++)
+            {
+                var item = m_MountPoints[i];
+                if (item)
+                    list.Add(item);
+            }
+
+            list.Add(MotionRoot);
+
+            if (PrimaryCollider)
+            {
+                list.Add(PrimaryCollider);
+
+                var rb = PrimaryRigidbody;
+                if (rb)
+                    list.Add(rb);
+            }
+
+            list.Add(transform);  // Repositioning.
+            list.Add(gameObject);  // Activation.
+            list.Add(this);
+        }
+
+        #endregion
+
+#endif
     }
 }

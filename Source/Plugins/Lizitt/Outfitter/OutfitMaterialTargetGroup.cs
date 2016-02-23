@@ -80,7 +80,7 @@ namespace com.lizitt.outfitter
         {
             // Note: Duplicate entries for the same type doesn't matter.  Just extra processing. Defining the same
             // target for more than one type is odd, but can be a valid use case. Adding undefined target it odd, 
-            // but doesn't hurt anything.  So it is not worth  adding, testing, and maintaining a bunch of 
+            // but doesn't hurt anything, so it is not worth  adding, testing, and maintaining a bunch of 
             // error/warning checks.
 
             m_Items.Add(new OutfitMaterialTarget(typ, target));
@@ -105,11 +105,36 @@ namespace com.lizitt.outfitter
         {
             for (int i = 0; i < m_Items.Count; i++)
             {
-                if (m_Items[i].Type == typ && m_Items[i].Target != null && m_Items[i].Target.IsDefined)
+                if (m_Items[i].MaterialType == typ && m_Items[i].IsDefined)
                     return true;
             }
 
             return false;
+        }
+
+        private static readonly List<OutfitMaterialType> m_MatTypeBuffer = new List<OutfitMaterialType>();
+
+        /// <summary>
+        /// Get the material types that are defined and can be set.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method is not thread-safe.
+        /// </para>
+        /// </remarks>
+        /// <returns>The material types that are defined and can be set.</returns>
+        public OutfitMaterialType[] GetMaterialTypes()
+        {
+            for (int i = 0; i < m_Items.Count; i++)
+            {
+                if (m_Items[i].IsDefined && !m_MatTypeBuffer.Contains(m_Items[i].MaterialType))
+                    m_MatTypeBuffer.Add(m_Items[i].MaterialType);
+            }
+
+            var result = m_MatTypeBuffer.ToArray();
+            m_MatTypeBuffer.Clear();
+
+            return result;
         }
 
         /// <summary>
@@ -127,7 +152,7 @@ namespace com.lizitt.outfitter
         {
             for (int i = 0; i < m_Items.Count; i++)
             {
-                if (m_Items[i].Type == typ && m_Items[i].Target != null)
+                if (m_Items[i].MaterialType == typ && m_Items[i].Target != null)
                     return m_Items[i].Target.SharedMaterial;
             }
 
@@ -154,7 +179,7 @@ namespace com.lizitt.outfitter
             {
                 for (int i = 0; i < m_Items.Count; i++)
                 {
-                    if (m_Items[i].Type == typ)
+                    if (m_Items[i].MaterialType == typ)
                     {
                         if (m_Items[i].Target.ApplySharedMaterial(material))
                             count++;

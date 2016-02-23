@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// Most accessories require this interface to be implemented by a Unity Object for
-    /// serialization purposes.  So accessories are allowed to  reject observers that are not 
+    /// serialization purposes, so accessories are allowed to reject observers that are not 
     /// Unity Objects.
     /// </para>
     /// </remarks>
@@ -54,7 +54,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent before the accessory performs any internal operations.  So the
+        /// This event is sent before the accessory performs any internal operations, so the
         /// accessory starts out as valid.  Whether it stays they way depends on the actions
         /// of the observers.
         /// </para>

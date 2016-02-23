@@ -29,11 +29,13 @@ namespace com.lizitt.outfitter.editor
     /// The <see cref="StandardOutfit"/> custom editor.
     /// </summary>
     [CustomEditor(typeof(StandardOutfit))]
-    public class StandardOutfitEditor
-        : Editor
+    public partial class StandardOutfitEditor
+        : OutfitEditor
     {
         /*
          * Design notes:
+         * 
+         * TODO: EVAL: Can this be refactored to use BehaviourPropertyHelper?
          * 
          * The design is meant to minimize the need to hard code field values in the editor
          * while maintaining the use of serialized properties to format each field properly.
@@ -63,6 +65,8 @@ namespace com.lizitt.outfitter.editor
 
         #region Editor Members
 
+        private bool m_IsAsset;
+
         void OnEnable()
         {
             var outfit = target as StandardOutfit;
@@ -74,6 +78,8 @@ namespace com.lizitt.outfitter.editor
                 StandardOutfit.UnsafeRefreshAllSettings(outfit);
                 EditorUtility.SetDirty(outfit);
             }
+
+            m_IsAsset = AssetDatabase.Contains(target);
         }
 
         /// <summary>
@@ -87,6 +93,21 @@ namespace com.lizitt.outfitter.editor
             prop.NextVisible(true);
 
             EditorGUILayout.PropertyField(prop);  // The script field.
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+
+            var outfit = Target;
+            EditorGUILayout.LabelField(
+                string.Format("Owner is '{0}' ({1})", (outfit.Owner ? outfit.Owner.name : "None"), outfit.Status));
+
+            GUI.enabled = outfit.Owner;
+            if (GUILayout.Button("->", GUILayout.MaxWidth(30)))
+                Selection.activeObject = outfit.Owner;
+            GUI.enabled = true;
+
+            EditorGUILayout.EndHorizontal();
 
             while (prop.NextVisible(false))
             {
@@ -115,6 +136,16 @@ namespace com.lizitt.outfitter.editor
             DrawBodyPartSection();
             DrawMaterialSection();
             DrawObserverSection();      // Best last.
+
+            if (!m_IsAsset)
+            {
+                OutfitterEditorUtil.ShowInspectorActions =
+                    EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
+
+                if (OutfitterEditorUtil.ShowInspectorActions)
+                    DrawActions();
+            }
+
             EditorGUILayout.Space();
 
             serializedObject.ApplyModifiedProperties();
@@ -127,7 +158,7 @@ namespace com.lizitt.outfitter.editor
         // Does not implement a foldout.
 
         private const string CoreStartPath = "m_MotionRoot";
-        private const string CoreEndPath = "m_Owner";
+        private const string CoreEndPath = "m_PrimaryCollider";
 
         private List<SerializedProperty> m_CoreProperties = new List<SerializedProperty>();
 
@@ -238,6 +269,11 @@ namespace com.lizitt.outfitter.editor
 
         #region Utilities
 
+        private StandardOutfit Target
+        {
+            get { return target as StandardOutfit; }
+        }
+
         /// <summary>
         /// Loads all properties into the list, from <paramref name="prop"/> to the property
         /// identified by <paramref name="endPath"/>
@@ -292,6 +328,48 @@ namespace com.lizitt.outfitter.editor
         private static SerializedProperty GetPropertyInstance(SerializedProperty prop)
         {
             return prop.serializedObject.FindProperty(prop.propertyPath);
+        }
+
+        /// <summary>
+        /// Add the observer to the outfit with proper change tracking.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// It is safe to use this method to add an existing observer.  In this case the update will force a
+        /// change record.  (Useful when the observer has already been added, but wasn't properly recorded
+        /// for serialization.)
+        /// </para>
+        /// </remarks>
+        /// <param name="outfit">The outfit. (Required)</param>
+        /// <param name="observer">The observer to add, or to update so it has change tracking. (Required)</param>
+        public static void AddObserverWithUndo(Outfit outfit, IOutfitObserver observer)
+        {
+            // Design note: Adding an observer can sometimes fail when added using the standard method.
+            // Don't know why yet.  This method works in all cases.
+
+            var obj = (Object)observer;
+
+            var so = new UnityEditor.SerializedObject(outfit);
+            var prop = so.FindProperty("m_Observers.m_Items");
+            int idx = -1;
+            for (int i = 0; i < prop.arraySize; i++)
+            {
+                if (prop.GetArrayElementAtIndex(i).objectReferenceValue == obj)
+                {
+                    prop.GetArrayElementAtIndex(idx).objectReferenceValue = null;
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx == -1)
+            {
+                idx = prop.arraySize;
+                prop.arraySize++;
+            }
+
+            prop.GetArrayElementAtIndex(idx).objectReferenceValue = obj;
+            so.ApplyModifiedProperties();
         }
 
         #endregion

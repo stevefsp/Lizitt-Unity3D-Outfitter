@@ -37,15 +37,6 @@ namespace com.lizitt.outfitter
         : ObjectList<IAccessoryObserver>
     {
         /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="initialSize">The initial buffer size.</param>
-        public AccessoryObserverGroup(int initialSize)
-            : base(initialSize)
-        {
-        }
-
-        /// <summary>
         /// Send the <see cref="IAccessoryObserver.OnStateChange"/> event to all observers.
         /// </summary>
         /// <param name="sender">The accessory sending the event.</param>
@@ -61,6 +52,15 @@ namespace com.lizitt.outfitter
             }
             if (hasNull)
                 PurgeDestroyed();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        public AccessoryObserverGroup(int initialCapacity)
+            : base(initialCapacity)
+        {
         }
 
         /// <summary>

@@ -41,15 +41,6 @@ namespace com.lizitt.outfitter
         : ObjectList<IAccessoryMounter>
     {
         /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="bufferSize">The size of the internal buffer.</param>
-        public AccessoryMounterGroup(int bufferSize)
-            : base(bufferSize)
-        {
-        }
-
-        /// <summary>
         /// Replace the items in the buffer.
         /// </summary>
         /// <remarks>
@@ -68,6 +59,15 @@ namespace com.lizitt.outfitter
             Object refObj, AccessoryMounterGroup mounters, params IAccessoryMounter[] items)
         {
             mounters.AddItems(refObj, items);
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        public AccessoryMounterGroup(int initialCapacity)
+            : base(initialCapacity)
+        {
         }
 
         /// <summary>

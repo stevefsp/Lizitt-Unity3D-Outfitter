@@ -76,9 +76,12 @@ namespace com.lizitt.outfitter
             set { m_UseDefaultMounter = value; }
         }
 
+        /// <summary>
+        /// Only access through the property.
+        /// </summary>
         [SerializeField]
         [ObjectList("IAccessoryMounter Objects", typeof(IAccessoryMounter))]
-        private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(0);  // Required by custom editor. <<<<<<<<
+        private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(1);
 
         /// <summary>
         /// The size of the mounter buffer.
@@ -257,6 +260,24 @@ namespace com.lizitt.outfitter
 
 #if UNITY_EDITOR
 
+        #region Editor Only
+
+        protected override void GetUndoObjects(System.Collections.Generic.List<Object> list)
+        {
+            base.GetUndoObjects(list);
+
+            if (m_PriorityMounter)
+                list.Add(m_PriorityMounter);
+
+            for (int i = 0; i < m_Mounters.Count; i++)
+            {
+                var item = m_Mounters[i];
+
+                if (item != null)
+                    list.Add(item as Object);
+            }
+        }
+
         #region Context Menu
 
         [ContextMenu("Refresh All Settings")]
@@ -312,6 +333,8 @@ namespace com.lizitt.outfitter
         {
             m_Mounters.Clear();
         }
+
+        #endregion
 
         #endregion
 

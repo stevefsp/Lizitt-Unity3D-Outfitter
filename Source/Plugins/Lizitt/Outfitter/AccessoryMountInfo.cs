@@ -61,26 +61,6 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The outfit the accessory is currently mounted to, or null if not mounted.")]
-        private Outfit m_Outfit;
-
-        /// <summary>
-        /// The outfit the accessory is currently mounted to, or null if not mounted.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is the outfit the manager (e.g. the body) considers this to be the current owner 
-        /// of the accessory.  A divergence between this value and the current accessory state 
-        /// indicates a problem.
-        /// </para>
-        /// </remarks>
-        public Outfit Outfit
-        {
-            get { return m_Outfit; }
-            set { m_Outfit = value; }
-        }
-
-        [SerializeField]
         [Tooltip("The mounter that will be used as the priority mounter for all mount operations."
             + " (Including automatic transfer's between outfits.) (Optional)")]
         [RequireObjectType(typeof(IAccessoryMounter))]

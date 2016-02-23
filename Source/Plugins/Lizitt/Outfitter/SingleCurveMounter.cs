@@ -44,7 +44,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Single Curve Mounter",
-        order = OutfitterUtil.BaseMounterOrder + 2)]
+        order = OutfitterUtil.MounterMenuOrder + 2)]
     public class SingleCurveMounter
         : EasingMounter
     {

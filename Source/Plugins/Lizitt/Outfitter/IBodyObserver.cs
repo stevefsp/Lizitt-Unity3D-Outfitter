@@ -23,31 +23,41 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
+    /// <summary>
+    /// A component that responds to <see cref="Body"/> events.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Most bodies require this interface to be implemented by a Unity Object for serialization purposes, so outfits
+    /// are allowed to reject observers that are not  Unity Objects.
+    /// </para>
+    /// </remarks>
     public interface IBodyObserver
     {
-        void OnOutfitChangePre(Body sender);
-
         /// <summary>
         /// Sent at the end of an outfit change operation.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// <paramref name="previous"/> is the outfit that was replaced.  
-        /// The current outfit can be obtained from <paramref name="sender"/>.  Both the previous
-        /// and current outfits may be null.
+        /// <paramref name="previous"/> is the outfit that was replaced. The current outfit can be obtained 
+        /// from <paramref name="sender"/>.  Both the previous and current outfits may be null.
         /// </para>
         /// <para>
-        /// This event is useful for clients that need to synchronize state between outfits.
-        /// E.g. Update the animator controller, synchronise animator state, etc.
+        /// This event is useful for clients that need to synchronize or persist state between outfits. E.g. Persist
+        /// material state, synchronise animators, etc.
         /// </para>
         /// </remarks>
-        /// <param name="sender">The body sending the event.</param>
+        /// <param name="sender">The body sending the event. (Required)</param>
         /// <param name="previous">
-        /// The outfit that was replaced and it being released by the body, or null if there
-        /// was no outfit.
+        /// The outfit that was replaced and is being released by the body, or null if there is none.
         /// </param>
         void OnOutfitChange(Body sender, Outfit previous);
 
+        /// <summary>
+        /// Sent when the body has lost control of an outfit through unexpected means.  (E.g. If the outfit was
+        /// destoryed what under the control of the body.)
+        /// </summary>
+        /// <param name="sender">The body. (Required.)</param>
         void OnSoftReset(Body sender);
     }
 }

@@ -79,7 +79,7 @@ namespace com.lizitt.outfitter
         /// There are several common reasons the mounter will return false.  The mount location is not supported.
         /// The accessory is not is a supported state.  The type of  the accessory is not supported. Etc. 
         /// For example: A mounter may be designed to only mount a two handed weapon from the right hand to 
-        /// the upper back.  So it will return false if the accessory is not a two handed weapon currently mounted 
+        /// the upper back, so it will return false if the accessory is not a two handed weapon currently mounted 
         /// to the right hand, or the mount location is not the upper back.
         /// </para>
         /// </remarks>

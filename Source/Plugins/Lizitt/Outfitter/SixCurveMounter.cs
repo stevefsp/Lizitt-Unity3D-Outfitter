@@ -41,7 +41,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Six Curve Mounter",
-        order = OutfitterUtil.BaseMounterOrder + 4)]
+        order = OutfitterUtil.MounterMenuOrder + 4)]
     public class SixCurveMounter
         : EasingMounter
     {

@@ -99,7 +99,7 @@ namespace com.lizitt.outfitter
             {
                 for (int i = 0; i < m_Items.Length; i++)
                 {
-                    if (m_Items[i] && m_Items[i].Type == typ)
+                    if (m_Items[i] && m_Items[i].PartType == typ)
                         return m_Items[i];
                 }
 
@@ -128,7 +128,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The number of assigned items in the group.  (Non-null, non-destroyed)
         /// </summary>
-        public int ItemCount
+        public int Count
         {
             get
             {
@@ -276,7 +276,7 @@ namespace com.lizitt.outfitter
             for (int i = 0; i < m_Items.Length; i++)
             {
                 if (m_Items[i])
-                    m_Items[i].Layer = layer;
+                    m_Items[i].ColliderLayer = layer;
             }
         }
 
@@ -285,7 +285,7 @@ namespace com.lizitt.outfitter
             for (int i = 0; i < m_Items.Length; i++)
             {
                 if (m_Items[i])
-                    m_Items[i].Status = status;
+                    m_Items[i].ColliderStatus = status;
             }
         }
 

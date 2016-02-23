@@ -25,54 +25,24 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Implements standard accessory management for a body or body-like component.
+    /// A component that implements persistant accessory management for a <see cref="Body"/> or body-like object 
+    /// where the target is an <see cref="Outfit"/>.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This component is usually a required component of a <see cref="Body"/>, but it can act as a persistant
+    /// accessory manager for any component that manages an outfit.  Just keep the outfit up-to-date then 
+    /// add/modify/remove accessories.
+    /// </para>
+    /// <para>
+    /// This component keeps track of its accessories.  If ownership is taken over by an external component it will
+    /// release automatically remove the accessory.
+    /// </para>
+    /// </remarks>
     [SerializeField]
     public class BodyAccessoryManager
-        : IAccessoryObserver
+        : MonoBehaviour, IAccessoryObserver, IBodyAccessoryManager
     {
-        #region Constructor/Owner
-
-        [SerializeField]
-        private MonoBehaviour m_Owner = null;
-
-        /// <summary>
-        /// The owner of the manager.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This value is used as the accessory owner, for debug messesages, coroutines, etc.
-        /// </para>
-        /// </remarks>
-        public MonoBehaviour Owner
-        {
-            get { return m_Owner; }
-            set
-            {
-                if (value)
-                    m_Owner = value;
-                else
-                {
-                    Debug.Log(typeof(BodyAccessoryManager).Name + ": Owner can't be set to null.",
-                        m_Owner);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="owner">The object that owns the accessory manager.</param>
-        public BodyAccessoryManager(MonoBehaviour owner)
-        {
-            if (!owner)
-                throw new System.ArgumentNullException("owner");
-
-            Owner = owner;
-        }
-
-        #endregion
-
         #region Outfit
 
         /// <summary>
@@ -80,6 +50,7 @@ namespace com.lizitt.outfitter
         /// outfit.
         /// </summary>
         [SerializeField]
+        [HideInInspector]
         private Outfit m_Outfit = null;
         public Outfit Outfit
         {
@@ -116,7 +87,7 @@ namespace com.lizitt.outfitter
                 }
                 else
                 {
-                    Debug.LogError("Improperly destroyed accessory detected. Will purge.", Owner);
+                    Debug.LogError("Improperly destroyed accessory detected. Will purge.", this);
                     purgeNeeded = true;
                     continue;
                 }
@@ -212,7 +183,7 @@ namespace com.lizitt.outfitter
                 if (m_Items[i].Accessory && m_Items[i].Accessory == accessory)
                 {
                     // This is an error.  Must use modify method to change configuration.
-                    Debug.LogError("Accessory is already added: " + accessory.name, Owner);
+                    Debug.LogError("Accessory is already added: " + accessory.name, this);
                     return MountResult.FailedOnError;
                 }
             }
@@ -227,7 +198,7 @@ namespace com.lizitt.outfitter
                 status = MountToOutfit(ref mountInfo);
             else if (mustMount)
             {
-                Debug.LogError("Must succeed failure.  No outfit: " + accessory.name, Owner);
+                Debug.LogError("Must succeed failure.  No outfit: " + accessory.name, this);
                 return MountResult.FailedOnError;
             }
 
@@ -236,7 +207,7 @@ namespace com.lizitt.outfitter
             {
                 if (mustMount)
                 {
-                    Debug.LogErrorFormat(Owner,
+                    Debug.LogErrorFormat(this,
                         "Must succeed failure.  Failed to mount to outfit: Accessory: {0}, Status: {1}",
                         accessory.name, status);
 
@@ -251,6 +222,30 @@ namespace com.lizitt.outfitter
             return isMounted ? MountResult.Success : MountResult.Stored;
         }
 
+
+        public MountResult Add(
+            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false, bool mustMount = false)
+        {
+            var settings = new AccessoryAddSettings();
+            settings.IgnoreRestrictions = ignoreRestrictions;
+            settings.LocationType = locationType;
+            settings.Mounter = null;
+            settings.AdditionalCoverage = 0;
+
+            return Add(accessory, settings, mustMount);
+        }
+
+        public MountResult Add(Accessory accessory, bool ignoreRestrictions = false, bool mustMount = false)
+        {
+            var settings = new AccessoryAddSettings();
+            settings.IgnoreRestrictions = ignoreRestrictions;
+            settings.LocationType = accessory.DefaultLocationType;
+            settings.Mounter = null;
+            settings.AdditionalCoverage = 0;
+
+            return Add(accessory, settings, mustMount);
+        }
+
         #endregion
 
         #region Modify Accessory
@@ -260,22 +255,22 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Will only perform a mount if the mount location of the accessory has changed.
+        /// Will always attempt a mount/remount if <see cref="Outfit"/> is non-null.
         /// </para>
         /// <para>
-        /// A failure to mount, when needed, will result in a transition to storage.  All other errors will
+        /// A failure to mount when needed will result in a transition to storage.  All other errors will
         /// result in no change to the accessory's state, so an accessory will never be discarded by a failed
         /// modify.
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory to change.</param>
-        /// <param name="addSettings">The new settings for the accessory.</param>
+        /// <param name="settings">The new settings for the accessory.</param>
         /// <returns>The result of the modification.</returns>
-        public MountResult Modify(Accessory accessory, AccessoryAddSettings addSettings)
+        public MountResult Modify(Accessory accessory, AccessoryAddSettings settings)
         {
             if (!accessory)
             {
-                Debug.LogError("Can't modify a null accessory.", Owner);
+                Debug.LogError("Can't modify a null accessory.", this);
                 return MountResult.FailedOnError;
             }
 
@@ -285,6 +280,7 @@ namespace com.lizitt.outfitter
             {
                 var mountInfo = m_Items[i];
 
+
                 if (mountInfo.Accessory && mountInfo.Accessory == accessory)
                 {
                     /*
@@ -292,10 +288,9 @@ namespace com.lizitt.outfitter
                      * 
                      * There can be lots of reasons for modifying an accessory, some of which don't need/want a
                      * re-mount.  But it is better to keep it simple.  All modify calls for a mounted accessory
-                     * result in a remount.)
+                     * result in a mount.)
                      */
-
-                    mountInfo.Apply(addSettings);
+                    mountInfo.Apply(settings);
 
                     if (m_Outfit)
                     {
@@ -305,13 +300,22 @@ namespace com.lizitt.outfitter
                     // else it is already in storage.
 
                     m_Items[i] = mountInfo;
-
-                    return mountInfo.Outfit ? MountResult.Success : MountResult.Stored;
+                    
+                    return mountInfo.Accessory.Status.IsMounted() ? MountResult.Success : MountResult.Stored;
                 }
             }
 
-            Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, Owner);
+            Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, this);
             return MountResult.FailedOnError;
+        }
+
+        public MountResult Modify(Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false)
+        {
+            var settings = new AccessoryAddSettings();
+            settings.IgnoreRestrictions = ignoreRestrictions;
+            settings.LocationType = locationType;
+
+            return Modify(accessory, settings);
         }
 
         #endregion
@@ -348,14 +352,8 @@ namespace com.lizitt.outfitter
 
                 if (mountInfo.Accessory == accessory)
                 {
-                    var outfit = mountInfo.Outfit;
-
                     UnlinkAccessory(i);
-
-                    if (outfit)
-                        outfit.Release(accessory);  // Ignore failure.
-                    else
-                        accessory.Release();  // From storage.
+                    accessory.Release();  // Keep it simple.
 
                     return true;
                 }
@@ -376,7 +374,7 @@ namespace com.lizitt.outfitter
             {
                 if (m_Items[i].Accessory)
                 {
-                    if (m_Items[i].Accessory.Owner == Owner)
+                    if (m_Items[i].Accessory.Owner == this)
                     {
                         UnlinkAccessory(i);
                         m_Items[i].Accessory.Release();
@@ -391,25 +389,36 @@ namespace com.lizitt.outfitter
 
         #region Utility Members
 
+        private Accessory m_IgnoreAccessoryStateEvent;
+
         /// <summary>
         /// Attempts to mount the accessory to the current outfit and updates its information.
         /// (The outfit must be non-null!)
         /// </summary>
         private MountResult MountToOutfit(ref AccessoryMountInfo mountInfo)
         {
+            // If this is a remount and it fails the accessory will be released.  So...
+            m_IgnoreAccessoryStateEvent = mountInfo.Accessory;
+
             var status = m_Outfit.Mount(mountInfo.Accessory, mountInfo.LocationType,
                 mountInfo.IgnoreRestrictions, mountInfo.Mounter, mountInfo.AdditionalCoverage);
 
-            if (status == MountResult.Success)
-                mountInfo.Outfit = Outfit;
+            m_IgnoreAccessoryStateEvent = null;
 
             return status;
         }
 
         private bool StoreAccessory(ref AccessoryMountInfo mountInfo)
         {
-            mountInfo.Outfit = null;
-            return mountInfo.Accessory.Store(Owner.gameObject);
+            var accessory = mountInfo.Accessory;
+            
+            accessory.Store(gameObject);
+
+            accessory.transform.parent = transform;
+            accessory.transform.localPosition = Vector3.zero;
+            accessory.transform.localRotation = Quaternion.identity;
+
+            return true;
         }
 
         private void PurgeNullAcessories()
@@ -455,6 +464,9 @@ namespace com.lizitt.outfitter
 
         void IAccessoryObserver.OnStateChange(Accessory sender)
         {
+            if (m_IgnoreAccessoryStateEvent == sender)
+                return;
+
             switch (sender.Status)
             {
                 case AccessoryStatus.Unmanaged:
@@ -464,7 +476,7 @@ namespace com.lizitt.outfitter
 
                 case AccessoryStatus.Stored:
 
-                    if (sender.Owner != Owner.gameObject)
+                    if (sender.Owner != gameObject)
                         UnlinkAccessory(sender);
 
                     break;
@@ -480,12 +492,6 @@ namespace com.lizitt.outfitter
 
         void IAccessoryObserver.OnDestroy(Accessory sender, DestroyType typ)
         {
-            if (typ == DestroyType.Bake)
-            {
-                Debug.LogError("Force release of accessory: Unexpected bake: " + sender.name, 
-                    m_Owner);
-            }
-
             UnlinkAccessory(sender);
         }
 

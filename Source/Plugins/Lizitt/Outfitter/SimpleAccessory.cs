@@ -43,15 +43,17 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The location the mounter can mount to.
         /// </summary>
-        public MountPointType LocationType
-        {
-            get { return m_Location; }
-            set { m_Location = value; }
-        }
-
         public sealed override MountPointType DefaultLocationType
         {
             get { return m_Location; }
+        }
+
+        /// <summary>
+        /// Set the location the mounter can mount to.
+        /// </summary>
+        public void SetDefaultLocationType(MountPointType value)
+        {
+            m_Location = value;
         }
 
         [SerializeField]
@@ -62,24 +64,24 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The coverage of the accessory on a successful mount operation.
         /// </summary>
-        public BodyCoverage Coverage
+        public BodyCoverage MountedCoverage
         {
             get { return m_Coverage; }
             set { m_Coverage = value; }
         }
 
         /// <summary>
-        /// Returns <see cref="Coverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
+        /// Returns <see cref="MountedCoverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
         /// otherwise zero.
         /// </summary>
         /// <param name="locationType">The location type to check.</param>
         /// <returns>
-        /// <see cref="Coverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
+        /// <see cref="MountedCoverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
         /// otherwise zero.
         /// </returns>
         public sealed override BodyCoverage GetCoverageFor(MountPointType locationType)
         {
-            return (locationType == m_Location) ? Coverage : 0;   
+            return (locationType == m_Location) ? MountedCoverage : 0;   
         }
 
         public sealed override bool CanMount(MountPointType locationType, BodyCoverage restrictions)

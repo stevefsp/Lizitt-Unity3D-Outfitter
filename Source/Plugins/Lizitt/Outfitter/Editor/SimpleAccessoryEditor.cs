@@ -47,6 +47,20 @@ namespace com.lizitt.outfitter.editor
         {
             serializedObject.Update();
 
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+
+            var acc = target as Accessory;
+            EditorGUILayout.LabelField(
+                string.Format("Owner is '{0}' ({1})", (acc.Owner ? acc.Owner.name : "None"), acc.Status));
+
+            GUI.enabled = acc.Owner;
+            if (GUILayout.Button("->", GUILayout.MaxWidth(30)))
+                Selection.activeObject = acc.Owner;
+            GUI.enabled = true;
+
+            EditorGUILayout.EndHorizontal();
+
             m_Helper.LoadProperties(serializedObject, true);
 
             EditorGUILayout.Space();

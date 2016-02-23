@@ -87,7 +87,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public sealed override int BodyPartBufferSize
+        public sealed override int BodyPartCount
         {
             get
             {
@@ -108,7 +108,7 @@ namespace com.lizitt.outfitter
             return m_Parts[typ];
         }
 
-        // Safe to re-run.  So don't need to serialize.
+        // Safe to re-run, so don't need to serialize.
         private bool m_IsPartsInitialized = false;
 
         private void CheckInitializeBodyParts()
@@ -187,11 +187,11 @@ namespace com.lizitt.outfitter
                 return items.Length;
             }
 
-            var before = outfit.m_Parts.ItemCount;
+            var before = outfit.m_Parts.Count;
 
             outfit.m_Parts.CompressAndAdd(items);
 
-            return outfit.m_Parts.ItemCount - before;
+            return outfit.m_Parts.Count - before;
         }
 
         #endregion
@@ -257,7 +257,7 @@ namespace com.lizitt.outfitter
             get { return m_OutfitMaterials.Count; }
         }
 
-        public override OutfitMaterial GetOutfitMaterial(int index)
+        public override OutfitMaterial GetSharedMaterial(int index)
         {
             return m_OutfitMaterials[index].SharedOutfitMaterial;
         }
@@ -270,6 +270,11 @@ namespace com.lizitt.outfitter
         public sealed override bool IsMaterialDefined(OutfitMaterialType typ)
         {
             return m_OutfitMaterials.IsDefined(typ);
+        }
+
+        public override OutfitMaterialType[] GetOutfitMaterialTypes()
+        {
+            return m_OutfitMaterials.GetMaterialTypes();
         }
 
         /// <summary>
@@ -323,20 +328,20 @@ namespace com.lizitt.outfitter
         {
             get 
             {
-                CheckInitializedAccessories();
+                CheckInitializeAccessories();
                 return m_Accessories.Count; 
             }
         }
 
         public sealed override Accessory GetAccessory(int index)
         {
-            CheckInitializedAccessories();
+            CheckInitializeAccessories();
             return m_Accessories[index];
         }
 
         // Ok to re-run.  No need to serialize.
         private bool m_AccessoriesInitialized = false;
-        private void CheckInitializedAccessories()
+        private void CheckInitializeAccessories()
         {
             if (!m_AccessoriesInitialized)
             {
@@ -349,39 +354,53 @@ namespace com.lizitt.outfitter
             bool ignoreRestrictions, IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
         {
             // Error checks are optimized with the assumption that the mount will succeed.
-
-            if (m_Accessories.Contains(accessory))
-            {
-                Debug.LogWarning("Attempted to attach same accessory more than once.  Attempt ignored: "
-                    + accessory.name);
-
-                // It is a success since the accessory is mounted. But no event.
-                return MountResult.Success;
-            }
+            // Remounts to the same location are allowed.  (Mounter may have changed or may have special 
+            // remount behavior.)
 
             if (!ignoreRestrictions)
             {
                 if (AccessoriesLimited && !accessory.IgnoreLimited)
+                {
+                    Release(accessory);
                     return MountResult.OutfitIsLimited;
+                }
 
-                if (((accessory.GetCoverageFor(locationType) | additionalCoverage) & CurrentCoverage) != 0)
+
+                var currentCoverage = CurrentCoverage;
+                if (m_Accessories.Contains(accessory))
+                    currentCoverage &= ~accessory.CurrentCoverage;
+
+                if (((accessory.GetCoverageFor(locationType) | additionalCoverage) & currentCoverage) != 0)
+                {
+                    Release(accessory);
                     return MountResult.CoverageBlocked;
+                }
             }
 
             var location = GetMountPoint(locationType);
             if (!location)
+            {
+                Release(accessory);
                 return MountResult.NoMountPoint;
+            }
             else if (location.IsBlocked)
+            {
+                Release(accessory);
                 return MountResult.LocationBlocked;
+            }
 
             if (priorityMounter != null && LizittUtil.IsUnityDestroyed(priorityMounter))
             {
                 Debug.LogError("The priority mounter is a reference to a destroyed object.", this);
+                Release(accessory);
                 return MountResult.FailedOnError;
             }
 
             if (!accessory.Mount(location, gameObject, priorityMounter, additionalCoverage))
+            {
+                Release(accessory);
                 return MountResult.RejectedByAccessory;
+            }
 
             LinkAccessory(accessory);
 
@@ -438,7 +457,7 @@ namespace com.lizitt.outfitter
                 case AccessoryStatus.Mounted:
                 case AccessoryStatus.Mounting:
 
-                    release = !(sender.Owner == gameObject && IsLocalMountPoint(sender.CurrentLocation));
+                    release = !(sender.Owner == gameObject && Contains(sender.CurrentLocation));
 
                     break;
 
@@ -471,12 +490,11 @@ namespace com.lizitt.outfitter
 
         #region Initialization
 
-        protected override void Awake()
+        public override void Initialize()
         {
-            base.Awake();
-
+            base.Initialize();
             CheckInitializeBodyParts();
-            CheckInitializedAccessories();
+            CheckInitializeAccessories();
         }
 
         #endregion
@@ -485,7 +503,7 @@ namespace com.lizitt.outfitter
 
         // Note: Static utility members specific to a feature colocated with the feature.
 
-        public override void Destroy(DestroyType typ, Outfit referenceOutfit)
+        public override void Destroy(DestroyType typ, bool prepareOnly, Outfit referenceOutfit)
         {
             Observers.SendDestroy(this, typ, referenceOutfit);
 
@@ -503,10 +521,13 @@ namespace com.lizitt.outfitter
 
             Reset();
 
-            if (typ == DestroyType.GameObject)
-                gameObject.SafeDestroy();
-            else
-                this.SafeDestroy();
+            if (!prepareOnly)
+            {
+                if (typ == DestroyType.GameObject)
+                    gameObject.SafeDestroy();
+                else
+                    this.SafeDestroy();
+            }
         }
 
         protected override void Reset()
@@ -573,83 +594,55 @@ namespace com.lizitt.outfitter
 
             UnsafeRefreshBodyParts(outfit, false);
             UnsafeRefreshMountPoints(outfit, false);
-            outfit.RefreshObservers();
+            RefreshObservers(outfit);
         }
 
         #endregion
 
-        #region Context Menus
+#if UNITY_EDITOR
 
-        [ContextMenu("Refresh All Settings")]
-        private void AutoDetectSettings()
+        #region Editor Only
+
+        protected override void GetUndoObjects(System.Collections.Generic.List<Object> list)
         {
-            UnsafeRefreshAllSettings(this);
-        }
+            base.GetUndoObjects(list);
 
-        [ContextMenu("Refresh Mount Points")]
-        private void RefreshMountPoints_Menu()   // Suffix prevents name clash in editor.
-        {
-            if (UnsafeRefreshMountPoints(this, false) == 0)
-                Debug.Log("Refresh mount points: No new mount points found.", this);
-        }
-
-        [ContextMenu("Refresh Body Parts")]
-        private void RefreshBodyParts_Menu()   // Suffix prevents name clash in editor.
-        {
-            if (UnsafeRefreshBodyParts(this, false) == 0)
-                Debug.Log("Refresh body parts: No new body parts found.", this);
-        }
-
-        [ContextMenu("Refresh Observers")]
-        private void RefreshObservers_Menu()
-        {
-            // Design note: This process is designed to support observers that have been linked from other game objects.
-
-            if (RefreshObservers() == 0)
-                Debug.Log("Refresh outfit observers: No new obserers found.", this);
-        }
-
-        private int RefreshObservers()
-        {
-            Observers.PurgeDestroyed();
-
-            var refreshItems = this.GetComponents<IOutfitObserver>();
-
-            var count = 0;
-            if (refreshItems.Length > 0)
+            for (int i = 0; i < m_Parts.Count; i++)
             {
-                // Add new items to end.
-                foreach (var refreshItem in refreshItems)
+                var item = m_Parts[i];
+                if (item)
                 {
-                    if (!Observers.Contains(refreshItem))
+                    list.Add(item);
+                    if (item.Collider)
                     {
-                        Observers.Add(refreshItem);
-                        count++;
+                        list.Add(item.Collider);
+                        list.Add(item.Collider.gameObject);  // For layer changes.
                     }
+                    if (item.Rigidbody)
+                        list.Add(item.Rigidbody);
                 }
             }
 
-            return count;
-        }
+            foreach (var item in m_Accessories)
+            {
+                if (item)
+                    Accessory.UnsafeGetUndoObjects(item, list);
+            }
 
-        [ContextMenu("Reset Mount Points")]
-        private void ResetMountPoints()
-        {
-            UnsafeClearMountPoints(this);
-        }
+            if (m_BlendRenderer)
+                list.Add(m_BlendRenderer);
 
-        [ContextMenu("Reset Body Parts")]
-        private void ResetBodyParts()
-        {
-            UnsafeClearBodyParts(this);
-        }
+            for (int i = 0; i < m_OutfitMaterials.Count; i++)
+            {
+                var item = m_OutfitMaterials[i];
 
-        [ContextMenu("Reset Observers")]
-        private void ResetObservers()
-        {
-            Observers.Clear();
+                if (item.Target != null && item.Target.Renderer)
+                    list.Add(item.Target.Renderer);
+            }
         }
 
         #endregion
+
+#endif
     }
 }

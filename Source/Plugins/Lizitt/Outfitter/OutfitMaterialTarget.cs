@@ -44,7 +44,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The material type.
         /// </summary>
-        public OutfitMaterialType Type
+        public OutfitMaterialType MaterialType
         {
             get { return m_Type; }
             set { m_Type = value; }

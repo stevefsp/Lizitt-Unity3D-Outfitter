@@ -33,9 +33,9 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="initialSize">The initial buffer size.</param>
-        public OutfitObserverGroup(int initialSize)
-            : base(initialSize)
+        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        public OutfitObserverGroup(int initialCapacity)
+            : base(initialCapacity)
         {
         }
 

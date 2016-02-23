@@ -24,16 +24,14 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A mounter that will immediately snap the accessory to a location with optional position and
-    /// rotation offsets.
+    /// A mounter that will immediately snap the accessory to a location with optional position and rotation offsets.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Update completes immediately.  Supports multiple concurrent mount operations.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Standard Mounter", 
-        order=OutfitterUtil.BaseMounterOrder + 0)]
+    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Standard Mounter", order=OutfitterUtil.MounterMenuOrder + 0)]
     public class StandardMounter
         : OffsetMounter
     {
@@ -43,18 +41,17 @@ namespace com.lizitt.outfitter
         [Tooltip("The location the mounter can mount to.")]
         private MountPointType m_Location = (MountPointType)0;
 
-        /// <summary>
-        /// The location the mounter can mount to.
-        /// </summary>
-        public MountPointType LocationType
-        {
-            get { return m_Location; }
-            set { m_Location = value; }
-        }
-
         public override MountPointType DefaultLocationType
         {
             get { return m_Location; }
+        }
+
+        /// <summary>
+        /// The location the mounter can mount to.
+        /// </summary>
+        public void SetDefaultLocationType(MountPointType value)
+        {
+            m_Location = value;
         }
 
         public override bool CanMount(Accessory accessory, MountPointType locationType)

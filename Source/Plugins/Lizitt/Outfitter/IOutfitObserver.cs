@@ -28,7 +28,7 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most accessories require this interface to be implemented by a Unity Object for
+    /// Most outfits require this interface to be implemented by a Unity Object for
     /// serialization purposes, so outfits are allowed to reject observers that are not 
     /// Unity Objects.
     /// </para>
@@ -66,7 +66,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent before the outfit performs any internal operations.  So the
+        /// This event is sent before the outfit performs any internal operations, so the
         /// outfit starts out as valid.  Whether it stays they way depends on the actions
         /// of the observers.
         /// </para>

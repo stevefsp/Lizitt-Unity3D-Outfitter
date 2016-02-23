@@ -179,5 +179,36 @@ namespace com.lizitt.outfitter
                 m_Collider.SetStatus(value);
             }
         }
+
+        /// <summary>
+        /// Synchronize the state of the specified body parts.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The status, layer, and context are synchronized, depending on the parameter values.  Other 
+        /// properties such as body part type, transform values, etc., are not included.
+        /// </para>
+        /// </remarks>
+        /// <param name="to">The body part to sync to. (Required)</param>
+        /// <param name="from">The body part to sync from. (Required)</param>
+        /// <param name="includeStatus">Synchronize the collider status.</param>
+        /// <param name="includeLayer">Synchronize the collider layer.</param>
+        /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
+        /// <param name="ignoreContext">
+        /// The context that should never be synchronized. (Usually the object <paramref name="to"/> is a member of,
+        /// such at its Outfit. (Required if <paramref name="includeContext"/> is true.)
+        /// </param>
+        public static void Synchronize(BodyPart to, BodyPart from,
+            bool includeStatus, bool includeLayer, bool includeContext, GameObject ignoreContext)
+        {
+            if (includeStatus)
+                to.ColliderStatus = from.ColliderStatus;
+
+            if (includeLayer)
+                to.ColliderLayer = from.ColliderLayer;
+
+            if (includeContext && from.Context != ignoreContext.gameObject)
+                to.Context = from.Context;
+        }
     }
 }

@@ -92,6 +92,33 @@ namespace com.lizitt.outfitter
         {
             get { return m_IsBlocked; }
             set { m_IsBlocked = value; }
+        }        
+        
+        /// <summary>
+        /// Synchronize the state to the specified mount point.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The 'is blocked' state and context are synchronized, depending on the parameter values.  Other properties 
+        /// such as location type, transform values, etc., are ignored.
+        /// </para>
+        /// </remarks>
+        /// <param name="to">The mount point to sync to. (Required)</param>
+        /// <param name="from">The mount point to sync from. (Required)</param>
+        /// <param name="includeBlocked">Synchronize the mount point 'is blocked' state.</param>
+        /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
+        /// <param name="ignoreContext">
+        /// The context that should never be synchronized. (Usually the object <paramref name="to"/> is a member of,
+        /// such at its Outfit. (Required if <paramref name="includeContext"/> is true.)
+        /// </param>
+        public static void Synchronize(MountPoint to, MountPoint from, 
+            bool includeBlocked, bool includeContext, GameObject ignoreContext)
+        {
+            if (includeBlocked)
+                to.IsBlocked = from.IsBlocked;
+
+            if (includeContext && from.Context != ignoreContext)
+                to.Context = from.Context;
         }
     }
 }

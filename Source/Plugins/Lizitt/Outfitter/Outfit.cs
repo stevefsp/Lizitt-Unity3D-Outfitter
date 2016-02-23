@@ -185,6 +185,32 @@ namespace com.lizitt.outfitter
         /// <param name="layer">The layer id.</param>
         public abstract void ApplyBodyPartLayer(int layer);
 
+        /// <summary>
+        /// Synchronize the body part state of all common body parts.
+        /// </summary>
+        /// <param name="to">The outfit being synchonized to. (Required)</param>
+        /// <param name="from">The outfit state is syncronzied from. (Required)</param>
+        /// <param name="includeStatus">Persist collider status.</param>
+        /// <param name="includeLayer">Persist the collider layer.</param>
+        /// <param name="includeContext">Persist the context unless it is the previous outfit's GameObject.</param>
+        public static void SynchronizeBodyPartState(
+            Outfit to, Outfit from, bool includeStatus, bool includeLayer, bool includeContext)
+        {
+            if (!(from && to))
+                return;
+
+            for (int i = 0; i < from.BodyPartCount; i++)
+            {
+                var prevPart = from.GetBodyPart(i);
+                if (prevPart)
+                {
+                    var part = to.GetBodyPart(prevPart.PartType);
+                    if (part)
+                        BodyPart.Synchronize(part, prevPart, includeStatus, includeLayer, includeContext, from.gameObject);
+                }
+            }
+        }
+
         #endregion
 
         #region Mount Points & Accessories
@@ -269,6 +295,30 @@ namespace com.lizitt.outfitter
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Synchronize the mount point state of all common mount points.
+        /// </summary>
+        /// <param name="to">The outfit being synchonized to. (Required)</param>
+        /// <param name="from">The outfit being syncronzied from. (Required)</param>
+        /// <param name="includeBlocked">Synchronize the mount point 'is blocked' state.</param>
+        /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
+        public static void SynchronizeMountPointState(Outfit to, Outfit from, bool includeBlocked, bool includeContext)
+        {
+            if (!(from && to))
+                return;
+
+            for (int i = 0; i < from.MountPointCount; i++)
+            {
+                var prevPart = from.GetMountPoint(i);
+                if (prevPart)
+                {
+                    var part = to.GetMountPoint(prevPart.LocationType);
+                    if (part)
+                        MountPoint.Synchronize(part, prevPart, includeBlocked, includeContext, from.gameObject);
+                }
+            }
         }
 
         /// <summary>

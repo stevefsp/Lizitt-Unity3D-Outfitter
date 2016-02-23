@@ -168,8 +168,7 @@ namespace com.lizitt.outfitter.editor
             var outfit = Target;
             bool isDirty = false;
 
-            var origWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 50;
+            EditorGUIUtil.BeginLabelWidth(50);
 
             EditorGUILayout.LabelField("Status");
             EditorGUILayout.BeginHorizontal();
@@ -205,7 +204,7 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUILayout.EndHorizontal();
 
-            EditorGUIUtility.labelWidth = origWidth;
+            EditorGUIUtil.EndLabelWidth();
 
             return isDirty;
         }
@@ -232,13 +231,12 @@ namespace com.lizitt.outfitter.editor
         {
             var outfit = Target;
 
-            var origWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 70;
+            EditorGUIUtil.BeginLabelWidth(70);
 
             var cmat = outfit.GetSharedMaterial(matType);
             var nmat = EditorGUILayout.ObjectField(matType.ToString(), cmat, typeof(Material), false) as Material;
 
-            EditorGUIUtility.labelWidth = origWidth;
+            EditorGUIUtil.EndLabelWidth();
 
             if (!nmat || nmat == cmat)
                 return false;
@@ -258,11 +256,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorGUIUtil.BoldLabel);
 
-            var origWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 80;
+            EditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
                 EditorGUILayout.Slider(AutoOffsetLabel, OutfitterEditorUtil.AutoOffset, 0, 5);
-            EditorGUIUtility.labelWidth = origWidth;
+            EditorGUIUtil.EndLabelWidth();
         }
 
         #endregion

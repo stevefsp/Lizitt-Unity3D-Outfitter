@@ -329,11 +329,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorGUIUtil.BoldLabel);
 
-            var origWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 80;
+            EditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
                 EditorGUILayout.Slider(AutoOffsetLabel, OutfitterEditorUtil.AutoOffset, 0, 5);
-            EditorGUIUtility.labelWidth = origWidth;
+            EditorGUIUtil.EndLabelWidth();
         }
 
         #endregion

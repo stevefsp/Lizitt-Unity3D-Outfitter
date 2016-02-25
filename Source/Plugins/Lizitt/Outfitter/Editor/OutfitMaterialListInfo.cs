@@ -30,24 +30,24 @@ namespace com.lizitt.outfitter.editor
     public struct OutfitMaterialListInfo
     {
         /// <summary>
-        /// The path name of the outfit material type field.
+        /// The path name of the outfit material type field. (Required)
         /// </summary>
         public string ItemTypePropName { get; set; }
 
         /// <summary>
-        /// The path name of the outfit material data field.
+        /// The path name of the outfit material data field. (Required)
         /// </summary>
         public string ItemDataPropName { get; set; }
 
         /// <summary>
-        /// The header title for the list.
+        /// The header title for the list. (Optional)
         /// </summary>
         public string ListHeaderLabel { get; set; }
 
         /// <summary>
-        /// The draw height of each list element.
+        /// The draw height of each list element. [Limit: > 0]
         /// </summary>
-        public float ListElementHeight { get; set; }
+        public float ElementHeight { get; set; }
 
         /// <summary>
         /// If true, allow multiple targets for each material type.
@@ -55,15 +55,19 @@ namespace com.lizitt.outfitter.editor
         public bool AllowMultipleTargets { get; set; }
 
         /// <summary>
-        /// The validation method to use for each list entry.
+        /// The initialization method to use for newly added list entries. (Optional)
         /// </summary>
-        public ValidateProperty Validate { get; set; }
+        public InitializeProperty InitializeElement { get; set; }
 
         /// <summary>
-        /// The draw method to use for each list element.
+        /// The validation method to use for each list entry. (Optinal)
         /// </summary>
-        public System.Action<Rect, SerializedProperty, GUIContent, GUIStyle> 
-            DrawElement { get; set; }
+        public ValidateProperty ValidateElement { get; set; }
+
+        /// <summary>
+        /// The draw method to use for each list element. (Required)
+        /// </summary>
+        public System.Action<Rect, SerializedProperty, GUIContent, GUIStyle> DrawElement { get; set; }
     }
 }
 

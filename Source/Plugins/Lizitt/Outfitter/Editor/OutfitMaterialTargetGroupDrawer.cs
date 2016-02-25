@@ -79,11 +79,11 @@ namespace com.lizitt.outfitter.editor
 
             settings.ListHeaderLabel = label.text;
 
-            settings.ListElementHeight = EditorGUIUtility.singleLineHeight  // For label.
+            settings.ElementHeight = EditorGUIUtility.singleLineHeight  // For label.
                 + EditorGUIUtility.standardVerticalSpacing * 4
                 + m_MaterialControl.GetPropertyHeight(property, GUIContent.none);
 
-            settings.Validate = Validate;
+            settings.InitializeElement = InititializeElement;
             settings.DrawElement = DrawElement;
 
             settings.AllowMultipleTargets = attr.AllowMultipleTargets;
@@ -91,10 +91,10 @@ namespace com.lizitt.outfitter.editor
             m_GuiControl = new OutfitMaterialListControl(settings);
         }
 
-        private static PropertyValidationResult Validate(SerializedProperty property, out string message)
+        private void InititializeElement(SerializedProperty property)
         {
-            message = null;
-            return PropertyValidationResult.Success;
+            RendererMaterialPtrControl.FindRendererProperty(property).objectReferenceValue = null;
+            RendererMaterialPtrControl.FindIndexProperty(property).intValue = -1;
         }
 
         private void DrawElement(

@@ -34,6 +34,8 @@ namespace com.lizitt.outfitter.editor
     /// <returns>The result of the validation.</returns>
     public delegate PropertyValidationResult ValidateProperty(SerializedProperty property, out string message);
 
+    public delegate void InitializeProperty(SerializedProperty property);
+
     /// <summary>
     /// The result of a validation operation.
     /// </summary>

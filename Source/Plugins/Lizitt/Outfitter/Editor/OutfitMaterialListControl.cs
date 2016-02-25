@@ -49,6 +49,9 @@ namespace com.lizitt.outfitter.editor
         public OutfitMaterialListControl(OutfitMaterialListInfo settings)
         {
             m_Settings = settings;
+
+            if (string.IsNullOrEmpty(m_Settings.ListHeaderLabel))
+                m_Settings.ListHeaderLabel = "Elements";
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace com.lizitt.outfitter.editor
 
             return result + (elementCount == 0 
                 ? EmptyElementHeight 
-                : m_Settings.ListElementHeight * elementCount);
+                : m_Settings.ElementHeight * elementCount);
         }
 
         /// <summary>
@@ -88,7 +91,7 @@ namespace com.lizitt.outfitter.editor
             // See comments in GetPropertyHeight() for why this is necessary.
             m_List.elementHeight = listProperty.arraySize == 0
                 ? EmptyElementHeight
-                : m_Settings.ListElementHeight;
+                : m_Settings.ElementHeight;
 
             m_List.DoList(position);
 
@@ -108,7 +111,7 @@ namespace com.lizitt.outfitter.editor
                 EditorGUI.LabelField(rect, m_Settings.ListHeaderLabel);
             };
 
-            list.elementHeight = m_Settings.ListElementHeight;
+            list.elementHeight = m_Settings.ElementHeight;
 
             list.drawElementCallback =
                 delegate(Rect position, int index, bool isActive, bool isFocused)
@@ -129,9 +132,9 @@ namespace com.lizitt.outfitter.editor
                     else
                     {
                         string vmessage = null;
-                        var vcheck = m_Settings.Validate == null 
+                        var vcheck = m_Settings.ValidateElement == null 
                             ? PropertyValidationResult.Success 
-                            : m_Settings.Validate(dataProp, out vmessage);
+                            : m_Settings.ValidateElement(dataProp, out vmessage);
 
                         label = new GUIContent(typProp.enumDisplayNames[typProp.enumValueIndex]);
                         if (!string.IsNullOrEmpty(vmessage))
@@ -211,6 +214,9 @@ namespace com.lizitt.outfitter.editor
 
             var element = listProp.GetArrayElementAtIndex(nidx);
             element.FindPropertyRelative(m_Settings.ItemTypePropName).intValue = typValue;
+
+            if (m_Settings.InitializeElement != null)
+                m_Settings.InitializeElement(element.FindPropertyRelative(m_Settings.ItemDataPropName));
 
             listProp.serializedObject.ApplyModifiedProperties();
 

@@ -41,87 +41,20 @@ namespace com.lizitt.outfitter
 
         #region Body Parts (Editor Section)
 
-        public sealed override void ApplyBodyPartStatus(ColliderStatus status)
-        {
-            CheckInitializeBodyParts();
-            m_Parts.ApplyStatusToAll(status);
-        }
-
-        public sealed override void ApplyBodyPartLayer(int layer)
-        {
-            CheckInitializeBodyParts();
-            m_Parts.ApplyLayerToAll(layer);
-        }
-
-        [SerializeField]
-        [Tooltip("Perform a refresh of the body parts during outfit initialization. (Flexible, but less efficient"
-            + " than assigning body parts at design time.)")]
-        private bool m_AutoLoadParts = false;    // Refactor note: Field name used in the editor.
-
-        /// <summary>
-        /// If true, a refresh of the body parts will ocucr during outfit initialization.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Refreshing at run-time is flexible, but less efficient than assigning mount points at  design time.
-        /// </para>
-        /// </remarks>
-        public bool AutoLoadBodyParts
-        {
-            get { return m_AutoLoadParts; }
-            set { m_AutoLoadParts = value; }
-        }
-
-        [Space(10)]
+        // TODO: Update editor so it includes mount point type labels for each entry.
 
         [SerializeField]
         [ObjectList("Body Parts")]
         private BodyPartGroup m_Parts = new BodyPartGroup(0);         // Refactor note: Field name used in the editor.
 
-        public sealed override bool HasBodyParts
-        {
-            get 
-            {
-                CheckInitializeBodyParts();
-                return m_Parts.HasItem; 
-            }
-        }
-
         public sealed override int BodyPartCount
         {
-            get
-            {
-                CheckInitializeBodyParts(); 
-                return m_Parts.BufferSize;
-            }
+            get { return m_Parts.BufferSize; }
         }
 
         public sealed override BodyPart GetBodyPart(int index)
         {
-            CheckInitializeBodyParts();
             return m_Parts[index];
-        }
-
-        public sealed override BodyPart GetBodyPart(BodyPartType typ)
-        {
-            CheckInitializeBodyParts();
-            return m_Parts[typ];
-        }
-
-        // Safe to re-run, so don't need to serialize.
-        private bool m_IsPartsInitialized = false;
-
-        private void CheckInitializeBodyParts()
-        {
-            if (m_IsPartsInitialized)
-                return;
-
-            m_IsPartsInitialized = true;
-
-            if (m_AutoLoadParts)
-                UnsafeRefreshBodyParts(this, false);
-
-            m_Parts.SetOwnership(gameObject, true);
         }
 
         /// <summary>
@@ -141,8 +74,7 @@ namespace com.lizitt.outfitter
         /// If true the outfit will use the reference to the body part rray.  Otherwise the array will be copied.
         /// </param>
         /// <param name="mountPoints">The body parts, or null to clear all body parts.</param>
-        public static void UnsafeSet(
-            StandardOutfit outfit, bool asReference, params BodyPart[] bodyParts)
+        public static void UnsafeSet(StandardOutfit outfit, bool asReference, params BodyPart[] bodyParts)
         {
             BodyPartGroup.UnsafeReplaceItems(outfit.m_Parts, asReference, bodyParts);
         }
@@ -245,36 +177,37 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [OutfitMaterialTargetGroup(true)]
-        private OutfitMaterialTargetGroup m_OutfitMaterials = new OutfitMaterialTargetGroup();  // Refactor note: Field name used in the editor.
+        [UnityEngine.Serialization.FormerlySerializedAs("m_OutfitMaterials")]
+        private OutfitMaterialTargetGroup m_OutfitMaterialTargets = new OutfitMaterialTargetGroup();  // Refactor note: Field name used in the editor.
 
         public sealed override Material GetSharedMaterial(OutfitMaterialType typ)
         {
-            return m_OutfitMaterials.GetSharedMaterial(typ);
+            return m_OutfitMaterialTargets.GetSharedMaterial(typ);
         }
 
         public override int OutfitMaterialCount
         {
-            get { return m_OutfitMaterials.Count; }
+            get { return m_OutfitMaterialTargets.Count; }
         }
 
         public override OutfitMaterial GetSharedMaterial(int index)
         {
-            return m_OutfitMaterials[index].SharedOutfitMaterial;
+            return m_OutfitMaterialTargets[index].SharedOutfitMaterial;
         }
 
         public sealed override int ApplySharedMaterial(OutfitMaterialType typ, Material material)
         {
-            return m_OutfitMaterials.ApplySharedMaterial(typ, material);
+            return m_OutfitMaterialTargets.ApplySharedMaterial(typ, material);
         }
 
         public sealed override bool IsMaterialDefined(OutfitMaterialType typ)
         {
-            return m_OutfitMaterials.IsDefined(typ);
+            return m_OutfitMaterialTargets.IsDefined(typ);
         }
 
         public override OutfitMaterialType[] GetOutfitMaterialTypes()
         {
-            return m_OutfitMaterials.GetMaterialTypes();
+            return m_OutfitMaterialTargets.GetMaterialTypes();
         }
 
         /// <summary>
@@ -296,7 +229,7 @@ namespace com.lizitt.outfitter
             // Design note: This is a class member because its use is expected to be limited
             // to outfit initialization.  Don't want to unnecessarily clutter the instance API.
 
-            outfit.m_OutfitMaterials.AddTarget(typ, target);
+            outfit.m_OutfitMaterialTargets.AddTarget(typ, target);
         }
 
         #endregion
@@ -326,28 +259,12 @@ namespace com.lizitt.outfitter
 
         public sealed override int AccessoryCount
         {
-            get 
-            {
-                CheckInitializeAccessories();
-                return m_Accessories.Count; 
-            }
+            get { return m_Accessories.Count; }
         }
 
         public sealed override Accessory GetAccessory(int index)
         {
-            CheckInitializeAccessories();
             return m_Accessories[index];
-        }
-
-        // Ok to re-run.  No need to serialize.
-        private bool m_AccessoriesInitialized = false;
-        private void CheckInitializeAccessories()
-        {
-            if (!m_AccessoriesInitialized)
-            {
-                m_AccessoriesInitialized = true;
-                m_Accessories.PurgeNulls();
-            }
         }
 
         public sealed override MountResult Mount(Accessory accessory, MountPointType locationType, 
@@ -488,17 +405,6 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Initialization
-
-        public override void Initialize()
-        {
-            base.Initialize();
-            CheckInitializeBodyParts();
-            CheckInitializeAccessories();
-        }
-
-        #endregion
-
         #region Utility Features
 
         // Note: Static utility members specific to a feature colocated with the feature.
@@ -533,7 +439,7 @@ namespace com.lizitt.outfitter
         protected override void Reset()
         {
             m_BlendRenderer = null;
-            m_OutfitMaterials = new OutfitMaterialTargetGroup();  // Materials Reset() is not as safe.
+            m_OutfitMaterialTargets = new OutfitMaterialTargetGroup();  // Materials Reset() is not as safe.
             m_Parts.Clear(0);
             m_Accessories.Clear();
             Observers.Clear();
@@ -632,9 +538,9 @@ namespace com.lizitt.outfitter
             if (m_BlendRenderer)
                 list.Add(m_BlendRenderer);
 
-            for (int i = 0; i < m_OutfitMaterials.Count; i++)
+            for (int i = 0; i < m_OutfitMaterialTargets.Count; i++)
             {
-                var item = m_OutfitMaterials[i];
+                var item = m_OutfitMaterialTargets[i];
 
                 if (item.Target != null && item.Target.Renderer)
                     list.Add(item.Target.Renderer);

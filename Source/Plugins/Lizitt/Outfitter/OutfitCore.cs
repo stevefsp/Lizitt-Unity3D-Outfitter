@@ -308,59 +308,24 @@ namespace com.lizitt.outfitter
 
         #region Mount Points
 
-        [SerializeField]
-        [Tooltip("Perform a refresh of the mount points during outfit initialization."
-            + " (Flexible, but less efficient than assigning mount points at design-time.)")]
-        private bool m_AutoLoadMounts = false;
-
-        /// <summary>
-        /// If true, a refresh of the mount points will ocucr during outfit initialization.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Refreshing at run-time is flexible, but less efficient than assigning mount points at 
-        /// design-time.
-        /// </para>
-        /// </remarks>
-        public bool AutoLoadMountPoints
-        {
-            get { return m_AutoLoadMounts; }
-            set { m_AutoLoadMounts = value; }
-        }
-
-        [Space(10)]
+        // TODO: Update editor so it includes mount point type labels for each entry.
 
         [SerializeField]
         [ObjectList("Mount Points")]
         private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Refactor note: Field name used in the editor.
 
-        public sealed override bool HasMountPoints 
-        {
-            get
-            {
-                CheckInitializeMountPoints();
-                return m_MountPoints.HasItem;
-            }
-        }
-
         public sealed override int MountPointCount
         {
-            get 
-            {
-                CheckInitializeMountPoints();
-                return m_MountPoints.BufferSize; 
-            }
+            get { return m_MountPoints.BufferSize;  }
         }
 
         public sealed override MountPoint GetMountPoint(int index)
         {
-            CheckInitializeMountPoints();
             return m_MountPoints[index];
         }
 
         public sealed override MountPoint GetMountPoint(MountPointType locationType)
         {
-            CheckInitializeMountPoints();
             return m_MountPoints[locationType];
         }
 
@@ -427,7 +392,7 @@ namespace com.lizitt.outfitter
         /// <returns>
         /// The number of mount points added, or all if <paramref name="replace"/> is true.
         /// </returns>
-        public static int UnsafeRefreshMountPoints(OutfitCore outfit, bool replace)
+        public static int UnsafeRefreshMountPoints(OutfitCore outfit, bool replace = false)
         {
             var fitems = outfit.GetComponentsInChildren<MountPoint>();
 
@@ -444,25 +409,8 @@ namespace com.lizitt.outfitter
             return outfit.m_MountPoints.Count - before;
         }
 
-        // Not destructive.  No need to serialize.
-        private bool m_IsMountsInitialized = false;
-
-        private void CheckInitializeMountPoints()
-        {
-            if (m_IsMountsInitialized)
-                return;
-
-            m_IsMountsInitialized = true;
-
-            if (m_AutoLoadMounts)
-                UnsafeRefreshMountPoints(this, false);
-
-            m_MountPoints.SetOwnership(gameObject, true);
-        }
-
         private void ResetMountPointSettings()
         {
-            m_AutoLoadMounts = false;
             m_MountPoints.Clear();
         }
 
@@ -489,20 +437,6 @@ namespace com.lizitt.outfitter
         public sealed override void RemoveObserver(IOutfitObserver observer)
         {
             Observers.Remove(observer);
-        }
-
-        #endregion
-
-        #region Initialization
-
-        public virtual void Initialize()
-        {
-            CheckInitializeMountPoints();
-        }
-
-        protected void Awake()
-        {
-            Initialize();
         }
 
         #endregion

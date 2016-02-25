@@ -24,10 +24,24 @@ using System.Collections.Generic;
 
 namespace com.lizitt.outfitter
 {
+    /// <summary>
+    /// The high level status of an outfit.
+    /// </summary>
     public enum OutfitStatus
     {
+        /// <summary>
+        /// The outfit is not managed and has no formal owner.
+        /// </summary>
         Unmanaged = 0,
+
+        /// <summary>
+        /// The outfit is in active use.  (Ownership required.)
+        /// </summary>
         InUse,
+
+        /// <summary>
+        /// The outfit is in a stored state.  (Usually non-visible.)  (Ownership required.)
+        /// </summary>
         Stored,
     }
 
@@ -135,11 +149,6 @@ namespace com.lizitt.outfitter
         public abstract int BodyPartCount { get; }
 
         /// <summary>
-        /// True if there is at least one body part.
-        /// </summary>
-        public abstract bool HasBodyParts { get; }
-
-        /// <summary>
         /// The body part at the specified index, or null if there is none.
         /// </summary>
         /// <param name="index">The index. [0 &lt;= value &lt;<see cref="BodyPartBufferSize"/>]</param>
@@ -151,8 +160,34 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="typ">The type.</param>
         /// <returns>The body part associated with the specified type, or null if there is none.</returns>
-        public abstract BodyPart GetBodyPart(BodyPartType typ);
+        public BodyPart GetBodyPart(BodyPartType typ)
+        {
+            for (int i = 0; i < BodyPartCount; i++)
+            {
+                var item = GetBodyPart(i);
+                if (item && item.PartType == typ)
+                    return item;
+            }
 
+            return null;
+        }
+
+        /// <summary>
+        /// True if there is at least one body part.
+        /// </summary>
+        public bool HasBodyParts 
+        { 
+            get
+            {
+                for (int i = 0; i < BodyPartCount; i++)
+                {
+                    if (GetBodyPart(i))
+                        return true;
+                }
+
+                return false;
+            }
+        }
         /// <summary>
         /// True if the body part is part of the outfit.
         /// </summary>
@@ -177,13 +212,49 @@ namespace com.lizitt.outfitter
         /// Applies the colider status to all body parts.
         /// </summary>
         /// <param name="status">The desired status.</param>
-        public abstract void ApplyBodyPartStatus(ColliderStatus status);
+        public void ApplyBodyPartStatus(ColliderStatus status)
+        {
+            for (int i = 0; i < BodyPartCount; i++)
+            {
+                var item = GetBodyPart(i);
+                if (item)
+                    item.ColliderStatus = status;
+            }
+        }
 
         /// <summary>
-        /// Applies the layer all body parts.
+        /// Applies the layer all body part colliders.
         /// </summary>
-        /// <param name="layer">The layer id.</param>
-        public abstract void ApplyBodyPartLayer(int layer);
+        /// <param name="layer">The layer.</param>
+        public void ApplyBodyPartLayer(int layer)
+        {
+            if (layer < 0 || layer > 31)
+            {
+                Debug.LogError("Body part collider layer is out of range: " + layer);
+                return;
+            }
+
+            for (int i = 0; i < BodyPartCount; i++)
+            {
+                var item = GetBodyPart(i);
+                if (item)
+                    item.ColliderLayer = layer;
+            }
+        }
+
+        /// <summary>
+        /// Applies the context to all body parts.
+        /// </summary>
+        /// <param name="context">The context to apply.</param>
+        public virtual void ApplyBodyPartContext(GameObject context)
+        {
+            for (int i = 0; i < BodyPartCount; i++)
+            {
+                var item = GetBodyPart(i);
+                if (item)
+                    item.Context = context;
+            }
+        }
 
         /// <summary>
         /// Synchronize the body part state of all common body parts.
@@ -245,11 +316,6 @@ namespace com.lizitt.outfitter
         public abstract BodyCoverage CurrentCoverage { get; }
 
         /// <summary>
-        /// True if the there is a least one mount point.
-        /// </summary>
-        public abstract bool HasMountPoints { get; }
-
-        /// <summary>
         /// The maximum number of mount points the outfit can have.
         /// </summary>
         /// <remarks>
@@ -275,7 +341,34 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="locationType">The mount location.</param>
         /// <returns>The specified mount point, or null if there is none.</returns>
-        public abstract MountPoint GetMountPoint(MountPointType locationType);
+        public virtual MountPoint GetMountPoint(MountPointType locationType)
+        {
+            for (int i = 0; i < MountPointCount; i++)
+            {
+                var item = GetMountPoint(i);
+                if (item && item.LocationType == locationType)
+                    return item;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// True if the there is a least one mount point.
+        /// </summary>
+        public bool HasMountPoints 
+        { 
+            get
+            {
+                for (int i = 0; i < MountPointCount; i++)
+                {
+                    if (GetMountPoint(i))
+                        return true;
+                }
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// True if the mount point is part of the outfit.
@@ -295,6 +388,20 @@ namespace com.lizitt.outfitter
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Applies the context to all mount points.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        public void ApplyMountPointContext(GameObject context)
+        {
+            for (int i = 0; i < MountPointCount; i++)
+            {
+                var item = GetMountPoint(i);
+                if (item)
+                    item.Context = context;
+            }
         }
 
         /// <summary>
@@ -540,21 +647,6 @@ namespace com.lizitt.outfitter
         public abstract OutfitMaterialType[] GetOutfitMaterialTypes();
 
         /// <summary>
-        /// Gets the specified shared material, or null if there is none.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// A null value can mean there are no valid targets for the specified type, or that the target's material 
-        /// is null.  <see cref="IsMaterialDefined"/> is helpful in determining the cause of null.
-        /// </para>
-        /// </remarks>
-        /// <param name="typ">The material type.</param>
-        /// <returns>
-        /// The specified shared material, or null if it is not defined.
-        /// </returns>
-        public abstract Material GetSharedMaterial(OutfitMaterialType typ);
-
-        /// <summary>
         /// The number of outfit materials.
         /// </summary>
         public abstract int OutfitMaterialCount { get; }
@@ -576,6 +668,21 @@ namespace com.lizitt.outfitter
         public abstract OutfitMaterial GetSharedMaterial(int index);
 
         /// <summary>
+        /// Gets the specified shared material, or null if there is none.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// A null value can mean there are no valid targets of the specified type, or that the target's material 
+        /// is null.  <see cref="IsMaterialDefined"/> is helpful in determining the cause of an unexpected null.
+        /// </para>
+        /// </remarks>
+        /// <param name="typ">The material type.</param>
+        /// <returns>
+        /// The specified shared material, or null if it is not defined.
+        /// </returns>
+        public abstract Material GetSharedMaterial(OutfitMaterialType typ);
+
+        /// <summary>
         /// Sets the material of all material targets of the specified type.
         /// </summary>
         /// <remarks>
@@ -594,7 +701,7 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Miscellaneous
+        #region Destroy Members
 
         /// <summary>
         /// Destroy the outfit.
@@ -698,7 +805,7 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Utilities
+        #region Utility Members
 
         /// <summary>
         /// Performs a standard search of the outfit for an Animator.
@@ -721,7 +828,7 @@ namespace com.lizitt.outfitter
 
 #if UNITY_EDITOR
 
-        #region Editor Only
+        #region Editor-only Members
 
         /// <summary>
         /// Add all Unity Objects that may change while performing outfit operations to the provided list. 

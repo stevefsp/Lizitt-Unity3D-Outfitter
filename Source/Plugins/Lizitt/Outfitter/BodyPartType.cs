@@ -84,9 +84,9 @@ namespace com.lizitt.outfitter
         RightFoot        = 6,
 
         /// <summary>
-        /// The spine.  (Between the hips and chest.  Mid-torso.)
+        /// The mid-torso.  (Between the hips and chest.)
         /// </summary>
-        Spine            = 7,
+        MidTorso            = 7,
 
         /// <summary>
         /// The chest.  (Upper torso.)

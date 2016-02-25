@@ -22,6 +22,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -63,7 +64,7 @@ namespace com.lizitt.outfitter.editor
          * property iterator.  The draw step draws the properties.
          */
 
-        #region Editor Members
+        #region Editor Overrides
 
         private bool m_IsAsset;
 
@@ -80,6 +81,12 @@ namespace com.lizitt.outfitter.editor
             }
 
             m_IsAsset = AssetDatabase.Contains(target);
+            m_ContextChoice = outfit.gameObject;
+        }
+
+        public override bool RequiresConstantRepaint()
+        {
+            return ShowActions;
         }
 
         /// <summary>
@@ -118,32 +125,43 @@ namespace com.lizitt.outfitter.editor
                 if (prop.propertyPath == ObserverListPath)
                     atEnd = LoadObserverSection(prop);
                 else if (prop.propertyPath == MountPointStartPath)
-                    atEnd = LoadMountSection(prop);
-                else if (prop.propertyPath == BodyPartStartPath)
+                    atEnd = LoadAccessoryAndMountSection(prop);
+                else if (prop.propertyPath == BodyPartsListPath)
                     atEnd = LoadBodyPartSection(prop);
                 else if (prop.propertyPath == MaterialStartPath)
-                    atEnd = LoadMaterialSection(prop);
+                    atEnd = LoadRendererAndMaterialSection(prop);
 
                 if (atEnd)
                     break;  // Error message handled by load methods.
             }
 
-            // The order of these draw calls can be re-ordered.
+            // These draw calls can be re-ordered.
 
             DrawCoreSection();          // Best first.
             EditorGUILayout.Space();
-            DrawMountSection();
+            DrawAccessoryAndMountSection();
             DrawBodyPartSection();
-            DrawMaterialSection();
+            DrawRendererAndMaterialSection();
             DrawObserverSection();      // Best last.
 
             if (!m_IsAsset)
             {
-                OutfitterEditorUtil.ShowInspectorActions =
-                    EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
+                string btnLabel;
 
-                if (OutfitterEditorUtil.ShowInspectorActions)
-                    DrawActions();
+                if (ShowActions)
+                {
+                    m_ShowMiscActions = EditorGUILayout.Foldout(m_ShowMiscActions, "Miscellaneous Actions");
+                    if (m_ShowMiscActions)
+                        DrawMiscellaneousActionsSection();
+
+                    btnLabel = "Hide Actions";
+                }
+                else
+                    btnLabel = "Show Actions";
+
+                EditorGUILayout.Space();
+                if (GUILayout.Button(btnLabel))
+                    OutfitterEditorUtil.ShowInspectorActions = !OutfitterEditorUtil.ShowInspectorActions;
             }
 
             EditorGUILayout.Space();
@@ -171,11 +189,89 @@ namespace com.lizitt.outfitter.editor
         private void DrawCoreSection()
         {
             // No foldout for this section.
-
             foreach (var prop in m_CoreProperties)
                 EditorGUILayout.PropertyField(prop);
 
             m_CoreProperties.Clear();
+        }
+
+        #endregion
+
+        #region Section: Accessory & MountPoints
+
+        private const string MountPointStartPath = "m_Limited";
+        private const string MountPointEndListPath = "m_MountPoints";
+
+        private List<SerializedProperty> m_MountProperties = new List<SerializedProperty>();
+
+        private bool LoadAccessoryAndMountSection(SerializedProperty prop)
+        {
+            return LoadStandardSection(
+                "Mount Point Section", prop, MountPointEndListPath, m_MountProperties);
+        }
+
+        private void DrawAccessoryAndMountSection()
+        {
+            if (DrawFoldoutSection(m_MountProperties, "Accessories & MountPoints") && ShowActions)
+            {
+                DrawAcessoryAndMountActionSection();
+                EditorGUILayout.Space();
+            }
+        }
+
+        #endregion
+
+        #region Body Parts Section
+
+        private const string BodyPartsListPath = "m_Parts";
+
+        private SerializedProperty m_BodyPartProperty;
+
+        private bool LoadBodyPartSection(SerializedProperty prop)
+        {
+            m_BodyPartProperty = GetPropertyInstance(prop);
+            return false;
+        }
+
+        private void DrawBodyPartSection()
+        {
+            m_BodyPartProperty.isExpanded =
+                EditorGUILayout.Foldout(m_BodyPartProperty.isExpanded, "Body Parts");
+
+            if (m_BodyPartProperty.isExpanded)
+            {
+                EditorGUILayout.PropertyField(m_BodyPartProperty);
+
+                if (ShowActions)
+                DrawBodyPartActionSection();
+                EditorGUILayout.Space();                    
+            }
+
+            m_BodyPartProperty = null;
+        }
+
+        #endregion
+
+        #region Renderer & Materials Section
+
+        private const string MaterialStartPath = "m_BlendRenderer";
+        private const string MaterialEndListPath = "m_OutfitMaterialTargets";
+
+        private List<SerializedProperty> m_MaterialProperties = new List<SerializedProperty>();
+
+        private bool LoadRendererAndMaterialSection(SerializedProperty prop)
+        {
+            return LoadStandardSection(
+                "Materials Section", prop, MaterialEndListPath, m_MaterialProperties);
+        }
+
+        private void DrawRendererAndMaterialSection()
+        {
+            if (DrawFoldoutSection(m_MaterialProperties, "Renderers & Materials") && ShowActions)
+            {
+                DrawRendererAndMaterialActionSection();
+                EditorGUILayout.Space();
+            }
         }
 
         #endregion
@@ -196,78 +292,23 @@ namespace com.lizitt.outfitter.editor
 
         private void DrawObserverSection()
         {
-            m_ObserverProperty.isExpanded = EditorGUILayout.Foldout(
-                m_ObserverProperty.isExpanded, m_ObserverProperty.displayName);
+            m_ObserverProperty.isExpanded = 
+                EditorGUILayout.Foldout(m_ObserverProperty.isExpanded, m_ObserverProperty.displayName);
 
-            if (m_ObserverProperty.isExpanded)
+            if (m_ObserverProperty.isExpanded )
+            {
                 EditorGUILayout.PropertyField(m_ObserverProperty);
+
+                if (ShowActions)
+                    DrawObserverActionSection();
+            }
 
             m_ObserverProperty = null;
         }
 
         #endregion
 
-        #region Mount Point Section
-
-        private const string MountPointStartPath = "m_Limited";
-        private const string MountPointEndListPath = "m_MountPoints";
-
-        private List<SerializedProperty> m_MountProperties = new List<SerializedProperty>();
-
-        private bool LoadMountSection(SerializedProperty prop)
-        {
-            return LoadStandardSection(
-                "Mount Point Section", prop, MountPointEndListPath, m_MountProperties);
-        }
-
-        private void DrawMountSection()
-        {
-            DrawFoldoutSection(m_MountProperties, "Accessories & MountPoints");
-        }
-
-        #endregion
-
-        #region Body Parts Section
-
-        private const string BodyPartStartPath = "m_AutoLoadParts";
-        private const string BodyPartEndListPath = "m_Parts";
-
-        private List<SerializedProperty> m_PartProperties = new List<SerializedProperty>();
-
-        private bool LoadBodyPartSection(SerializedProperty prop)
-        {
-            return LoadStandardSection(
-                "Body Part Section", prop, BodyPartEndListPath, m_PartProperties);
-        }
-
-        private void DrawBodyPartSection()
-        {
-            DrawFoldoutSection(m_PartProperties, "Body Parts");
-        }
-
-        #endregion
-
-        #region Materials Section
-
-        private const string MaterialStartPath = "m_BlendRenderer";
-        private const string MaterialEndListPath = "m_OutfitMaterials";
-
-        private List<SerializedProperty> m_MaterialProperties = new List<SerializedProperty>();
-
-        private bool LoadMaterialSection(SerializedProperty prop)
-        {
-            return LoadStandardSection(
-                "Materials Section", prop, MaterialEndListPath, m_MaterialProperties);
-        }
-
-        private void DrawMaterialSection()
-        {
-            DrawFoldoutSection(m_MaterialProperties, "Renderers & Materials");
-        }
-
-        #endregion
-
-        #region Utilities
+        #region Utilities Members
 
         private StandardOutfit Target
         {
@@ -305,12 +346,12 @@ namespace com.lizitt.outfitter.editor
         /// Draws a standard foldout section from the list of properties, with the last property
         /// expected to be a property with children. (So 'isExpanded' can be used for the foldout.)
         /// </summary>
-        private void DrawFoldoutSection(List<SerializedProperty> list, string foldoutTitle)
+        private bool DrawFoldoutSection(List<SerializedProperty> list, string foldoutTitle)
         {
             var endListProp = list[list.Count - 1];
             endListProp.isExpanded = EditorGUILayout.Foldout(endListProp.isExpanded, foldoutTitle);
             if (!endListProp.isExpanded)
-                return;
+                return false;
 
             foreach (var prop in list)
                 EditorGUILayout.PropertyField(prop);
@@ -318,10 +359,12 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
 
             list.Clear();
+
+            return true;
         }
 
         /// <summary>
-        /// Converts the property interator to a static property for later use.
+        /// Converts the property interator value to a static property for later use.
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>

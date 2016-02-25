@@ -27,34 +27,40 @@ namespace com.lizitt.outfitter.editor
 {
     public partial class StandardOutfitEditor
     {
-        private void DrawActions()
-        {
-            bool isDirty = DrawAccessoryActions();
-            isDirty = DrawBodyPartActions() || isDirty;
-            isDirty = DrawMaterialActions() || isDirty;
-            DrawUtilityActions();
-            DrawSettingsActions();
+        // Action Related Members
 
-            // Technically this should not be needed.  But just to be safe...
-            if (isDirty)
-            {
-                var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
-            }
+        private static readonly GUIContent ContextLabel = new GUIContent(
+            "Context", "The context to use when creating/updating mount points and body parts.");
+
+        private GameObject m_ContextChoice;  // Unlikely two outfits will need to share the same context.  So not static.
+
+        private bool ShowActions
+        {
+            get { return !m_IsAsset && OutfitterEditorUtil.ShowInspectorActions; }
+        }
+
+        #region Action Section: Accessories and MountPoints
+
+        private void DrawAcessoryAndMountActionSection()
+        {
+            // No space needed because of preceding list.
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            DrawAccessoryActions();
+            EditorGUILayout.Space();
+            DrawMountPointActions();
         }
 
         #region Accessory Actions
 
         private static Accessory m_AddAccessoryChoice;
 
-        private bool DrawAccessoryActions()
+        private void DrawAccessoryActions()
         {
-            EditorGUILayout.LabelField("Manage Accessories", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Manage Accessories");
 
-            bool isDirty = DrawAddAccessory();
-            isDirty = DrawCurrentAccessories() || isDirty;
-
-            return isDirty;
+            DrawAddAccessory();
+            DrawCurrentAccessories();
         }
 
         private bool DrawAddAccessory()
@@ -128,12 +134,12 @@ namespace com.lizitt.outfitter.editor
 
             if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
             {
-                //btnStyle = EditorGUIUtil.YellowButton;
+                btnStyle = EditorGUIUtil.YellowButton;
                 removeType = RemoveActionType.RemoveOnly;
             }
             else if (OutfitterEditorUtil.IsDestructiveConfirmed)
             {
-                //btnStyle = EditorGUIUtil.RedButton;
+                btnStyle = EditorGUIUtil.RedButton;
                 removeType = RemoveActionType.RemoveAndDestroy;
             }
 
@@ -147,7 +153,101 @@ namespace com.lizitt.outfitter.editor
 
         #endregion
 
-        #region Collider Actions
+        #region MountPoint Actions
+
+        private readonly GUIContent RefreshMountPointsLabel = 
+            new GUIContent("Refresh MPs", "Perform a local child search for mount points.");
+
+        private readonly GUIContent ResetMountPointsLabel = new GUIContent("Reset MPs", "Clear the mount point list.");
+
+        private Transform m_TransformChoice = null;  // Not static.
+        private LocalComponentPopup m_TransformPopup = null;
+        private static MountPointType m_MountTypeChoice;
+
+        private void DrawMountPointActions()
+        {
+            EditorGUILayout.LabelField("Mount Points");
+
+            var outfit = Target;
+
+            EditorGUILayout.BeginHorizontal();
+
+            m_MountTypeChoice = (MountPointType)EditorGUILayout.EnumPopup(m_MountTypeChoice);
+
+            if (m_TransformPopup == null)
+                m_TransformPopup = new LocalComponentPopup(typeof(Transform), false);
+
+            m_TransformChoice = m_TransformPopup.OnGUI(
+                EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight * 1.1f),
+                m_TransformChoice, GUIContent.none, outfit.gameObject) as Transform;
+
+            EditorGUILayout.EndHorizontal();
+
+            GUI.enabled = m_TransformChoice;
+            if (GUILayout.Button("Create Mount Point"))
+            {
+                if (m_TransformChoice.gameObject.GetComponent<MountPoint>())
+                    Debug.LogError(m_TransformChoice.name + " Already has a mount point attached.", outfit);
+                else if (outfit.GetMountPoint(m_MountTypeChoice))
+                    Debug.LogError("Outfit already has a mount point of type: " + m_MountTypeChoice, outfit);
+                else
+                {
+                    // Note for prefabs: If there is a missing body part in the array before the action and the 
+                    // user undoes the action, the mount point array may end up containing an invalid reference 
+                    // to the prefab's asset. This appears to be some kind of prefab related bug.
+
+                    const string undoLabel = "Create Mount Point";
+                    Undo.IncrementCurrentGroup();
+
+                    Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);  // For the refresh.
+
+                    var bp = Undo.AddComponent<MountPoint>(m_TransformChoice.gameObject);
+                    Undo.RecordObject(bp, undoLabel);
+                    bp.LocationType = m_MountTypeChoice;
+                    bp.Context = outfit.gameObject;
+
+                    StandardOutfit.UnsafeRefreshMountPoints(outfit);
+
+                    Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+                    m_TransformChoice = null;
+                }
+            }
+            GUI.enabled = true;
+
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(RefreshMountPointsLabel))
+            {
+                Undo.RecordObject(Target, "Refresh Mount Points");
+                StandardOutfit.UnsafeRefreshMountPoints(Target, false);
+            }
+
+            if (GUILayout.Button(ResetMountPointsLabel))
+            {
+                Undo.RecordObject(Target, "Reset Mount Points");
+                StandardOutfit.UnsafeClearMountPoints(Target);
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Action Section: BodyPart & Collider
+
+        public void DrawBodyPartActionSection()
+        {
+            // No space needed because of preceding list.
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            DrawColliderActions();
+            EditorGUILayout.Space();
+            DrawBodyPartActions();
+        }
+
+        #region Colliders
 
         private static ColliderStatus m_ColliderStatusChoice = ColliderStatus.Disabled;
         private static int m_ColliderLayer = UnityLayer.Default;
@@ -155,35 +255,33 @@ namespace com.lizitt.outfitter.editor
         private static readonly GUIContent BodyPartStatusLabel =
             new GUIContent("Set BPs", "Apply to all body parts.");
 
-        private static readonly GUIContent PrimaryStatusLabel = 
+        private static readonly GUIContent PrimaryStatusLabel =
             new GUIContent("Set Pri", "Apply to the primary collider.");
 
-        public bool DrawBodyPartActions()
+        public void DrawColliderActions()
         {
             const float BtnWidth = 60;
 
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Manage Colliders", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Manage Colliders");
 
             var outfit = Target;
-            bool isDirty = false;
 
             EditorGUIUtil.BeginLabelWidth(50);
 
             EditorGUILayout.LabelField("Status");
             EditorGUILayout.BeginHorizontal();
 
-            m_ColliderStatusChoice = 
+            m_ColliderStatusChoice =
                 (ColliderStatus)EditorGUILayout.EnumPopup(m_ColliderStatusChoice);
 
             GUI.enabled = outfit.BodyPartCount > 0;
             if (GUILayout.Button(BodyPartStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                isDirty = ApplyBodyPartColliderStatus(outfit, m_ColliderStatusChoice) || isDirty;
+                ApplyBodyPartColliderStatus(outfit, m_ColliderStatusChoice);
             GUI.enabled = true;
 
             GUI.enabled = outfit.PrimaryCollider;
             if (GUILayout.Button(PrimaryStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                isDirty = SetPrimaryColliderStatus(outfit, m_ColliderStatusChoice) || isDirty;
+                SetPrimaryColliderStatus(outfit, m_ColliderStatusChoice);
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();
@@ -194,40 +292,137 @@ namespace com.lizitt.outfitter.editor
 
             GUI.enabled = outfit.BodyPartCount > 0;
             if (GUILayout.Button(BodyPartStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                isDirty = ApplyBodyPartLayer(outfit, m_ColliderLayer) || isDirty;
+                ApplyBodyPartLayer(outfit, m_ColliderLayer);
             GUI.enabled = true;
 
             GUI.enabled = outfit.PrimaryCollider;
             if (GUILayout.Button(PrimaryStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                isDirty = SetPrimaryColliderLayer(outfit, m_ColliderLayer) || isDirty;
+                SetPrimaryColliderLayer(outfit, m_ColliderLayer);
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();
 
             EditorGUIUtil.EndLabelWidth();
-
-            return isDirty;
         }
 
         #endregion
 
-        #region Material Actions
+        #region Body Parts
 
-        private bool DrawMaterialActions()
+        private readonly GUIContent ApplyBodyPartContextLabel
+            = new GUIContent("Apply Context", "Apply the context to all body parts.");
+
+        private readonly GUIContent RefreshBodyPartsLabel 
+            = new GUIContent("Refresh BPs", "Perform a local child search for body parts.");
+
+        private readonly GUIContent ResetBodyPartsLabel = new GUIContent("Reset BPs", "Clear the mount point list.");
+
+        private Collider m_ColliderChoice = null;
+        private LocalComponentPopup m_ColliderPopup = null;
+        private BodyPartType m_PartTypeChoice;
+
+        public void DrawBodyPartActions()
         {
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Manage Outfit Materials", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Body Parts");
+
+            EditorGUIUtil.BeginLabelWidth(70);
+
+            m_ContextChoice = 
+                EditorGUILayout.ObjectField(ContextLabel, m_ContextChoice, typeof(GameObject), true) as GameObject;
+
+            var outfit = Target;
+
+            EditorGUILayout.BeginHorizontal();
+
+            m_PartTypeChoice = (BodyPartType)EditorGUILayout.EnumPopup(m_PartTypeChoice);
+
+            if (m_ColliderPopup == null)
+                m_ColliderPopup = new LocalComponentPopup(typeof(Collider), false);
+
+            m_ColliderChoice = m_ColliderPopup.OnGUI(
+                EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight * 1.1f),
+                m_ColliderChoice, GUIContent.none, outfit.gameObject) as Collider;
+
+            EditorGUILayout.EndHorizontal();
+
+            GUI.enabled = m_ColliderChoice;
+            if (GUILayout.Button("Create Boby Part"))
+            {
+                if (m_ColliderChoice.gameObject.GetComponent<BodyPart>())
+                    Debug.LogError(m_ColliderChoice.name + " Already has a body part attached.", outfit);
+                else if (outfit.GetBodyPart(m_PartTypeChoice))
+                    Debug.LogError("Outfit already has a body part of type: " + m_PartTypeChoice, outfit);
+                else
+                {
+                    // Note for prefabs: If there is a missing body part in the array before the action and the 
+                    // user undoes the action, the mount point array may end up containing an invalid reference 
+                    // to the prefab's asset. This appears to be some kind of prefab related bug.
+
+                    const string undoLabel = "Create Body Part";
+                    Undo.IncrementCurrentGroup();
+
+                    Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);  // For refresh.
+
+                    var bp = Undo.AddComponent<BodyPart>(m_ColliderChoice.gameObject);
+                    Undo.RecordObject(bp, undoLabel);
+                    bp.Collider = m_ColliderChoice;
+                    bp.PartType = m_PartTypeChoice;
+                    bp.Context = m_ContextChoice;
+
+                    StandardOutfit.UnsafeRefreshBodyParts(outfit);
+
+                    Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+                    m_ColliderChoice = null;
+                }
+            }
+            GUI.enabled = true;
+
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(ApplyBodyPartContextLabel))
+            {
+                string undoLabel = "Apply Body Part Context";
+                Undo.IncrementCurrentGroup();
+                Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
+
+                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+            }
+
+            if (GUILayout.Button(RefreshBodyPartsLabel))
+            {
+                Undo.RecordObject(outfit, "Refresh Body Parts");
+                StandardOutfit.UnsafeRefreshBodyParts(outfit, false);
+            }
+
+            if (GUILayout.Button(ResetBodyPartsLabel))
+            {
+                Undo.RecordObject(outfit, "Reset Body Parts");
+                StandardOutfit.UnsafeClearBodyParts(outfit);
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUIUtil.EndLabelWidth();
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Action Section: Renderer & Materials
+
+        private void DrawRendererAndMaterialActionSection()
+        {
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Set Outfit Materials");
 
             var matTypes = Target.GetOutfitMaterialTypes();
 
-            bool isDirty = false;
             for (int i = 0; i < matTypes.Length; i++)
-                isDirty = DrawMaterial(matTypes[i]) || isDirty;
-
-            return isDirty;
+                DrawMaterialAction(matTypes[i]);
         }
 
-        private bool DrawMaterial(OutfitMaterialType matType)
+        private void DrawMaterialAction(OutfitMaterialType matType)
         {
             var outfit = Target;
 
@@ -238,13 +433,39 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUIUtil.EndLabelWidth();
 
-            if (!nmat || nmat == cmat)
-                return false;
-
-            return ApplyOutfitMaterial(outfit, matType, nmat) > 0;
+            if (nmat || nmat != cmat)
+                ApplyOutfitMaterial(outfit, matType, nmat);
         }
 
         #endregion
+
+        #region Action Section : Observers
+
+        private readonly GUIContent RefreshObserversLabel = 
+            new GUIContent("Refresh Observers", "Perform a local search for mount points.");
+
+        public void DrawObserverActionSection()
+        {
+            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+            if (GUILayout.Button(RefreshObserversLabel, GUILayout.MaxWidth(130)))
+            {
+                Undo.RecordObject(Target, "Refresh Observers");
+                StandardOutfit.RefreshObservers(Target);
+                EditorGUILayout.Space();
+            }
+        }
+
+        #endregion
+
+        #region Action Section: Miscellaneous
+
+        private static bool m_ShowMiscActions = false;
+
+        private void DrawMiscellaneousActionsSection()
+        {
+            DrawSettingsActions();
+        }
 
         #region Settings Actions
 
@@ -254,7 +475,7 @@ namespace com.lizitt.outfitter.editor
         private void DrawSettingsActions()
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Settings", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Inspector Settings", EditorStyles.boldLabel);
 
             EditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
@@ -263,77 +484,6 @@ namespace com.lizitt.outfitter.editor
         }
 
         #endregion
-
-        #region Utility Actions
-
-        private void DrawUtilityActions()
-        {
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Utilities", EditorGUIUtil.BoldLabel);
-
-            DrawRestrictedUtilityActions();
-        }
-
-        private readonly GUIContent RefreshAllLabel = new GUIContent("All", "Refresh all settings.");
-        private readonly GUIContent RefreshMountPointsLabel = new GUIContent("MPs", "Refresh mount points.");
-        private readonly GUIContent ResetMountPointsLabel = new GUIContent("MPs", "Reset mount points.");
-        private readonly GUIContent RefreshBodyPartsLabel = new GUIContent("BPs", "Refresh body parts.");
-        private readonly GUIContent ResetBodyPartsLabel = new GUIContent("BPs", "Reset body parts.");
-        private readonly GUIContent RefreshObserversLabel = new GUIContent("Obs", "Refresh observers.");
-
-        private void DrawRestrictedUtilityActions()
-        {
-            if (Application.isPlaying)
-                return;
-
-            EditorGUILayout.LabelField("Refresh Settings");
-
-            EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button(RefreshAllLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Refresh Outfit Settings");
-                StandardOutfit.UnsafeRefreshAllSettings(Target);
-            }
-
-            if (GUILayout.Button(RefreshMountPointsLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Refresh Mount Points");
-                StandardOutfit.UnsafeRefreshMountPoints(Target, false);
-            }
-
-            if (GUILayout.Button(RefreshBodyPartsLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Refresh Body Parts");
-                StandardOutfit.UnsafeRefreshBodyParts(Target, false);
-            }
-
-            if (GUILayout.Button(RefreshObserversLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Refresh Observers");
-                StandardOutfit.RefreshObservers(Target);
-            }
-
-            EditorGUILayout.EndHorizontal();
-            
-            EditorGUILayout.LabelField("Reset Settings");
-
-            EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button(ResetMountPointsLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Clear Mount Points");
-                StandardOutfit.UnsafeClearMountPoints(Target);
-            }
-
-            if (GUILayout.Button(ResetBodyPartsLabel, GUILayout.MaxWidth(50)))
-            {
-                Undo.RecordObject(Target, "Clear Body Parts");
-                StandardOutfit.UnsafeClearBodyParts(Target);
-            }
-
-            EditorGUILayout.EndHorizontal();
-        }
 
         #endregion
     }

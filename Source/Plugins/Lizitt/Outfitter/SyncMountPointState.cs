@@ -55,7 +55,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("Synchronize the mount point context as long as it isn't the outfit.")]  // This is the correct behavior.
-        private bool m_IncludeContext = true;
+        private bool m_IncludeContext = false;
 
         /// <summary>
         /// Synchronize the mount point context as long as it isn't the outfit.

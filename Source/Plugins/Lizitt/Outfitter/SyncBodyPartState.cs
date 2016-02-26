@@ -67,7 +67,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("Persist the body part context unless it is the previous outfit's GameObject.")]  // << This is the correct behavior!
-        private bool m_IncludeContext = true;
+        private bool m_IncludeContext = false;
 
         /// <summary>
         /// Persist the body part context unless it is the previous outfit's GameObject.

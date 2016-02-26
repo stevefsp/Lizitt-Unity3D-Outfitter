@@ -28,8 +28,14 @@ namespace com.lizitt.outfitter.editor
     /// <summary>
     /// Various editor utilities related to the Outfitter
     /// </summary>
+    [InitializeOnLoad]
     public static class OutfitterEditorUtil
     {
+        static OutfitterEditorUtil()
+        {
+            InitializeEditorPrefs();
+        }
+
         #region Outfit Type
 
         private static GUIContent[] m_AllOutfitNames;
@@ -398,15 +404,8 @@ namespace com.lizitt.outfitter.editor
 
         #region Shared EditorPrefs
 
-        private static bool m_IsInitialized = false;
-
-        private static void CheckInitialized()
+        private static void InitializeEditorPrefs()
         {
-            if (m_IsInitialized)
-                return;
-
-            m_IsInitialized = true;
-
             InitializeShowInspector();
             InitializeAutoOffset();
         }
@@ -419,15 +418,9 @@ namespace com.lizitt.outfitter.editor
         /// </summary>
         public static bool ShowInspectorActions
         {
-            get 
-            {
-                CheckInitialized();
-                return m_ShowInspectorActions; 
-            }
+            get { return m_ShowInspectorActions; }
             set 
             {
-                CheckInitialized();
-
                 if (m_ShowInspectorActions != value)
                     EditorPrefs.SetBool(ShowActionsKey, value);
 
@@ -454,15 +447,9 @@ namespace com.lizitt.outfitter.editor
         /// </summary>
         public static float AutoOffset
         {
-            get
+            get { return m_AutoOffset; }
+            set 
             {
-                CheckInitialized();
-                return m_AutoOffset;
-            }
-            set
-            {
-                CheckInitialized();
-
                 if (m_AutoOffset != value)
                     EditorPrefs.SetFloat(AutoOffsetKey, value);
                 

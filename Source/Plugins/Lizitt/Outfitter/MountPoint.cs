@@ -34,6 +34,7 @@ namespace com.lizitt.outfitter
     /// </remarks>
     /// <seealso cref="Accessory"/>
     /// <seealso cref="Outfit"/>
+    [AddComponentMenu(LizittUtil.LizittMenu + "Mount Point", OutfitterUtil.BaseMenuOrder + 5)]
     public class MountPoint
         : MonoBehaviour
     {

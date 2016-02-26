@@ -31,6 +31,7 @@ namespace com.lizitt.outfitter
     /// This component is useful when the accessory needs to support multiple and/or complex mount senarios.
     /// </para>
     /// </remarks>
+    [AddComponentMenu(LizittUtil.LizittMenu + "Standard Accessory", OutfitterUtil.BaseMenuOrder + 2)]
     public class StandardAccessory
         : AccessoryCore
     {

@@ -28,6 +28,7 @@ namespace com.lizitt.outfitter
     /// Implements all standard <see cref="Body"/> features.
     /// </summary>
     [RequireComponent(typeof(BodyAccessoryManager))]
+    [AddComponentMenu(LizittUtil.LizittMenu + "StandardBody", OutfitterUtil.BaseMenuOrder + 3)]
     public class StandardBody
         : Body, IOutfitObserver
     {

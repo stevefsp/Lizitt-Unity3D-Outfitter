@@ -33,6 +33,7 @@ namespace com.lizitt.outfitter
     /// non-null.
     /// </para>
     /// </remarks>
+    [AddComponentMenu(LizittUtil.LizittMenu + "Simple Accessory", OutfitterUtil.BaseMenuOrder + 1)]
     public class SimpleAccessory
         : AccessoryCore
     {

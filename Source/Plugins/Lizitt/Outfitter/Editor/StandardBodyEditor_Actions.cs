@@ -32,40 +32,30 @@ namespace com.lizitt.outfitter.editor
 
         private void DrawActions()
         {
-            bool isDirty =  DrawOutfitActions();
-            isDirty = DrawAccessoryActions() || isDirty;
-
+            DrawOutfitActions();
+            DrawAccessoryActions();
             DrawActionSettings();
-
-            // Technically this should not be needed.  But just to be safe...
-            if (isDirty)
-            {
-                var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
-            }
         }
 
         #region Outfit Actions
 
-        private bool DrawOutfitActions()
+        private void DrawOutfitActions()
         {
-            EditorGUILayout.LabelField("Manage Outfit", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Manage Outfit", EditorStyles.boldLabel);
 
-            bool isDirty = DrawOutfitApplyRemove();
-            isDirty = DrawOutfitSwap() || isDirty;
-
-            return isDirty;
+            DrawOutfitApplyRemove();
+            DrawOutfitSwap();
         }
 
         private static Outfit m_OutfitApplyRemoveChoice = null;
 
-        private bool DrawOutfitApplyRemove()
+        private void DrawOutfitApplyRemove()
         {
             var body = Target;
 
             GUIContent label;
             bool isApplyMode;
-            RemoveActionType actionId = RemoveActionType.Undefined;
+            RemoveActionType removeType = RemoveActionType.Undefined;
             var btnStyle = GUI.skin.button;
 
             if (body.Outfit)
@@ -77,12 +67,12 @@ namespace com.lizitt.outfitter.editor
                 if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
                 {
                     btnStyle = EditorGUIUtil.YellowButton;
-                    actionId = RemoveActionType.RemoveOnly;
+                    removeType = RemoveActionType.RemoveOnly;
                 }
                 else if (OutfitterEditorUtil.IsDestructiveConfirmed)
                 {
                     btnStyle = EditorGUIUtil.RedButton;
-                    actionId = RemoveActionType.RemoveAndDestroy;
+                    removeType = RemoveActionType.RemoveAndDestroy;
                 }
             }
             else
@@ -118,34 +108,31 @@ namespace com.lizitt.outfitter.editor
                     m_OutfitApplyRemoveChoice = noutfit;
             }
 
-            bool isDirty = false;
-
             GUI.enabled = m_OutfitApplyRemoveChoice;
             if (GUILayout.Button(label, btnStyle, GUILayout.MaxWidth(70)))
             {
                 if (isApplyMode)
-                    isDirty = SetOutfit(body, m_OutfitApplyRemoveChoice, true);
+                    SetOutfit(body, m_OutfitApplyRemoveChoice, OutfitterEditorUtil.AutoOffset, removeType);
                 else
-                    isDirty = RemoveOutfit(body, OutfitterEditorUtil.AutoOffset, actionId);
+                    SetOutfit(body, null, OutfitterEditorUtil.AutoOffset, removeType);
             }
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();
-
-            return isDirty;
         }
 
-        private Outfit m_OutfitSwapChoice = null;
+        GUIContent m_SwapLabel = new GUIContent("Swap", "Swap this outfit with the body's current outfit.");
 
-        private bool DrawOutfitSwap()
+        private static Outfit m_OutfitSwapChoice = null;
+
+        private void DrawOutfitSwap()
         {
             var body = Target;
-
             if (!body.Outfit)
             {
                 // Nothing to do.
                 m_OutfitSwapChoice = null;
-                return false;
+                return;
             }
 
             EditorGUILayout.BeginHorizontal();
@@ -168,7 +155,6 @@ namespace com.lizitt.outfitter.editor
                     m_OutfitSwapChoice = noutfit;
             }
 
-            GUIContent label = new GUIContent("Swap", "Swap this outfit with the body's current outfit.");
             RemoveActionType removeType = RemoveActionType.Undefined;
             var btnStyle = GUI.skin.button;
 
@@ -183,31 +169,20 @@ namespace com.lizitt.outfitter.editor
                 removeType = RemoveActionType.RemoveAndDestroy;
             }
 
-            bool isDirty = false;
-
             GUI.enabled = m_OutfitSwapChoice;
-            if (GUILayout.Button(label, btnStyle, GUILayout.MaxWidth(70)))
+            if (GUILayout.Button(m_SwapLabel, btnStyle, GUILayout.MaxWidth(70)))
             {
-                Undo.IncrementCurrentGroup();
-
-                if (RemoveOutfit(body, OutfitterEditorUtil.AutoOffset, removeType, false))
+                if (SetOutfit(body, m_OutfitSwapChoice, OutfitterEditorUtil.AutoOffset, removeType, false))
                 {
-                    isDirty = true;
-                    SetOutfit(body, m_OutfitSwapChoice, false);
-
                     var item = m_OutfitSwapChoice;
                     m_OutfitSwapChoice = m_OutfitApplyRemoveChoice ? m_OutfitApplyRemoveChoice : null;
                     m_OutfitApplyRemoveChoice = item;
                 }
                 // else there should have been an error message for the body.
-
-                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             }
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();
-
-            return isDirty;
         }
 
         #endregion
@@ -219,7 +194,7 @@ namespace com.lizitt.outfitter.editor
         private bool DrawAccessoryActions()
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Manage Accessories", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Manage Accessories", EditorStyles.boldLabel);
 
             bool isDirty = DrawAddAccessory();
             isDirty = DrawCurrentAccessories() || isDirty;
@@ -327,7 +302,7 @@ namespace com.lizitt.outfitter.editor
         private void DrawActionSettings()
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Settings", EditorGUIUtil.BoldLabel);
+            EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
 
             EditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
@@ -336,108 +311,6 @@ namespace com.lizitt.outfitter.editor
         }
 
         #endregion
-
-        #endregion
-
-        #region Outfit Members
-
-        /// <summary>
-        /// Properly sets the body's outfit while in editor mode.  (Includes undo.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <paramref name="singleUndo"/> will create a single undo action.  If calling this method is part of
-        /// a larger operation that needs a single undo, then set <paramref name="singleUndo"/> to false. Behavior 
-        /// is undefined if <paramref name="singleUndo"/> is false and the caller does not properly group this method's
-        /// actions.
-        /// </para>
-        /// </remarks>
-        /// <param name="body">The body. (Required. Must be a scene object.)</param>
-        /// <param name="outfit">The outfit. (Required)</param>
-        /// <param name="singleUndo">
-        /// If true, will group all actions into a single undo.  Otherwise the caller must properly group the undos.
-        /// </param>
-        /// <param name="undoLabel">The label to use for the undo, or null to use the default label.</param>
-        /// <returns>True if the outfit was successfully set.</returns>
-        public static bool SetOutfit(
-            StandardBody body, Outfit outfit, bool singleUndo = true, string undoLabel = null)
-        {
-            // Design note: Can't generalize this to the Body because Body doesn't implement the needed observer.
-
-            if (AssetDatabase.Contains(body))
-            {
-                Debug.LogError("Can't modify a body asset.  Body must be in the scene.", body);
-                return false;
-            }
-
-            if (body.Outfit)
-            {
-                Debug.LogError("Can't set outfit.  Must remove the body's current outfit first.", body);
-                return false;
-            }
-
-            if (!outfit)
-            {
-                return RemoveOutfit(
-                    body, OutfitterEditorUtil.AutoOffset, RemoveActionType.Undefined, singleUndo, undoLabel);
-            }
-
-            if (outfit.IsManaged)
-            {
-                Debug.LogError("Can't set outfit.  The outfit is already managed by: " + outfit.Owner.name, body);
-                return false;
-            }
-
-            bool success = false;
-            undoLabel = string.IsNullOrEmpty(undoLabel) ? "Apply Outfit" : undoLabel;
-
-            if (singleUndo)
-                Undo.IncrementCurrentGroup();
-
-            Undo.RecordObjects(Body.UnsafeGetUndoObjects(body).ToArray(), undoLabel);
-
-            bool isNew = AssetDatabase.Contains(outfit);
-            if (isNew)
-            {
-                var name = outfit.name;
-                outfit = outfit.Instantiate();
-
-                outfit.name = name;
-
-                // Register with undo later.
-            }
-            else
-                Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
-
-            var origParent = outfit.transform.parent;
-
-            if (body.SetOutfit(outfit) == outfit)
-            {
-                if (isNew)
-                    outfit.gameObject.SafeDestroy();
-
-                outfit = null;
-            }
-            else
-            {
-                if (isNew)
-                    Undo.RegisterCreatedObjectUndo(outfit.gameObject, undoLabel);
-                var parent = outfit.transform.parent;
-                outfit.transform.parent = origParent;
-                Undo.SetTransformParent(outfit.transform, parent, undoLabel);
-
-                // Hack: Addition of body as outfit observer is not being recorded for serialization.  
-                // This fixes it until the cause and proper fix can be determined.
-                StandardOutfitEditor.AddObserverWithUndo(outfit, body);
-
-                success = true;
-            }
-
-            if (singleUndo)
-                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-
-            return success;
-        }
 
         #endregion
     }

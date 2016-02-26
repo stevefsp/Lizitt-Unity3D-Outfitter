@@ -39,9 +39,7 @@ namespace com.lizitt.outfitter.editor
 
         public override bool RequiresConstantRepaint()
         {
-            // Wasteful, but it is the only way for the button highlight to work correctly.
-            // At least this is a rather light GUI. 
-            return true;
+            return OutfitterEditorUtil.ShowInspectorActions;
         }
 
         private bool m_IsAsset;

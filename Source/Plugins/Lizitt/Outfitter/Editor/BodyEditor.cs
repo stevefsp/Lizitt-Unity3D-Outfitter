@@ -32,84 +32,159 @@ namespace com.lizitt.outfitter.editor
     {
         #region Outfit Members
 
-        /// <summary>
-        /// Properly removes the body's outfit while in editor mode.  (Includes undo.)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// <paramref name="singleUndo"/> will create a single undo action.  If calling this method is part of
-        /// a larger operation that needs a single undo, then set <paramref name="singleUndo"/> to false. Behavior 
-        /// is undefined if <paramref name="singleUndo"/> is false and the caller does not properly group this method's
-        /// actions.  
-        /// </para>
-        /// </remarks>
-        /// <param name="body">The body. (Required. Must be a scene object.)</param>
-        /// <param name="removeType">The type of removal action, or 'undefined' to display a dialog box.</param>
-        /// <param name="repoOffset">
-        /// The amount to offset the position of the removed outfit so it doesn't obstruct the body. [Limit: >= 0]
-        /// </param>
-        /// <param name="singleUndo">
-        /// If true, will group all actions into a single undo.  Otherwise the caller must properly group the undos.
-        /// </param>
-        /// <param name="undoLabel">The label to use for the undo, or null to use the default label.</param>
-        /// <returns>True if the outfit was successfully set.</returns>
-        public static bool RemoveOutfit(Body body, float repoOffset = 0, 
-            RemoveActionType removeType = RemoveActionType.Undefined, bool singleUndo = true, string undoLabel = null)
+        private static bool CheckValidAction(Body body)
         {
+            if (!body)
+            {
+                Debug.LogError("Outfit is null.");
+                return false;
+            }
+
             if (AssetDatabase.Contains(body))
             {
                 Debug.LogError("Can't modify a body asset.  Body must be in the scene.", body);
                 return false;
             }
 
-            if (!body.Outfit)
-            {
-                Debug.LogWarning("Body has no outfit to remove.", body);
-                return true;
-            }
+            return true;
+        }
 
+        private static RemoveActionType GetRemoveType(Body body, RemoveActionType removeType)
+        {
             if (removeType == RemoveActionType.Undefined)
             {
-                removeType = (RemoveActionType)EditorUtility.DisplayDialogComplex("Remove the outfit from its body?",
+                return (RemoveActionType)EditorUtility.DisplayDialogComplex("Remove the outfit from its body?",
                     string.Format("Remove '{0}' from '{1}'?", body.Outfit.name, body.name),
                     "Remove only", "Remove and destroy", "Do not remove");
             }
-                    
-            if (removeType == RemoveActionType.Cancel)
+
+            return removeType;
+        }
+
+        public static bool SetOutfit(Body body, Outfit outfit, float repoOffset = 0, 
+            RemoveActionType removeType = RemoveActionType.Undefined, bool singleUndo = true, 
+            string undoLabel = "Set Outfit")
+        {
+            // Design note:  It would be much simpler to just remove and add in separate transactions.  But that
+            // sends the wrong type of event to observers.  So have to go the messy route in order to properly 
+            // mimic runtime behavior.
+
+            // Validations
+
+            if (!CheckValidAction(body))
                 return false;
 
-            undoLabel = string.IsNullOrEmpty(undoLabel) ? "Remove Outfit" : undoLabel;
+            if (outfit == body.Outfit)
+            {
+                Debug.LogWarning("No action taken. Outfit is the same as the body's current outfit: " 
+                    + (outfit ? outfit.name : "null"), body);
+                return true;  // This is the correct behavior.
+            }
+
+            if (outfit && outfit.IsManaged)
+            {
+                Debug.LogError("Can't set outfit.  The outfit is already managed by: " + outfit.Owner.name, body);
+                return false;
+            }
+
+            // Keep last since it may involve a dialog box.
+            Transform origParent = null;
+            if (body.Outfit)
+            {
+                removeType = GetRemoveType(body, removeType);
+                if (removeType == RemoveActionType.Cancel)
+                    return false;
+
+                origParent = body.Outfit.transform.parent;
+            }
+
+            // Prepare for transaction.
 
             if (singleUndo)
                 Undo.IncrementCurrentGroup();
 
-            Undo.RecordObjects(Body.UnsafeGetUndoObjects(body).ToArray(), undoLabel);  // Includes outfit.
-
-            var origParent = body.Outfit.transform.parent;
-
-            var outfit = body.SetOutfit(null);
-
-            outfit.transform.parent = origParent;
-            Undo.SetTransformParent(outfit.transform, null, undoLabel);
-
-            if (removeType == RemoveActionType.RemoveAndDestroy)
+            bool isNew = false;
+            Transform outfitParent = null;
+            if (outfit)
             {
-                outfit.Destroy(DestroyType.GameObject, true);
-                Undo.DestroyObjectImmediate(outfit.gameObject);
+                isNew = AssetDatabase.Contains(outfit);
+                if (isNew)
+                {
+                    var name = outfit.name;
+                    outfit = outfit.Instantiate();
+                    outfit.name = name;
+                    // Will register the undo after success has been determined.
+                }
+                else
+                    Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
+
+                outfitParent = outfit.transform.parent;
             }
-            else if (repoOffset > 0)
+
+            Undo.RecordObjects(Body.UnsafeGetUndoObjects(body).ToArray(), undoLabel);
+
+            // Set the outfit.
+
+            var orig = body.SetOutfit(outfit);
+            var success = (orig != outfit);
+
+            if (success)
             {
-                // This extra record call is needed for some reason, otherwise only **part** of the translation 
-                // is recorded.  Maybe the problem has to do with the change in the parent?  Anyway, more fun 
-                // with undo...
-                Undo.RecordObject(outfit.transform, undoLabel);
-                outfit.transform.position += body.transform.right * repoOffset;
+
+                if (orig)
+                {
+                    // Finalize the original outfit.
+
+                    orig.transform.parent = origParent;
+                    Undo.SetTransformParent(orig.transform, null, undoLabel);
+
+                    if (removeType == RemoveActionType.RemoveAndDestroy)
+                    {
+                        orig.Destroy(DestroyType.GameObject, true);
+                        Undo.DestroyObjectImmediate(orig.gameObject);
+                    }
+                    else if (repoOffset > 0)
+                    {
+                        // This extra call is needed, otherwise only **part** of the translation is recorded.  The
+                        // problem might be due to the change in the parent.  Anyway, more fun with undo...
+                        Undo.RecordObject(orig.transform, undoLabel);
+                        orig.transform.position += body.transform.right * repoOffset;
+                    }
+                }
+
+                if (outfit)
+                {
+                    // Finalize the outfit that was set.
+
+                    if (isNew)
+                        Undo.RegisterCreatedObjectUndo(outfit.gameObject, undoLabel);
+
+                    var parent = outfit.transform.parent;
+                    outfit.transform.parent = outfitParent;
+                    Undo.SetTransformParent(outfit.transform, parent, undoLabel);
+
+                    if (body is StandardBody)
+                    {
+                        // Hack: Addition of body as outfit observer is not being recorded for serialization.  
+                        // This fixes it until the cause and proper fix can be determined.
+                        StandardOutfitEditor.AddObserverWithUndo(outfit, (StandardBody)body);
+                    }
+                }
+
+                success = true;
+            }
+            else
+            {
+                if (isNew)
+                    outfit.gameObject.SafeDestroy();
+
+                success = false;
             }
 
             if (singleUndo)
                 Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 
-            return true;
+            return success;
         }
 
         #endregion

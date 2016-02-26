@@ -27,10 +27,11 @@ namespace com.lizitt.outfitter
     /// <summary>
     /// An generalized outfit that implements all of the standard outfit behavior.
     /// </summary>
+    [AddComponentMenu(LizittUtil.LizittMenu + "Standard Outfit", OutfitterUtil.BaseMenuOrder + 0)]
     public class StandardOutfit
         : OutfitCore, IAccessoryObserver
     {
-        /*
+        /* 
          * Design notes:
          * 
          * Custom editors exist for this class.  In order to reduce hard coded field names,

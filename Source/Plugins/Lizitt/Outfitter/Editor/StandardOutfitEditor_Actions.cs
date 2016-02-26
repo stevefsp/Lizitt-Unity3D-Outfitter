@@ -155,6 +155,9 @@ namespace com.lizitt.outfitter.editor
 
         #region MountPoint Actions
 
+        private readonly GUIContent ApplyMountPointContextLabel
+            = new GUIContent("Apply Context", "Apply the context to all mount points.");
+
         private readonly GUIContent RefreshMountPointsLabel = 
             new GUIContent("Refresh MPs", "Perform a local child search for mount points.");
 
@@ -169,6 +172,11 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.LabelField("Mount Points");
 
             var outfit = Target;
+
+            EditorGUIUtil.BeginLabelWidth(70);
+
+            m_ContextChoice =
+                EditorGUILayout.ObjectField(ContextLabel, m_ContextChoice, typeof(GameObject), true) as GameObject;
 
             EditorGUILayout.BeginHorizontal();
 
@@ -204,7 +212,7 @@ namespace com.lizitt.outfitter.editor
                     var bp = Undo.AddComponent<MountPoint>(m_TransformChoice.gameObject);
                     Undo.RecordObject(bp, undoLabel);
                     bp.LocationType = m_MountTypeChoice;
-                    bp.Context = outfit.gameObject;
+                    bp.Context = m_ContextChoice;
 
                     StandardOutfit.UnsafeRefreshMountPoints(outfit);
 
@@ -215,6 +223,17 @@ namespace com.lizitt.outfitter.editor
             GUI.enabled = true;
 
             EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(ApplyMountPointContextLabel))
+            {
+                string undoLabel = "Apply Mount Point Context";
+                Undo.IncrementCurrentGroup();
+                Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
+
+                outfit.ApplyMountPointContext(m_ContextChoice);
+
+                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+            }
 
             if (GUILayout.Button(RefreshMountPointsLabel))
             {
@@ -229,6 +248,8 @@ namespace com.lizitt.outfitter.editor
             }
 
             EditorGUILayout.EndHorizontal();
+
+            EditorGUIUtil.EndLabelWidth();
         }
 
         #endregion
@@ -384,6 +405,8 @@ namespace com.lizitt.outfitter.editor
                 string undoLabel = "Apply Body Part Context";
                 Undo.IncrementCurrentGroup();
                 Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
+
+                outfit.ApplyBodyPartContext(m_ContextChoice);
 
                 Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             }

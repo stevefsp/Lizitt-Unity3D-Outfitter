@@ -1,0 +1,140 @@
+﻿/*
+ * Copyright (c) 2016 Stephen A. Pratt
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+using UnityEngine;
+
+namespace com.lizitt.outfitter
+{
+    /// <summary>
+    /// Sets the animator controller of incoming outfits based on the settings.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Only supports one animator component per outfit.
+    /// </para>
+    /// <para>
+    /// Active at design-time.
+    /// </para>
+    /// <para>
+    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// </para>
+    /// </remarks>
+    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Set Body Animator",
+        order = OutfitterUtil.BodyObserverMenuOrder + 3)]
+    public class SetBodyAnimator
+        : ScriptableObject, IBodyObserver
+    {
+        #region Settings
+
+        [SerializeField]
+        [Tooltip("The controller to apply to incoming outfits.")]
+        [RequiredValue(typeof(RuntimeAnimatorController))]
+        private RuntimeAnimatorController m_Controller = null;
+
+        [SerializeField]
+        [Tooltip("Always set the incoming outfit's animator controller.  Otherwise, only set the controller if it"
+            + " doesn't already have one.")]
+        private bool m_AlwaysOverride = false;
+
+        /// <summary>
+        /// Always set the incoming outfit's animator controller.  Otherwise, only set the controller if it
+        /// doesn't already have one.
+        /// </summary>
+        public bool AlwaysOverride
+        {
+            get { return m_AlwaysOverride; }
+            set { m_AlwaysOverride = value; }
+        }
+
+        [SerializeField]
+        [Tooltip("Remove the previous outfit's animator controller.")]
+        private bool m_IncludeRemoval = false;
+
+        /// <summary>
+        /// Remove the previous outfit's animator controller.
+        /// </summary>
+        public bool IncludeRemoval
+        {
+            get { return m_IncludeRemoval; }
+            set { m_IncludeRemoval = value; }
+        }
+
+        #endregion
+
+        #region Body Observer
+
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        {
+            Apply(sender.Outfit);
+
+            if (m_IncludeRemoval)
+            {
+                var anim = GetAnimator(previous);
+                if (anim)
+                    anim.runtimeAnimatorController = null;
+            }
+        }
+
+        void IBodyObserver.OnSoftReset(Body sender)
+        {
+            // Do nothing.
+        }
+
+        #endregion
+
+        #region Main Handler
+
+        public void Apply(Outfit outfit)
+        {
+            if (!outfit)
+                return;
+
+            var anim = GetAnimator(outfit);
+
+            if (anim)
+            {
+                if (m_AlwaysOverride || !anim.runtimeAnimatorController)
+                    anim.runtimeAnimatorController = m_Controller;
+            }
+        }
+
+        #endregion
+
+        #region Utilities
+
+        /// <summary>
+        /// Get the outfit's animator, or null if none found.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The default behavior is to use <see cref="Outfit.GetAnimator()"/>.
+        /// </para>
+        /// </remarks>
+        /// <param name="outfit">The outfit. (May be null.)</param>
+        /// <returns>The outfit's animator, or null if none found.</returns>
+        protected virtual Animator GetAnimator(Outfit outfit)
+        {
+            return outfit.GetAnimator();
+        }
+
+        #endregion
+    }
+}

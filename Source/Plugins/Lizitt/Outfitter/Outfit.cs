@@ -861,6 +861,9 @@ namespace com.lizitt.outfitter
         /// known Unity Objects that may be impacted by changes to the outfit.
         /// </para>
         /// <para>
+        /// While not technically a 'part' of the outfit, the object list includes any detected Animator components.
+        /// </para>
+        /// <para>
         /// Warning: This method is only avaibale for use in the editor.
         /// </para>
         /// </remarks>
@@ -875,6 +878,10 @@ namespace com.lizitt.outfitter
                 list = new List<Object>();
 
             outfit.GetUndoObjects(list);
+
+            var anims = outfit.GetComponentsInChildren<Animator>();
+            if (anims.Length > 0)
+                list.AddRange(anims);
 
             return list;
         }

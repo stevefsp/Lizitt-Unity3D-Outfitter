@@ -24,12 +24,12 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Common settings used to add an accessory to an accessory manager. (Such as a body.)
+    /// Settings used to add an accessory to an accessory manager. (Such as a <see cref="Body"/>.)
     /// </summary>
     public struct AccessoryAddSettings 
     {
         /// <summary>
-        /// The mount target of the accessory.
+        /// The mount target for the accessory.
         /// </summary>
         public MountPointType LocationType { get; set; }
 
@@ -41,14 +41,14 @@ namespace com.lizitt.outfitter
         private Object m_Mounter;
 
         /// <summary>
-        /// The mounter that will be used as the priority mounter for all mount operations.
-        /// (Including automatic transfer's between outfits.)
+        /// The mounter that will be used as the priority mounter for all mount operations. (Including automatic 
+        /// transfer's between outfits.)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Only Unity Objects will be accepted.  Attempting to set a non-Unity Object will result in null being
-        /// assigned. (Along with an error message.)  A destroyed object reference will never be returned.  If
-        /// the current object is destroyed, a true null reference will be returned.
+        /// Only UnityEngine.Object's will be accepted.  Attempting to set a non-UnityEngine.Object will result in
+        /// null being assigned. (Along with an error message.)  A destroyed object reference will never be returned.  
+        /// A true null reference will be returned if the current object has been destroyed.
         /// </para>
         /// </remarks>
         public IAccessoryMounter Mounter
@@ -65,19 +65,19 @@ namespace com.lizitt.outfitter
                 }
                 else
                 {
-                    Debug.LogError(value.GetType().Name + " is not a Unity Object.");
+                    Debug.LogError(value.GetType().Name + " is not a UnityEngine.Object.");
                     m_Mounter = null;
                 }
             }
         }
 
         /// <summary>
-        /// Coverage to add in addition to the mounter's coverage.
+        /// Coverage in addition to the mounter's coverage.
         /// </summary>
         public BodyCoverage AdditionalCoverage { get; set; }
 
         /// <summary>
-        /// Applies the information values to the settings.
+        /// Applies the <see cref="AccessoryMountInfo"/> values to the settings.
         /// </summary>
         /// <param name="settings">The infomration values to apply.</param>
         public void Apply(AccessoryMountInfo info)

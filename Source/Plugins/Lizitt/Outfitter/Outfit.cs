@@ -113,7 +113,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Because Unity Objects can be unceremoniously destroyed it is generally best to check both status and
+        /// Because UnityEngine.Objects can be unceremoniously destroyed it is generally best to check both status and
         /// ownership to determine if an outfit is truly managed.  This property performs all appropriate checks.
         /// </para>
         /// </remarks>
@@ -601,7 +601,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// All standard implementations require the observer to be a Unity Object for serialization purposes, so it is
+        /// All standard implementations require the observer to be a UnityEngine.Object for serialization purposes, so it is
         /// acceptable for an outfit to reject an observer.  An error message will be logged if an observer is rejected.
         /// </para>
         /// </para>
@@ -831,7 +831,7 @@ namespace com.lizitt.outfitter
         #region Editor-only Members
 
         /// <summary>
-        /// Add all Unity Objects that may change while performing outfit operations to the provided list. 
+        /// Add all UnityEngine.Objects that may change while performing outfit operations to the provided list. 
         /// (Including the outfit itself.)
         /// </summary>
         /// <remarks>
@@ -839,7 +839,7 @@ namespace com.lizitt.outfitter
         /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
         /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
         /// being lost.  When updating the outfit in the editor, this method will be used by the base class to 
-        /// obtain a list of all known Unity Objects that may be impacted by changes to the outfit.
+        /// obtain a list of all known UnityEngine.Objects that may be impacted by changes to the outfit.
         /// </para>
         /// <para>
         /// Warning: This method is only avaibale in the editor.  Concrete implementaitons must place it
@@ -850,7 +850,7 @@ namespace com.lizitt.outfitter
         protected abstract void GetUndoObjects(List<Object> list);
 
         /// <summary>
-        /// Add all Unity Objects that may change while performing outfit operations to the provided list. 
+        /// Add all UnityEngine.Objects that may change while performing outfit operations to the provided list. 
         /// (Including the oufit itself.)
         /// </summary>
         /// <remarks>
@@ -858,7 +858,7 @@ namespace com.lizitt.outfitter
         /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
         /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
         /// being lost.  When updating the outfit in the editor, this method can be used to obtain a list of all 
-        /// known Unity Objects that may be impacted by changes to the outfit.
+        /// known UnityEngine.Objects that may be impacted by changes to the outfit.
         /// </para>
         /// <para>
         /// While not technically a 'part' of the outfit, the object list includes any detected Animator components.

@@ -30,9 +30,9 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// The body is useful when an agent's outfits are transient in nature.  It allows important settings and
-    /// components to be persisted as outfits are swapped in and out. For example, adding an accessory, such as
-    /// a perception system, to the body will result in the accessory automatically transfering between outfits
-    /// as they change.  Observers can be used to apply, override, and persist settings not automatically handled
+    /// components to be persisted as outfits are swapped in and out. For example, adding an accessory such as
+    /// a perception system to the body will result in the accessory automatically transfering between outfits
+    /// as they change.  Observers can be used to apply, override, and persist other settings not automatically handled
     /// by the body. E.g. Apply material overrides, persist collider status, etc. 
     /// </para>
     /// </remarks>
@@ -42,7 +42,7 @@ namespace com.lizitt.outfitter
         #region Core
 
         /// <summary>
-        /// The transform that currently controls body motion and represents its location in the world.
+        /// The transform that represents body's motion, location, and orientation in the world.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -90,21 +90,18 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
-        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
+        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.  (Assuming <paramref name="outfit"/>
+        /// is not null.)
         /// </para>
         /// <para>
         /// <paramref name="forceRelease"/> is used for operations such as baking, where the outfit being released
         /// needs to maintain its current state rather than undergo reversion operations.  Any accessories managed 
-        /// by the body will be left in place rather than removed and stored in the body.
+        /// by the body will be left in place rather than removed and stored in the body.  Observers decide for
+        /// themselves how to respond to a force release.
         /// </para>
         /// </remarks>
-        /// <param name="outfit">
-        /// The outfit to apply to the body, or null to remove the current outfit.
-        /// </param>
-        /// <param name="forceRelease">
-        /// Release the current outfit with all of its assets intact, including assets normally expected to be 
-        /// returned to the body or otherwise removed.
-        /// </param>
+        /// <param name="outfit">The outfit to apply to the body, or null to remove the current outfit.</param>
+        /// <param name="forceRelease">Release the current outfit with minimal state changes.</param>
         /// <returns>
         /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
         /// </returns>
@@ -119,17 +116,11 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
-        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
-        /// </para>
-        /// <para>
-        /// <paramref name="forceRelease"/> is used for operations such as baking, where the outfit being released
-        /// needs to maintain its current state rather than undergo reversion operations.  Any accessories managed 
-        /// by the body will be left in place rather than removed and stored in the body.
+        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.  (Assuming <paramref name="outfit"/>
+        /// is not null.)
         /// </para>
         /// </remarks>
-        /// <param name="outfit">
-        /// The outfit to apply to the body, or null to remove the current outfit.
-        /// </param>
+        /// <param name="outfit">The outfit to apply to the body, or null to remove the current outfit.</param>
         /// <returns>
         /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
         /// </returns>
@@ -144,6 +135,9 @@ namespace com.lizitt.outfitter
 
         #region Body Accessories  (Local, not outfit.)
 
+        /// <summary>
+        /// The body's accessory manager.
+        /// </summary>
         public abstract IBodyAccessoryManager Accessories { get; }
 
         #endregion
@@ -155,16 +149,13 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// All standard implementations require the observer to be a Unity Object for serialization, so it is 
-        /// acceptable for the body to reject an observer.  An error message will be logged if an observer is rejected.
-        /// </para>
-        /// <para>
-        /// An observer can only be added once.
+        /// An observer can only be added once and it must be implmented by a UnityEngine.Object for serialization puposes.
         /// </para>
         /// </remarks>
-        /// <param name="observer">The observer to add. (Required)</param>
+        /// <param name="observer">The observer to add. (Required. Must be a UnityEngine.Object.)</param>
         /// <returns>
-        /// True if the observer was accepted or already added.  False if the observer was rejected.
+        /// True if the observer was accepted or already added, or false if the observer is not implemented by
+        /// a UnityEngine.Object.
         /// </returns>
         public abstract bool AddObserver(IBodyObserver observer);
 
@@ -181,43 +172,44 @@ namespace com.lizitt.outfitter
         #region Editor Only
 
         /// <summary>
-        /// Add all Unity Objects that may change while performing body operations to the provided list. 
+        /// Add all UnityEngine.Objects that may change while performing body operations to the provided list. 
         /// (Including the body itself.)
         /// </summary>
         /// <remarks>
         /// <para>
         /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
-        /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
+        /// Failure to properly register changes through either a SerializedObject or Undo method can result in changes
         /// being lost.  When updating the body in the editor, this method will be used by the base class to 
-        /// obtain a list of all known Unity Objects that may be impacted by changes to the body.
+        /// obtain a list of all known UnityEngine.Object's that may be impacted by changes to the body.
         /// </para>
         /// <para>
         /// Warning: This method is only avaibale in the editor.  Concrete implementaitons must place it
         /// inside a UNITY_EDITOR conditional compile section.
         /// </para>
         /// </remarks>
-        /// <param name="list">The list to add objects to.  (Required)</param>
+        /// <param name="list">The list to add objects to.  (Required)  (Will not be cleared prior to use.)</param>
         protected abstract void GetUndoObjects(List<Object> list);
 
         /// <summary>
-        /// Add all Unity Objects that may change while performing body operations to the provided list. 
+        /// Add all UnityEngine.Objects that may change while performing body operations to the provided list. 
         /// (Including the body itself.)
         /// </summary>
         /// <remarks>
         /// <para>
         /// Unity is very finicky about changes to scene and project assets through code while outside of play mode.
-        /// Failure to properly register changes through either a SerializedObject or Undo can result in changes
-        /// being lost.  When updating the body in the editor, this method can be used to obtain a list of all 
-        /// known Unity Objects that may be impacted by changes to the body.
+        /// Failure to properly register changes through either a SerializedObject or Undo method can result in changes
+        /// being lost.  When updating the body in the editor, this method will be used by the base class to 
+        /// obtain a list of all known UnityEngine.Object's that may be impacted by changes to the body.
         /// </para>
         /// <para>
-        /// Warning: This method is only avaibale for use in the editor.
+        /// Warning: This method is only avaibale in the editor.  Concrete implementaitons must place it
+        /// inside a UNITY_EDITOR conditional compile section.
         /// </para>
         /// </remarks>
         /// <param name="body">The body. (Required.)</param>
-        /// <param name="list">The list to add objects to.</param>
+        /// <param name="list">The list to add objects to. (Will not be cleared prior to use.)</param>
         /// <returns>
-        /// The reference to <paramref name="list"/> if it is provided.  Otherwise a reference to a newly created list.
+        /// The reference to <paramref name="list"/> if it was provided.  Otherwise a reference to a newly created list.
         /// </returns>
         public static List<Object> UnsafeGetUndoObjects(Body body, List<Object> list = null)
         {

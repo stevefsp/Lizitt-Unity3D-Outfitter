@@ -28,9 +28,9 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most accessories require this interface to be implemented by a Unity Object for
+    /// Most accessories require this interface to be implemented by a UnityEngine.Object for
     /// serialization purposes, so accessories are allowed to reject observers that are not 
-    /// Unity Objects.
+    /// UnityEngine.Objects.
     /// </para>
     /// </remarks>
     public interface IAccessoryObserver

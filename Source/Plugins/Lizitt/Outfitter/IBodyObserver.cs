@@ -28,8 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most bodies require this interface to be implemented by a Unity Object for serialization purposes, so outfits
-    /// are allowed to reject observers that are not  Unity Objects.
+    /// <see cref="Body"/> requires that this interface to be implemented by a UnityEngine.Object for serialization 
+    /// purposes.
     /// </para>
     /// </remarks>
     public interface IBodyObserver
@@ -47,19 +47,24 @@ namespace com.lizitt.outfitter
         /// material state, synchronise animators, etc.
         /// </para>
         /// <para>
-        /// A <paramref name="wasForced"/> value of true indicates one of several cases:  The 'normal' case is that
-        /// <see cref="Body.ForceRelaseOutfit"/> was manually called and the outfit should be released
-        /// as is.  This is not a mandatory requirement and the observer is allowed latitute.  The main reason
-        /// for manually forcing a release is so the outfit can be baked. Non-normal reasons include unexpected
-        /// loss of the outfit, such as destruction and loss of ownership while under the body's control.
+        /// If <paramref name="wasForced"/> is true then the observer should minimize changes to the previous outfit.
+        /// Only changes required to keep the outfit valid should be made.  For example, an observer that normally
+        /// removes or resets the outfit's animator controller will usually leave the animator alone.  While an 
+        /// observer that sets body part and mount point contexts will usually still clear those values since
+        /// they are rarely appropriate for any outfit no longer associated with the observer.
+        /// </para>
+        /// <para>
+        /// If <paramref name="wasForced"/> is true but <paramref name="previous"/> is null, then a completely 
+        /// uncontrolled loss of the previous outfiit occured.  (E.g. The outfit was destroyed using Object.Destory().)
         /// </para>
         /// </remarks>
         /// <param name="sender">The body sending the event. (Required)</param>
         /// <param name="previous">
-        /// The outfit that was replaced and is being released by the body, or null if there is none.
+        /// The outfit that was replaced and has been released by the body, or null if there is none.
         /// </param>
         /// <param name="wasForced">
-        /// If true the outfit was force released and should normally be excempt from normal release activities.
+        /// If true the outfit was force released and should be excempt from release activities that alter
+        /// its state.
         /// </param>
         void OnOutfitChange(Body sender, Outfit previous, bool wasForced);
     }

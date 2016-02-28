@@ -73,7 +73,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Only Unity Objects will be accepted.  Attempting to set a non-Unity Object will result in null being
+        /// Only UnityEngine.Objects will be accepted.  Attempting to set a non-UnityEngine.Object will result in null being
         /// assigned. (Along with an error message.)  A destroyed object reference will never be returned.  If
         /// the current object is destroyed, a true null reference will be returned.
         /// </para>
@@ -92,7 +92,7 @@ namespace com.lizitt.outfitter
                 }
                 else
                 {
-                    Debug.LogError(value.GetType().Name + " is not a Unity Object.");
+                    Debug.LogError(value.GetType().Name + " is not a UnityEngine.Object.");
                     m_Mounter = null;
                 }
             }

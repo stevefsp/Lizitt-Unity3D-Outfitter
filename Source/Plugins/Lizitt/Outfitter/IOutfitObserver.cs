@@ -28,9 +28,9 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most outfits require this interface to be implemented by a Unity Object for
+    /// Most outfits require this interface to be implemented by a UnityEngine.Object for
     /// serialization purposes, so outfits are allowed to reject observers that are not 
-    /// Unity Objects.
+    /// UnityEngine.Objects.
     /// </para>
     /// </remarks>
     public interface IOutfitObserver

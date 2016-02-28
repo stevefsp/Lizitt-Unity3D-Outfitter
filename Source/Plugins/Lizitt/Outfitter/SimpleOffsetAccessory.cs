@@ -33,12 +33,13 @@ namespace com.lizitt.outfitter
     /// non-null.
     /// </para>
     /// </remarks>
-    [AddComponentMenu(LizittUtil.LizittMenu + "Simple Accessory", OutfitterUtil.BaseMenuOrder + 1)]
-    public class SimpleAccessory
+    [AddComponentMenu(LizittUtil.LizittMenu + "Simple Offset Accessory", OutfitterUtil.BaseMenuOrder + 1)]
+    public class SimpleOffsetAccessory
         : AccessoryCore
     {
         [SerializeField]
         [Tooltip("The location the accessory can mount to.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_Location = (MountPointType)0;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<
 
         /// <summary>

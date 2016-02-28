@@ -26,18 +26,18 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     /// <summary>
-    /// <see cref="SimpleAccessory"/> custom editor.
+    /// <see cref="SimpleOffsetAccessory"/> custom editor.
     /// </summary>
-    [CustomEditor(typeof(SimpleAccessory))]
-    public class SimpleAccessoryEditor
+    [CustomEditor(typeof(SimpleOffsetAccessory))]
+    public class SimpleOffsetAccessoryEditor
         : Editor
     {
-        private static BehaviourPropertyHelper<SimpleAccessory> m_Helper = null;
+        private static BehaviourPropertyHelper<SimpleOffsetAccessory> m_Helper = null;
 
         void OnEnable()
         {
             if (m_Helper == null)
-                m_Helper = new BehaviourPropertyHelper<SimpleAccessory>();
+                m_Helper = new BehaviourPropertyHelper<SimpleOffsetAccessory>();
         }
 
         /// <summary>

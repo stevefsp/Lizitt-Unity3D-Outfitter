@@ -24,7 +24,7 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
-    [CustomPropertyDrawer(typeof(OutfitMaterialGroup))]
+    [CustomPropertyDrawer(typeof(OutfitMaterialGroupAttribute))]
     public class OutfitMaterialGroupDrawer
         : PropertyDrawer
     {

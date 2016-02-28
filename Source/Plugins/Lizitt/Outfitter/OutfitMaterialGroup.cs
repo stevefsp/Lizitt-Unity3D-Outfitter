@@ -25,13 +25,28 @@ using System.Collections.Generic;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Defines a group of related outfit materials. (Body, head, eyes, etc.)
+    /// Displays an <see cref="OutfitMaterialGroup"/> as a user friendly re-orderable list.
+    /// </summary>
+    /// <para>
+    /// Warning: This attribute can't be used when there is more than one <see cref="OutfitMaterialGroup"/> objects
+    /// contained within a SerializableObject.  This is a limitation of the Unity's ReorderableList control.
+    /// </para>
+    /// </remarks>
+    public class OutfitMaterialGroupAttribute
+        : PropertyAttribute
+    {
+        public OutfitMaterialGroupAttribute()
+        {
+        }
+    }
+
+    /// <summary>
+    /// Defines a group of related, unique outfit materials. (Body, head, eyes, etc.)
     /// </summary>
     /// <remarks>
     /// <para>
-    /// WARNING: This class can't be used in an array.  E.g. An array of <see cref="OutfitMaterialGroup"/> objects,  
-    /// or an array of objects that contain <see cref="OutfitMaterialGroup"/> objects.  This is a limitation of
-    /// the Unity's ReorderableList GUI control.
+    /// Can't contain more than one material of each type.  (One material for 'body',  one for 'team', etc.)  
+    /// This makes the class useful for defining a group of materials that are to be applied to an outfit.
     /// </para>
     /// </remarks>
     [System.Serializable]

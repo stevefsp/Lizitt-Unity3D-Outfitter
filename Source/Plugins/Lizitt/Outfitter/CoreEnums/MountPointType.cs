@@ -29,23 +29,17 @@ namespace com.lizitt.outfitter
         /* 
          * Design notes:
          * 
-         * Make sure you understand all notes before refactoring this element. 
+         * This class can be customized to meet the needs of the target project.  Just make sure you understand 
+         * all notes before making changes. 
          * 
-         * The meaning of the names can be repurposed with the exception of 'root'.  Do not
-         * remove 'root' or change its value.  All other names can be refactored as desired.
+         * The meaning of the names can be repurposed with the exception of 'root'.  Do not remove 'root' or change 
+         * its value.  All other names and values can be refactored and repurposed as desired. 
          * 
-         * Do not remove the type assigned to the value 1.  It's name can be refactored/repurposed, 
-         * but it should not be removed.  This is because it represents the non-root default.
+         * New name-value pairs can be added at any time. Unused pairs can be removed with no impact. Unused pairs 
+         * other than 'root' can be removed with no impact. 
          * 
-         * New types can be added at any time.
-         * 
-         * Unused/Unassigned types, other than 'root' and the non-root default, can be removed 
-         * with no impact. 
-         * 
-         * Be careful when removing or changing the value of a type that has 
-         * been assigned to an asset or scene object.  The assignment may become unusable at 
-         * run-time or it may be forced to a default value the next time it is accessed in the 
-         * editor.
+         * Be careful when removing pairs that have been used, or changing values that have been assigned to an 
+         * asset or scene object.
          * 
          */
 
@@ -59,8 +53,8 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The head.
         /// </summary>
-        Head = 1,           // Default non-root. Do not change the value or remove.  
-                            // Ok to change the meaning and refactor the name.
+        Head = 1,
+
         /// <summary>
         /// The eyes.
         /// </summary>
@@ -77,7 +71,7 @@ namespace com.lizitt.outfitter
         Abdomen = 4,
 
         /// <summary>
-        /// Th upper back torso.
+        /// The upper back torso.
         /// </summary>
         UpperBack = 5,
 

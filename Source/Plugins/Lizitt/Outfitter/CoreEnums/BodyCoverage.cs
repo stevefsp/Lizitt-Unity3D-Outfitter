@@ -30,25 +30,22 @@ namespace com.lizitt.outfitter
         /* 
          * Design notes:
          * 
-         * Make sure you understand all notes before refactoring this element. 
+         * This class can be customized to meet the needs of the target project.  Just make sure you understand 
+         * all notes before making changes. 
          * 
-         * New types can be added at any time. (Up to 32 total.)
+         * New name-value pairs can be added at any time. (Up to 32 total.)  Unused pairs can be removed with no impact. 
          * 
-         * The meaning of all types can be repurposed and the names refactored as desired.
+         * The meaning of names can be repurposed and refactored as desired.
          * 
-         * Unused/Unassigned types can be removed with no impact. 
-         * 
-         * Be careful when removing or changing the value of a type that has 
-         * been assigned to an asset or scene object.  The assignment may become unusable at 
-         * run-time, or it may be forced to a default value the next time it is accessed in the 
-         * editor.
+         * Be careful when removing pairs that have been used, or changing values that have been assigned to an 
+         * asset or scene object.
          * 
          */
 
         /// <summary>
-        /// The part of the head normally covered by hair.  (Top/back)
+        /// The top and back of the head.
         /// </summary>
-        HeadTop             = 1 << 0,
+        Hair             = 1 << 0,
 
         /// <summary>
         /// The face, except for the eyes.
@@ -69,7 +66,6 @@ namespace com.lizitt.outfitter
         /// The neck.
         /// </summary>
         Neck                = 1 << 4,
-
 
         /// <summary>
         /// The chest. (Upper front torso.)
@@ -159,7 +155,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The left calf.
         /// </summary>
-        LeftCalf            = 1 << 22,
+        LeftLowerLeg        = 1 << 22,
 
         /// <summary>
         /// The right ankle.
@@ -181,7 +177,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         LeftFoot            = 1 << 26,
 
-        // Values avaialbe: 27 //////////////////////////////////////////////////////////////////////
+        // Values avaialbe: 27 /////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Custom coverage A.

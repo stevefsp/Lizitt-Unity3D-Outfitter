@@ -29,22 +29,20 @@ namespace com.lizitt.outfitter
         /* 
          * Design notes:
          * 
-         * Make sure you understand all notes before refactoring this element. 
+         * This class can be customized to meet the needs of the target project.  Just make sure you understand 
+         * all notes before making changes. 
          * 
-         * New types can be added at any time.
+         * New name-value pairs can be added at any time. Unused pairs can be removed with no impact. 
          * 
-         * The names and values have been synchronized with the equivalent bones defined in 
-         * UnityEngine.HumanBodyBones for convenience.  None of the core outfitter code depends 
-         * on this.
+         * The meaning of names can be repurposed and refactored as desired.
          * 
-         * The meaning of the types can be repurposed and the names refactored as desired.
+         * Be careful when removing pairs that have been used, or changing values that have been assigned to an 
+         * asset or scene object.
          * 
-         * Unused/Unassigned types can be removed with no impact. 
-         * 
-         * Be careful when removing or changing the value of a type that has 
-         * been assigned to an asset or scene object.  The assignment may become unusable at 
-         * run-time or it may be forced to a default value the next time it is accessed in the 
-         * editor.
+         * Whith one exception the names and values have been synchronized with the equivalent bones defined in 
+         * UnityEngine.HumanBodyBones for convenience. None of the core outfitter code depends on this.
+         * The exception is 'spine', which has been renamed to 'midtorso' for clarity.  The value of 'midetorso'
+         * remains the same as 'spine'.
          * 
          */
 

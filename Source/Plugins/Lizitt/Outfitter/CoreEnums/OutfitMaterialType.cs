@@ -22,25 +22,22 @@
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Common (will known) outfit material types.
+    /// Well known outfit material types.
     /// </summary>
     public enum OutfitMaterialType
     {
         /* 
          * Design notes:
          * 
-         * Make sure you understand all notes before refactoring this element. 
+         * This class can be customized to meet the needs of the target project.  Just make sure you understand 
+         * all notes before making changes. 
          * 
-         * The meaning of any value can be repurposed.  Names can be refactored.
+         * New name-value pairs can be added at any time. Unused pairs can be removed with no impact. 
          * 
-         * The values do not need to be sequential.
+         * The meaning of names can be repurposed and refactored as desired.
          * 
-         * It is ok to add new types at any time.  
-         * 
-         * Unused types can be removed with no impact.
-         * Be careful when removing or changing the values of a type that has been assigned 
-         * to an asset or scene object.  The assignment may become unusable at run-time or it may
-         * be forced to a default value the next time it is accessed in the editor.
+         * Be careful when removing pairs that have been used, or changing values that have been assigned to an 
+         * asset or scene object.
          * 
          */
 

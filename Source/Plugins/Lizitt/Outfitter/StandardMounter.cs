@@ -55,14 +55,14 @@ namespace com.lizitt.outfitter
             m_Location = value;
         }
 
-        public override bool CanMount(Accessory accessory, MountPointType locationType)
+        public override bool CanMount(Accessory accessory, MountPoint location)
         {
-            return (accessory && locationType == m_Location);
+            return (accessory && location && location.LocationType == m_Location);
         }
 
-        public sealed override BodyCoverage GetCoverageFor(MountPointType locationType)
+        public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {
-            return (locationType == m_Location) ? Coverage : 0;   
+            return (location && location.LocationType == m_Location) ? Coverage : 0;   
         }
 
         public override bool InitializeMount(Accessory accessory, MountPoint location)
@@ -70,7 +70,7 @@ namespace com.lizitt.outfitter
             if (!location)
                 return false;
 
-            return CanMount(accessory, location.LocationType);
+            return CanMount(accessory, location);
         }
 
         public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)

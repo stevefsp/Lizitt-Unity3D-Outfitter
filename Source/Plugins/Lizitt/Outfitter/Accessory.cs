@@ -146,10 +146,10 @@ namespace com.lizitt.outfitter
         /// to the specified location at all.  (See: <see cref="CanMount"/>)
         /// </para>
         /// </remarks>
-        /// <param name="locationType">The mount location.</param>
+        /// <param name="location">The mount location.</param>
         /// <returns>The body coverage of the accessory when attached to the specified mount point.</returns>
         /// <seealso cref="CanMount"/>
-        public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
+        public abstract BodyCoverage GetCoverageFor(MountPoint location);
 
         #endregion
 
@@ -179,13 +179,13 @@ namespace com.lizitt.outfitter
         /// for the location overlaps with <paramref name="restrictions"/>. 
         /// </para>
         /// </remarks>
-        /// <param name="locationType">The desired location.</param>
+        /// <param name="location">The desired location.</param>
         /// <param name="restrictions">Disallowed body coverage.</param>
         /// <returns>
         /// True if the accessory can mount to the specified location without violating the specified coverage
         /// restrictions.
         /// </returns>
-        public abstract bool CanMount(MountPointType locationType, BodyCoverage restrictions);
+        public abstract bool CanMount(MountPoint location, BodyCoverage restrictions);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
@@ -193,13 +193,13 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// True if the accessory can be mounted to the specified location without regard for coverage restrictions.
         /// </summary>
-        /// <param name="locationType">The desired location.</param>
+        /// <param name="location">The desired location.</param>
         /// <returns>
         /// True if the accessory can mount to the specified location without regard for coverage restrictions.
         /// </returns>
-        public bool CanMount(MountPointType locationType)
+        public bool CanMount(MountPoint location)
         {
-            return CanMount(locationType, 0);
+            return CanMount(location, 0);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -434,19 +434,19 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="accessory">The accessory. (Optional)</param>
         /// <param name="mounter">The mounter. (Optional)</param>
-        /// <param name="locationType">The mount location type.</param>
+        /// <param name="location">The mount location. (Optional)</param>
         /// <param name="restrictions">The body coverage restrictions.</param>
         /// <returns>
-        /// True if accessory and mounter are both non-null and the mounter can mount the accessory to the specified 
-        /// location based on the accessory's current state and coverage restrictions.
+        /// True if accessory, mounter, and location are all non-null and the mounter can mount the accessory to the 
+        /// specified location with the coverage restrictions.
         /// </returns>
         public static bool CanMount(
-            Accessory accessory, IAccessoryMounter mounter, MountPointType locationType, BodyCoverage restrictions)
+            Accessory accessory, IAccessoryMounter mounter, MountPoint location, BodyCoverage restrictions)
         {
-            if (accessory && !LizittUtil.IsUnityDestroyed(mounter)
-                && (mounter.GetCoverageFor(locationType) & restrictions) == 0)
+            if (accessory && location && !LizittUtil.IsUnityDestroyed(mounter)
+                && (mounter.GetCoverageFor(location) & restrictions) == 0)
             {
-                return mounter.CanMount(accessory, locationType);
+                return mounter.CanMount(accessory, location);
             }
 
             return false;

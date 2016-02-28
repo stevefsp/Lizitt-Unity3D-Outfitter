@@ -75,14 +75,14 @@ namespace com.lizitt.outfitter
         /// first one that returns true, or -1 if none was found.
         /// </summary>
         /// <param name="accessory">The accessory. (Required)</param>
-        /// <param name="locationType">The location type.</param>
+        /// <param name="location">The location.</param>
         /// <param name="restrictions">The body converage restrictions.</param>
         /// <returns>The index of the mounter than can mount the accessory, or -1 if none was found.</returns>
-        public int CanMount(Accessory accessory, MountPointType locationType, BodyCoverage restrictions)
+        public int CanMount(Accessory accessory, MountPoint location, BodyCoverage restrictions)
         {
             for (int i = 0; i < Count; i++)
             {
-                if (Accessory.CanMount(accessory, this[i], locationType, restrictions))
+                if (Accessory.CanMount(accessory, this[i], location, restrictions))
                     return i;
             }
 

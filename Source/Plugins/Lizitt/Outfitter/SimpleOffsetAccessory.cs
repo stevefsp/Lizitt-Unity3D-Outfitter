@@ -73,22 +73,23 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Returns <see cref="MountedCoverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
+        /// Returns <see cref="MountedCoverage"/> if <paramref name="location"/> is equal to <see cref="LocationType"/>, 
         /// otherwise zero.
         /// </summary>
-        /// <param name="locationType">The location type to check.</param>
+        /// <param name="location">The location to check.</param>
         /// <returns>
-        /// <see cref="MountedCoverage"/> if <paramref name="locationType"/> is equal to <see cref="LocationType"/>, 
+        /// <see cref="MountedCoverage"/> if <paramref name="location"/> is equal to <see cref="LocationType"/>, 
         /// otherwise zero.
         /// </returns>
-        public sealed override BodyCoverage GetCoverageFor(MountPointType locationType)
+        public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {
-            return (locationType == m_Location) ? MountedCoverage : 0;   
+            return (location && location.LocationType == m_Location) ? MountedCoverage : 0;   
         }
 
-        public sealed override bool CanMount(MountPointType locationType, BodyCoverage restrictions)
+        // Don't seal this.  Extensions may need to put in place additional checks.
+        public override bool CanMount(MountPoint location, BodyCoverage restrictions)
         {
-            return (locationType == m_Location && (m_Coverage & restrictions) == 0);
+            return (location && location.LocationType == m_Location && (m_Coverage & restrictions) == 0);
         }
 
         [Space(8)]

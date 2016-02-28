@@ -270,7 +270,7 @@ namespace com.lizitt.outfitter
             int id = m_MounterId + 1;
             m_MounterId = id;
 
-            m_CurrentCoverage = mounter.GetCoverageFor(location.LocationType) | additionalCoverage;
+            m_CurrentCoverage = mounter.GetCoverageFor(location) | additionalCoverage;
 
             if (mounter.UpdateMount(this, location, !Application.isPlaying))
                 StartCoroutine(DoDurationMount(mounter, owner, location));

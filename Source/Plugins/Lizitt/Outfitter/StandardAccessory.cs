@@ -37,15 +37,15 @@ namespace com.lizitt.outfitter
     {
         #region Coverage
 
-        public sealed override BodyCoverage GetCoverageFor(MountPointType locationType)
+        public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {
-            if (Accessory.CanMount(this, PriorityMounter, locationType, 0))
-                return PriorityMounter.GetCoverageFor(locationType);
+            if (Accessory.CanMount(this, PriorityMounter, location, 0))
+                return PriorityMounter.GetCoverageFor(location);
 
             for (int i = 0; i < m_Mounters.Count; i++)
             {
-                if (Accessory.CanMount(this, m_Mounters[i], locationType, 0))
-                    return m_Mounters[i].GetCoverageFor(locationType);
+                if (Accessory.CanMount(this, m_Mounters[i], location, 0))
+                    return m_Mounters[i].GetCoverageFor(location);
             }
 
             return 0;
@@ -202,15 +202,18 @@ namespace com.lizitt.outfitter
             m_DefaultLocation = locationType;
         }
 
-        public sealed override bool CanMount(MountPointType locationType, BodyCoverage restrictions)
+        public sealed override bool CanMount(MountPoint location, BodyCoverage restrictions)
         {
+            if (!location)
+                return false;
+
             if (m_UseDefaultMounter)
                 return true;
 
-            if (Accessory.CanMount(this, PriorityMounter, locationType, restrictions))
+            if (Accessory.CanMount(this, PriorityMounter, location, restrictions))
                 return true;
 
-            return m_Mounters.CanMount(this, locationType, restrictions) != -1;
+            return m_Mounters.CanMount(this, location, restrictions) != -1;
         }
 
         #endregion

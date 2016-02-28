@@ -275,6 +275,18 @@ namespace com.lizitt.outfitter
             // Remounts to the same location are allowed.  (Mounter may have changed or may have special 
             // remount behavior.)
 
+            var location = GetMountPoint(locationType);
+            if (!location)
+            {
+                Release(accessory);
+                return MountResult.NoMountPoint;
+            } 
+            else if (location.IsBlocked)
+            {
+                Release(accessory);
+                return MountResult.LocationBlocked;
+            }
+
             if (!ignoreRestrictions)
             {
                 if (AccessoriesLimited && !accessory.IgnoreLimited)
@@ -283,28 +295,15 @@ namespace com.lizitt.outfitter
                     return MountResult.OutfitIsLimited;
                 }
 
-
                 var currentCoverage = CurrentCoverage;
                 if (m_Accessories.Contains(accessory))
                     currentCoverage &= ~accessory.CurrentCoverage;
 
-                if (((accessory.GetCoverageFor(locationType) | additionalCoverage) & currentCoverage) != 0)
+                if (((accessory.GetCoverageFor(location) | additionalCoverage) & currentCoverage) != 0)
                 {
                     Release(accessory);
                     return MountResult.CoverageBlocked;
                 }
-            }
-
-            var location = GetMountPoint(locationType);
-            if (!location)
-            {
-                Release(accessory);
-                return MountResult.NoMountPoint;
-            }
-            else if (location.IsBlocked)
-            {
-                Release(accessory);
-                return MountResult.LocationBlocked;
             }
 
             if (priorityMounter != null && LizittUtil.IsUnityDestroyed(priorityMounter))

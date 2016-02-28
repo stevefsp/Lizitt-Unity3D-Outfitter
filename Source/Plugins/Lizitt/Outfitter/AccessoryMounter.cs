@@ -43,11 +43,11 @@ namespace com.lizitt.outfitter
     public abstract class AccessoryMounter
         : ScriptableObject, IAccessoryMounter
     {
-        public abstract BodyCoverage GetCoverageFor(MountPointType locationType);
+        public abstract BodyCoverage GetCoverageFor(MountPoint location);
 
         public abstract MountPointType DefaultLocationType { get; }
 
-        public abstract bool CanMount(Accessory accessory, MountPointType locationType);
+        public abstract bool CanMount(Accessory accessory, MountPoint location);
 
         public abstract bool InitializeMount(Accessory accessory, MountPoint location);
 

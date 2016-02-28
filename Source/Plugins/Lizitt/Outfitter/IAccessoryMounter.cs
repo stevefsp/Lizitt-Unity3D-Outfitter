@@ -50,12 +50,12 @@ namespace com.lizitt.outfitter
         /// never mount to the specified location. (See: <see cref="CanMount"/>)
         /// </para>
         /// </remarks>
-        /// <param name="locationType">The mount location</param>
+        /// <param name="location">The mount location</param>
         /// <returns>
         /// The coverage of the accessory when it is attached to the specified mount point.
         /// </returns>
         /// <seealso cref="CanMount"/>
-        BodyCoverage GetCoverageFor(MountPointType locationType);
+        BodyCoverage GetCoverageFor(MountPoint location);
 
         /// <summary>
         /// The default location type the of the mounter.
@@ -84,9 +84,9 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory to check. (Required)</param>
-        /// <param name="locationType">The mount location.</param>
+        /// <param name="location">The mount location.</param>
         /// <returns>True if the mounter can be used to mount the accessory to the specified location.</returns>
-        bool CanMount(Accessory accessory, MountPointType locationType);
+        bool CanMount(Accessory accessory, MountPoint location);
 
         /// <summary>
         /// Initializes the mount operation for the specified accessory and location.

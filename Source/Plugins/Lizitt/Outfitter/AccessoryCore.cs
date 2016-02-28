@@ -28,7 +28,7 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// In short, with a few minor expceptions, the only feature that extensions of this class need to implemment is
+    /// In short, with a few minor exceptions, the only feature that extensions of this class need to implemment is
     /// mounting, and most of the plumbing for mounting is handled by this class.
     /// </para>
     /// <para>
@@ -41,11 +41,10 @@ namespace com.lizitt.outfitter
     /// <para>
     /// Mounter priority is as follows:  The priority mounter supplied to the mount method, 
     /// then the mounter provided by <see cref="GetInitializedMounter"/>, then <see cref="MountInternal"/> if 
-    /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion
-    /// mounting.
+    /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion.
     /// </para>
     /// <para>
-    /// See <see cref="StandardMounter"/> and <see cref="SimpleMounter"/> for example implementations.
+    /// See <see cref="StandardAccesory"/> and <see cref="SimpleOffsetAccessory"/> for example implementations.
     /// </para>
     /// </remarks>
     public abstract class AccessoryCore
@@ -104,12 +103,11 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Called on the state change event, just before the observers are notified.
+        /// Send during a state change event just before the observers are notified.
         /// </summary>
         protected virtual void OnStateChange()
         {
             // Do nothing.
-            // Don't use OnStateChange() naming convension because can't use OnDestroy() for the destroy event.
         }
 
         #endregion
@@ -147,36 +145,36 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method is guarenteed to return true if <see cref="CanMount"/> returns true. 
-        /// But it is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation, 
-        /// it is valid to simply call this method on a list of all available accessories to let the accessory 
-        /// decide whether or not it can attach
+        /// This method will always succeed if <see cref="CanMount(MountPointType, BodyCoverage)"/> return true.
         /// </para>
         /// <para>
-        /// <paramref name="additionalCoverage"/> is useful in when an accessory  uses a generic mounter that doesn't
-        /// provide coverage information.
+        /// It is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation 
+        /// it is valid to simply call this method on a list f all available accessories to let the accessory decide 
+        /// whether or not it can mount.
+        /// </para>
+        /// <para>
+        /// <paramref name="additionalCoverage"/> is useful in situations where an accessory uses a generic mounter
+        /// that doesn't provide coverage information.  On a successful mount the additional coverage will be
+        /// added to the coverage supplied by the mounter and/or built into the accessory.
         /// </para>
         /// <para>
         /// Mount priority is as follows:  The priority mounter supplied by the mount method, 
         /// the mounter provided by <see cref="GetInitializedMounter"/>, <see cref="MountInternal"/> if 
-        /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion
-        /// mounting.
+        /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion.
         /// </para>
         /// </remarks>
         /// <param name="location">The mount location. (Required)</param>
-        /// <param name="owner">
-        /// The object that will own the accessory after a successful mount. (Required)
-        /// </param>
+        /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (I.e. A custom mounter.)
+        /// The mounter to attempt before any others are tried.  (I.e. A custom mounter.) (Optional)
         /// </param>
         /// <param name="additionalCoverage">
-        /// Additional coverage to apply on a successful mount, above and beyond the coverage
-        /// supplied by the mounter or built into the accessory.
+        /// Additional coverage to apply on a successful mount, above and beyond the coverage supplied by the 
+        /// mounter and/or built into the accessory. (Optional)
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
-        public sealed override bool Mount(MountPoint location, GameObject owner, 
-            IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
+        public sealed override bool Mount(MountPoint location, GameObject owner, IAccessoryMounter priorityMounter, 
+            BodyCoverage additionalCoverage)
         {
             // While not expected to be common, it is technically ok to re-attach to the same
             // mount location, so there is no optimization check for that.
@@ -224,7 +222,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The owner on a successful mount. (Required)</param>
-        /// <returns>A mounter that initialized and ready to update, or null if none is avaiable.</returns>
+        /// <returns>A mounter that is initialized and ready to update, or null if none is avaiable.</returns>
         protected abstract IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner);
 
         /// <summary>
@@ -250,7 +248,7 @@ namespace com.lizitt.outfitter
         /// <param name="resultCoverage">The resulting coverage of the mount.</param>
         protected abstract BodyCoverage MountInternal(MountPoint location, GameObject owner);
 
-        // Don't serialize.  Will only be assigned if a coroutine is required.
+        // Will only be assigned if a coroutine is required.
         private IAccessoryMounter m_CurrentMounter = null;
 
         /// <summary>
@@ -279,11 +277,6 @@ namespace com.lizitt.outfitter
             else
                 SetState(AccessoryStatus.Mounted, owner, location);
         }
-
-        // TODO: EVAL: Convert mounting to a method that supports serialization.  
-        // This is not a high proiority, especially since the standard mounters support
-        // immediate completion outside of play mode.  But having all major features except
-        // mounting provide support for serialization might be an issue. 
 
         /// <summary>
         /// Kicks off a coroutine to run the mounter through to completion.
@@ -331,13 +324,11 @@ namespace com.lizitt.outfitter
         private bool m_UseDefaultStorage = true;
 
         /// <summary>
-        /// Deactivate and activate the accessory's GameObject when it transitions into
-        /// and out of the 'stored' state.
+        /// Deactivate and activate the accessory's GameObject when it transitions into and out of the 'stored' state.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Deactivation/activation will happen after the 'store' event and before the 
-        /// 'unstore' event.
+        /// Deactivation/activation will happen after the 'store' event and before the 'unstore' event.
         /// </para>
         /// </remarks>
         public bool UseDefaultStorage
@@ -395,7 +386,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Called on the destroy event before any other action is taken.
         /// </summary>
-        /// <param name="typ"></param>
+        /// <param name="typ">The destroy type.</param>
         protected virtual void OnDestroyLocal(DestroyType typ)
         {
             // Design note: Can't use 'OnDestroy' because is conflicts with the Monobehaviour event signature.
@@ -407,8 +398,7 @@ namespace com.lizitt.outfitter
         #region Transitions
 
         /// <summary>
-        /// Performs cleanups of settings unique to the current state.  
-        /// (Call before all state transitions.)
+        /// Performs cleanups of settings unique to the current state.  (Call before all state transitions.)
         /// </summary>
         private void CleanupCurrentState()
         {
@@ -442,9 +432,6 @@ namespace com.lizitt.outfitter
 
         #region Observer Features
 
-        /// <summary>
-        /// Access only through property.
-        /// </summary>
         [Space(5)]
         [SerializeField]
         [ObjectList("IAccessoryObserver Objects", typeof(IAccessoryObserver))]
@@ -466,6 +453,7 @@ namespace com.lizitt.outfitter
 
         public virtual void Initialize()
         {
+            // Do nothing.
         }
 
         protected void Awake()
@@ -493,47 +481,6 @@ namespace com.lizitt.outfitter
             list.Add(gameObject);  // Activate
             list.Add(this);
         }
-
-        #region Context Menu
-
-        [ContextMenu("Refresh Observers")]
-        protected void RefreshObservers_Menu()
-        {
-            // Design note: This process is designed to support observers that have been linked
-            // from other game objects.
-
-            m_Observers.PurgeDestroyed();
-
-            var seen = new System.Collections.Generic.List<IAccessoryObserver>();
-
-            // TODO: Remove this once the GUI properly prevents duplicates.
-            for (int i = m_Observers.Count - 1; i >= 0; i--)
-            {
-                if (seen.Contains(m_Observers[i]))
-                    m_Observers.Remove(m_Observers[i]);
-                else
-                    seen.Add(m_Observers[i]);
-            }
-
-            var refreshItems = this.GetComponents<IAccessoryObserver>();
-            if (refreshItems.Length == 0)
-                return;  // Leave existing alone.
-
-            // Add new items to end.
-            foreach (var refreshItem in refreshItems)
-            {
-                if (!m_Observers.Contains(refreshItem))
-                    m_Observers.Add(refreshItem);
-            }
-        }
-
-        [ContextMenu("Reset Observers")]
-        protected void ResetObservers_Menu()
-        {
-            m_Observers.Clear();
-        }
-
-        #endregion
 
         #endregion
 

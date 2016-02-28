@@ -170,7 +170,7 @@ namespace com.lizitt.outfitter
                     m_PriorityMounter = obj ? obj : null;
                 }
                 else
-                    Debug.LogError(value.GetType().Name + " is not a Unity Object.");
+                    Debug.LogError(value.GetType().Name + " is not a UnityEngine.Object.");
             }
         }
 
@@ -279,64 +279,6 @@ namespace com.lizitt.outfitter
                     list.Add(item as Object);
             }
         }
-
-        #region Context Menu
-
-        [ContextMenu("Refresh All Settings")]
-        private void RefreshAllSettings_Menu()
-        {
-            RefreshMounters_Menu();
-            RefreshObservers_Menu();
-        }
-
-        [ContextMenu("Refresh Mounters")]
-        private void RefreshMounters_Menu()
-        {
-            // Design note: This process is designed to support mounters that have been linked
-            // from other game objects.
-
-            m_Mounters.PurgeDestroyed();
-
-            var seen = new System.Collections.Generic.List<IAccessoryMounter>();
-
-            // TODO: Remove this once the GUI properly prevents duplicates.
-            for (int i = m_Mounters.Count - 1; i >= 0; i--)
-            {
-                if (seen.Contains(m_Mounters[i]))
-                    m_Mounters.Remove(m_Mounters[i]);
-                else
-                    seen.Add(m_Mounters[i]);
-            }
-
-            var refreshItems = GetComponents<IAccessoryMounter>();
-            if (refreshItems.Length == 0)
-                return;  // Leave existing alone.
-
-            var items = new System.Collections.Generic.List<IAccessoryMounter>(refreshItems.Length);
-
-            for (int i = 0; i < m_Mounters.Count; i++)
-            {
-                if (m_Mounters[i] != null)
-                    items.Add(m_Mounters[i]);
-            }
-
-            // Add new items to end.
-            foreach (var refreshItem in refreshItems)
-            {
-                if (!items.Contains(refreshItem))
-                    items.Add(refreshItem);
-            }
-
-            AccessoryMounterGroup.UnsafeReplaceItems(this, m_Mounters, items.ToArray());
-        }
-
-        [ContextMenu("Reset Mounters")]
-        private void ResetMounters_Menu()
-        {
-            m_Mounters.Clear();
-        }
-
-        #endregion
 
         #endregion
 

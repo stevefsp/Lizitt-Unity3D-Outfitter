@@ -34,7 +34,7 @@ namespace com.lizitt.outfitter
     /// <para>
     /// This class manages state, state transtions, observers, and events.  It also handles storage, release, and 
     /// implements a framework for mounting.  Concrete implementations can intercept observer events by overriding 
-    /// local event methods.  (E.g. <see cref="OnStateChangeLocal"/>.  Mount behavior is implemented by overriding 
+    /// local event methods.  (E.g. <see cref="OnStateChange"/>.  Mount behavior is implemented by overriding 
     /// <see cref="GetInitializedMounter"/> and/or the 'internal mount' methods.  (At least one mount method must
     /// be overridden.)
     /// </para>
@@ -98,7 +98,7 @@ namespace com.lizitt.outfitter
             m_Owner = owner;
             m_CurrentLocation = location;
 
-            OnStateChangeLocal();
+            OnStateChange();
 
             m_Observers.SendStateChange(this);
         }
@@ -106,7 +106,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Called on the state change event, just before the observers are notified.
         /// </summary>
-        protected virtual void OnStateChangeLocal()
+        protected virtual void OnStateChange()
         {
             // Do nothing.
             // Don't use OnStateChange() naming convension because can't use OnDestroy() for the destroy event.
@@ -398,6 +398,7 @@ namespace com.lizitt.outfitter
         /// <param name="typ"></param>
         protected virtual void OnDestroyLocal(DestroyType typ)
         {
+            // Design note: Can't use 'OnDestroy' because is conflicts with the Monobehaviour event signature.
             // Do nothing.
         }
 

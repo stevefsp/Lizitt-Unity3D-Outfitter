@@ -177,6 +177,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The location type the accessory can always mount to. (The default mounter will be used if no"
             + " other mounter is avaiable.)")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_DefaultLocation;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         /// <summary>

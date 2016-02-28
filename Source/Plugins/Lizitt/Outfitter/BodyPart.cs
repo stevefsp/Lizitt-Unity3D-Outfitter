@@ -58,6 +58,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The type (location) of the body part.")]
+        [SortedEnumPopup(typeof(BodyPartType))]
         private BodyPartType m_Type;
 
         /// <summary>

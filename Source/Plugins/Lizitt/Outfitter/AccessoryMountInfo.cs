@@ -44,6 +44,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The current/desired location of the accessory accessory.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_LocationType;
 
         /// <summary>

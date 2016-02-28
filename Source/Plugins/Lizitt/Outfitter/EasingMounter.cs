@@ -51,6 +51,7 @@ namespace com.lizitt.outfitter
         [Space(10)]
         [SerializeField]
         [Tooltip("The location the mounter can transfer the accessory from.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_From = (MountPointType)0;
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The location the mounter can mount the accessory to.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_To = (MountPointType)0;
 
         /// <summary>

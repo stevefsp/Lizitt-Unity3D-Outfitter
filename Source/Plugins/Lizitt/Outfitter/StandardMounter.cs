@@ -39,6 +39,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The location the mounter can mount to.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_Location = (MountPointType)0;
 
         public override MountPointType DefaultLocationType

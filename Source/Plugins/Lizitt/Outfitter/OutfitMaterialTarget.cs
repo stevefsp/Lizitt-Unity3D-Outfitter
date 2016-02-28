@@ -39,6 +39,7 @@ namespace com.lizitt.outfitter
     {
         [SerializeField]
         [Tooltip("The material type.")]
+        [SortedEnumPopup(typeof(OutfitMaterialType))]
         private OutfitMaterialType m_Type;
 
         /// <summary>

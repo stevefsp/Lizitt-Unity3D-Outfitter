@@ -40,6 +40,7 @@ namespace com.lizitt.outfitter
     {
         [SerializeField]
         [Tooltip("The location type of the mount point.")]
+        [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_Location = (MountPointType)1;
 
         /// <summary>

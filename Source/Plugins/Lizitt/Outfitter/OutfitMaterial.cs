@@ -30,6 +30,7 @@ namespace com.lizitt.outfitter
     public struct OutfitMaterial
     {
         [SerializeField]  // Tooltip isn't useful.
+        [SortedEnumPopup(typeof(OutfitMaterialType))]
         private OutfitMaterialType m_Type;
 
         /// <summary>

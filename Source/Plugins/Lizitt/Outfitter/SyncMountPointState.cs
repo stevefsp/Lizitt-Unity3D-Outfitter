@@ -67,14 +67,10 @@ namespace com.lizitt.outfitter
             set { m_IncludeContext = value; }
         }
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
-            Synchronize(sender.Outfit, previous);
-        }
 
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
+            Synchronize(sender.Outfit, previous);
         }
 
         /// <summary>

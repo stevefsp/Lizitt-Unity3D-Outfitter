@@ -60,42 +60,49 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Set the current outfit and update accessory mounting as appropriate.
         /// </summary>
-        /// <remarks>
-        /// The behavior of each accessory during a change in the outfit is determined by
-        /// the method used to add it to the outfit manager.
-        /// </remarks>
         /// <param name="outfit">The outfit, or null if there is no outfit.</param>
-        public void SetOutfit(Outfit outfit)
+        /// <param name="discardMounted">
+        /// If true, discard any accessories mounted to the current outfit.  Otherwise release and store the
+        /// accessories.
+        /// </param>
+        public void SetOutfit(Outfit outfit, bool discardMounted = false)
         {
             if (m_Outfit == outfit)
                 return;
 
             m_Outfit = outfit;
 
-            // The loop has to be forward.  A user may expect that behavior.  E.g. Accessories
+            // The loop has to be forward.  Clients may expect that behavior.  E.g. Accessories
             // earlier in the list have priority.
 
-            bool purgeNeeded = false;
+            bool needsPurge = false;
             for (int i = 0; i < m_Items.Count; i++)
             {
                 var mountInfo = m_Items[i];
 
                 if (mountInfo.Accessory)
                 {
-                    if (!m_Outfit || MountToOutfit(ref mountInfo) != MountResult.Success)
+                    if (discardMounted && mountInfo.Accessory.Owner != this)
+                    {
+                        UnlinkAccessory(i, false);
+                        mountInfo.Accessory = null;
+                        needsPurge = true;
+                    }
+                    else if (!m_Outfit || MountToOutfit(ref mountInfo) != MountResult.Success)
                         StoreAccessory(ref mountInfo);
+                    // else already in storage.
                 }
                 else
                 {
-                    Debug.LogError("Improperly destroyed accessory detected. Will purge.", this);
-                    purgeNeeded = true;
+                    Debug.LogError("Detected improperly destroyed accessory.  Will purge.", this);
+                    needsPurge = true;
                     continue;
                 }
 
                 m_Items[i] = mountInfo;
             }
 
-            if (purgeNeeded)
+            if (needsPurge)
                 PurgeNullAcessories();
         }
 
@@ -352,7 +359,7 @@ namespace com.lizitt.outfitter
 
                 if (mountInfo.Accessory == accessory)
                 {
-                    UnlinkAccessory(i);
+                    UnlinkAccessory(i, true);
                     accessory.Release();  // Keep it simple.
 
                     return true;
@@ -376,7 +383,7 @@ namespace com.lizitt.outfitter
                 {
                     if (m_Items[i].Accessory.Owner == this)
                     {
-                        UnlinkAccessory(i);
+                        UnlinkAccessory(i, true);
                         m_Items[i].Accessory.Release();
                     }
                 }
@@ -442,13 +449,13 @@ namespace com.lizitt.outfitter
             {
                 if (m_Items[i].Accessory == accessory)
                 {
-                    UnlinkAccessory(i);
+                    UnlinkAccessory(i, true);
                     return;
                 }
             }
         }
 
-        private void UnlinkAccessory(int index)
+        private void UnlinkAccessory(int index, bool includeListRemove)
         {
             var accessory = m_Items[index].Accessory;
 

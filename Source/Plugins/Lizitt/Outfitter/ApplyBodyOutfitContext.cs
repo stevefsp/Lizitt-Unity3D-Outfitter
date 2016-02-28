@@ -30,18 +30,13 @@ namespace com.lizitt.outfitter
     public abstract class ApplyBodyOutfitContext
         : ScriptableObject, IBodyObserver
     {
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             if (sender.Outfit)
                 ApplyContext(sender.Outfit, GetContext(sender, previous));
 
             if (previous)
-                ClearContext(previous);
-        }
-
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
+                ClearContext(previous, wasForced);
         }
 
         /// <summary>
@@ -63,6 +58,9 @@ namespace com.lizitt.outfitter
         /// Clear the context of the outfit's components. 
         /// </summary>
         /// <param name="outfit">The previous body outfit.</param>
-        public abstract void ClearContext(Outfit outfit);
+        /// <param name="wasForced">
+        /// The outfit underwent a forced release.  (See <see cref="Body.ForceReleaseOutfit"/>)
+        /// </param>
+        public abstract void ClearContext(Outfit outfit, bool wasForced);
     }
 }

@@ -65,12 +65,13 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Remove the previous outfit's animator controller.")]
+        [Tooltip("Remove the previous outfit's animator controller, unless the outfit was force released.")]
         private bool m_IncludeRemoval = false;
 
         /// <summary>
-        /// Remove the previous outfit's animator controller.
+        /// Remove the previous outfit's animator controller, unless the outfit was force released.
         /// </summary>
+        /// <seealso cref="Body.ForceRelease"/>
         public bool IncludeRemoval
         {
             get { return m_IncludeRemoval; }
@@ -81,21 +82,16 @@ namespace com.lizitt.outfitter
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             Apply(sender.Outfit);
 
-            if (m_IncludeRemoval)
+            if (m_IncludeRemoval && !wasForced)
             {
                 var anim = GetAnimator(previous);
                 if (anim)
                     anim.runtimeAnimatorController = null;
             }
-        }
-
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
         }
 
         #endregion

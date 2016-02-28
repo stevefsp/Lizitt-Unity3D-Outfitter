@@ -46,19 +46,22 @@ namespace com.lizitt.outfitter
         /// This event is useful for clients that need to synchronize or persist state between outfits. E.g. Persist
         /// material state, synchronise animators, etc.
         /// </para>
+        /// <para>
+        /// A <paramref name="wasForced"/> value of true indicates one of several cases:  The 'normal' case is that
+        /// <see cref="Body.ForceRelaseOutfit"/> was manually called and the outfit should be released
+        /// as is.  This is not a mandatory requirement and the observer is allowed latitute.  The main reason
+        /// for manually forcing a release is so the outfit can be baked. Non-normal reasons include unexpected
+        /// loss of the outfit, such as destruction and loss of ownership while under the body's control.
+        /// </para>
         /// </remarks>
         /// <param name="sender">The body sending the event. (Required)</param>
         /// <param name="previous">
         /// The outfit that was replaced and is being released by the body, or null if there is none.
         /// </param>
-        void OnOutfitChange(Body sender, Outfit previous);
-
-        /// <summary>
-        /// Sent when the body has lost control of an outfit through unexpected means.  (E.g. If the outfit was
-        /// destoryed what under the control of the body.)
-        /// </summary>
-        /// <param name="sender">The body. (Required.)</param>
-        void OnSoftReset(Body sender);
+        /// <param name="wasForced">
+        /// If true the outfit was force released and should normally be excempt from normal release activities.
+        /// </param>
+        void OnOutfitChange(Body sender, Outfit previous, bool wasForced);
     }
 }
 

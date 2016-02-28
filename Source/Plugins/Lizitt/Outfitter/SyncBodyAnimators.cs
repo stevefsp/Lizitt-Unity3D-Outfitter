@@ -50,11 +50,13 @@ namespace com.lizitt.outfitter
         #region Settings
 
         [SerializeField]
-        [Tooltip("Remove the previous outfit's animator controller after syncronization is complete.")]
+        [Tooltip("Remove the previous outfit's animator controller after syncronization is complete, unless a"
+            + " forced release was performed.")]
         private bool m_IncludeRemoval = true;
 
         /// <summary>
-        /// Remove the previous outfit's animator controller after syncronization is complete.
+        /// Remove the previous outfit's animator controller after syncronization is complete, unless a forced release
+        /// was performed.
         /// </summary>
         public bool IncludeRemoval
         {
@@ -79,21 +81,16 @@ namespace com.lizitt.outfitter
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
-            Synchronize(sender.Outfit, previous);
-        }
-
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
+            Synchronize(sender.Outfit, previous, wasForced);
         }
 
         #endregion
 
         #region Main Handler
 
-        public void Synchronize(Outfit current, Outfit previous)
+        public void Synchronize(Outfit current, Outfit previous, bool blockRemoval = false)
         {
             var currAnim = current ? GetAnimator(current) : null;
             var prevAnim = previous ? GetAnimator(previous) : null;
@@ -106,7 +103,7 @@ namespace com.lizitt.outfitter
                     PerformAnimatorSync(currAnim, prevAnim);
             }
 
-            if (m_IncludeRemoval && prevAnim)
+            if (m_IncludeRemoval && !blockRemoval && prevAnim)
                 prevAnim.runtimeAnimatorController = null;
         }
 

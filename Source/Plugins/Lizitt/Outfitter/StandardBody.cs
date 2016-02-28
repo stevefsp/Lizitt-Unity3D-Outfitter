@@ -95,58 +95,99 @@ namespace com.lizitt.outfitter
         {
             get
             {
-                CheckNeedsSoftReset();
+                CheckOutfitLost();
                 return m_Outfit;
             }
         }
 
-        public sealed override Outfit SetOutfit(Outfit outfit)
+        public sealed override Outfit SetOutfit(Outfit outfit, bool forceRelease)
         {
-            CheckNeedsSoftReset();
+            // Warning: This method can be called by CheckOutfitLost().  So make sure not code paths trigger that
+            // method.
 
-            if (!outfit)
-                return RemoveOutfit();
-
-            if (outfit == m_Outfit)
+            if (outfit)
             {
-                Debug.LogError("Outfit already set. Outfit set ignored.", this);
-                return null;
+                if (outfit == m_Outfit)
+                {
+                    Debug.LogWarning("Outfit is already set. No action taken.", this);
+                    return null;
+                }
+
+                if (outfit && outfit.IsManaged && (outfit.Owner && outfit.Owner != gameObject))
+                {
+                    Debug.LogErrorFormat(this, 
+                        "Outfit is managed by another object.  Can't set outfit.  Outfit: {0}, Owner: {1}", 
+                        outfit.name, outfit.Owner.name);
+                    return outfit;
+                }
             }
 
-            SendOutfitChangedPre();
+            var origOutfit = m_Outfit ? m_Outfit : null;
 
-            var origOutfit = m_Outfit;
-            UnlinkCurrentOutfit();
-            LinkOutfit(outfit);
+            if (m_Outfit)
+            {
+                m_Outfit.RemoveObserver(this);  // Keep this early.
 
-            SendOutfitChange(origOutfit);
+                if (m_Outfit.Owner == gameObject)
+                    m_Outfit.SetState(OutfitStatus.Unmanaged, null);
+
+                if (m_Outfit.transform.parent == transform)
+                    m_Outfit.transform.parent = null;
+
+                // Preserve the outfit's position.
+                DefaultMotionRoot.position = m_Outfit.MotionRoot.position;
+                DefaultMotionRoot.rotation = m_Outfit.MotionRoot.rotation;
+
+                // Assumption: The body should never be the context of outfit compoenents for an outfit it isn't
+                // managing.
+
+                for (int i = 0; i < m_Outfit.BodyPartCount; i++)
+                {
+                    var item = m_Outfit.GetBodyPart(i);
+                    if (item && item.Context == gameObject)
+                        item.Context = null;
+                }
+
+                for (int i = 0; i < m_Outfit.MountPointCount; i++)
+                {
+                    var item = m_Outfit.GetMountPoint(i);
+                    if (item && item.Context == gameObject)
+                        item.Context = null;
+                }
+            }
+
+            m_Outfit = outfit;
+            m_HasOutfit = m_Outfit;
+
+            if (m_Outfit)
+            {
+                m_Outfit.SetState(OutfitStatus.InUse, gameObject);
+                m_Outfit.transform.parent = transform;
+
+                // Persist the previous outfit's position.
+                m_Outfit.MotionRoot.position = DefaultMotionRoot.position;
+                m_Outfit.MotionRoot.rotation = DefaultMotionRoot.rotation;
+
+                m_Outfit.AddObserver(this);  // Keep this late.
+            }
+
+            AccessoriesLocal.SetOutfit(outfit, forceRelease);
+            SendOutfitChange(origOutfit, forceRelease);
 
             return origOutfit;
         }
 
-        private Outfit RemoveOutfit()
-        {
-            if (!Outfit)
-                return null;
-
-            SendOutfitChangedPre();
-
-            var origOutfit = m_Outfit;
-            UnlinkCurrentOutfit();
-
-            SendOutfitChange(origOutfit);
-
-            return origOutfit;
-        }
+        #endregion
 
         #region Outfit Observer
 
         void IOutfitObserver.OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit)
         {
-            if (m_Outfit == sender)
+            if (m_Outfit && m_Outfit == sender)
             {
-                Debug.LogError("Outfit destroyed while owned by body.  Soft reset performed.", this);
-                SoftReset();
+                Debug.LogError("Outfit destroyed while owned by body.  Forced an unlink.", this);
+                sender.RemoveObserver(this);
+                SetOutfit(null, typ == DestroyType.Bake);
             }
             else
             {
@@ -159,14 +200,14 @@ namespace com.lizitt.outfitter
 
         void IOutfitObserver.OnStateChange(Outfit sender)
         {
-
             if (sender.Owner != gameObject)
             {
                 Debug.LogErrorFormat(this, "Unexpected outfit ownership change.  Soft reset"
                     + " performed: Outfit: {0}, New owner: {1}", sender.name,
                     sender.Owner ? sender.Owner.name : "None");
 
-                SoftReset();
+                sender.RemoveObserver(this);
+                SetOutfit(null);
 
                 return;
             }
@@ -179,7 +220,8 @@ namespace com.lizitt.outfitter
                     Debug.LogErrorFormat(this, "Unsupported outfit status change.  Soft reset"
                         + " performed: Outfit: {0}, Status: {1}", sender.name, sender.Status);
 
-                    SoftReset();
+                    sender.RemoveObserver(this);
+                    SetOutfit(null);
 
                     return;
             }
@@ -199,60 +241,19 @@ namespace com.lizitt.outfitter
 
         #region Outfit Utilities
 
-        private void LinkOutfit(Outfit outfit)
-        {
-            AccessoriesLocal.SetOutfit(outfit);
-            m_Outfit = outfit;
-            m_HasOutfit = m_Outfit;
-
-            if (m_HasOutfit)
-            {
-                outfit.SetState(OutfitStatus.InUse, gameObject);
-                outfit.transform.parent = transform;
-
-                // Persist the 'last' outfit position.
-                outfit.MotionRoot.position = DefaultMotionRoot.position;
-                outfit.MotionRoot.rotation = DefaultMotionRoot.rotation;
-
-                outfit.AddObserver(this);
-            }
-        }
-
-        private void UnlinkCurrentOutfit()
-        {
-            if (m_Outfit)
-            {
-                m_Outfit.RemoveObserver(this);
-
-                if (m_Outfit.Owner == gameObject)
-                    m_Outfit.SetState(OutfitStatus.Unmanaged, null);
-
-                if (m_Outfit.transform.parent == transform)
-                    m_Outfit.transform.parent = null;
-
-                // Preserve the outfit's position.
-                DefaultMotionRoot.position = m_Outfit.MotionRoot.position;
-                DefaultMotionRoot.rotation = m_Outfit.MotionRoot.rotation;
-            }
-
-            // Outfit may have been improperly destroyed, so always run these.
-            AccessoriesLocal.SetOutfit(null);
-            m_Outfit = null;
-            m_HasOutfit = false;
-        }
-
-        private void CheckNeedsSoftReset()
+        /// <summary>
+        /// Do not call this method from <see cref="SetOutfit"/>!!!!! It can cause reversion.
+        /// </summary>
+        private void CheckOutfitLost()
         {
             // Don't worry about losing ownership.  That is non-fatal and much less likely to occur.
             if (m_HasOutfit && !m_Outfit)
             {
                 Debug.LogError("Outfit was improperly destroyed after assignment to body."
-                    + " Soft reset performed.", this);
-                SoftReset();
+                    + " Recovery performed.  Assets may have been lost.", this);
+                SetOutfit(null, true);
             }
         }
-
-        #endregion
 
         #endregion
 
@@ -274,50 +275,6 @@ namespace com.lizitt.outfitter
         public override IBodyAccessoryManager Accessories
         {
             get { return AccessoriesLocal; }
-        }
-
-        #endregion
-
-        #region Soft Reset
-
-        /// <summary>
-        /// Force a soft reset of the body.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// A soft reset will purge all non-setting related assets from the body.  This includes the assigned
-        /// outfit and added accessories.  The only event that will be sent is <see cref="IBodyObserver.OnSoftReset"/>.
-        /// No cleanup of external objects is attempted.
-        /// </para>
-        /// <para>
-        /// The body will normally detect when a soft reset is required.  The only reason for performing one
-        /// manually in the editor when you know you've done something wrong, like manually deleting the outfit 
-        /// assigned to the body.
-        /// </para>
-        /// </remarks>
-        /// <param name="body">The body to reset.</param>
-        public static void UnsafeSoftReset(StandardBody body)
-        {
-            body.SoftReset();
-        }
-
-        protected virtual void SoftReset()
-        {
-            // Keep this self contained.  There is too much risk of a recursive call if other methods called.
-            // Only do the absolute minimum to protect the body and its observers.  That's all.  Don't care
-            // about the outfit or the accessories.
-
-            var outfit = m_Outfit;
-            m_Outfit = null;
-            m_HasOutfit = false;
-
-            // TODO: EVAL: Should only the mounted accessories be purged?
-            AccessoriesLocal.Reset();
-
-            if (outfit)
-                outfit.RemoveObserver(this);
-
-            Observers.SendSoftReset(this);
         }
 
         #endregion
@@ -351,7 +308,7 @@ namespace com.lizitt.outfitter
 
         public virtual void Initialize()
         {
-            CheckNeedsSoftReset();
+            CheckOutfitLost();
         }
 
         protected void Awake()
@@ -363,23 +320,13 @@ namespace com.lizitt.outfitter
 
         #region Events
 
-        private void SendOutfitChangedPre()
+        private void SendOutfitChange(Outfit previous, bool wasForced)
         {
-            OnOutfitChangePre();
+            OnOutfitChange(previous, wasForced);
+            Observers.SendOutfitChange(this, previous, wasForced);
         }
 
-        protected virtual void OnOutfitChangePre()
-        {
-            // Do nothing.
-        }
-
-        private void SendOutfitChange(Outfit previous)
-        {
-            OnOutfitChange(previous);
-            Observers.SendOutfitChange(this, previous);
-        }
-
-        protected virtual void OnOutfitChange(Outfit previous)
+        protected virtual void OnOutfitChange(Outfit previous, bool wasForced)
         {
             // Do nothing.
         }

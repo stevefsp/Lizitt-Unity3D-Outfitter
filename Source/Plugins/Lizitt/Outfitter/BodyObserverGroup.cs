@@ -36,7 +36,7 @@ namespace com.lizitt.outfitter
         {
         }
 
-        public void SendOutfitChange(Body sender, Outfit previous)
+        public void SendOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             bool hasNull = false;
             for (int i = 0; i < Count; i++)
@@ -44,21 +44,7 @@ namespace com.lizitt.outfitter
                 if (this[i] == null)
                     hasNull = true;
                 else
-                    this[i].OnOutfitChange(sender, previous);
-            }
-            if (hasNull)
-                PurgeDestroyed();
-        }
-
-        public void SendSoftReset(Body sender)
-        {
-            bool hasNull = false;
-            for (int i = 0; i < Count; i++)
-            {
-                if (this[i] == null)
-                    hasNull = true;
-                else
-                    this[i].OnSoftReset(sender);
+                    this[i].OnOutfitChange(sender, previous, wasForced);
             }
             if (hasNull)
                 PurgeDestroyed();

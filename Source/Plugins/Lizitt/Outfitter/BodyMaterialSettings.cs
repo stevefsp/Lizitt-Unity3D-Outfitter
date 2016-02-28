@@ -76,6 +76,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The materials to apply to body outfits.")]
+        [OutfitMaterialGroup]
         private OutfitMaterialGroup m_Materials = new OutfitMaterialGroup();
 
         /// <summary>
@@ -84,32 +85,21 @@ namespace com.lizitt.outfitter
         public OutfitMaterialGroup OutfitMaterials
         {
             get { return m_Materials; }
-            set { m_Materials = value; }
+            // Only add a setter if it is truely needed.  It introduces reference sharing that is not serializable.
         }
 
         #endregion
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
-            /* 
-             * Design note:
-             * 
-             * Do the persistance here or in the pre-change event?  Decided to do it here since observer ordering
-             * is supported. If an earlier observer is designed to alter the outgoing outfit before getting here, 
-             * those alterations should be honored.
-             */
+            // Sync on force release.  Still appropriate to record available state.
             if (m_Persist && previous)
                 m_Materials.SyncFrom(previous, true, false);
 
             if (sender.Outfit)
                 m_Materials.ApplyTo(sender.Outfit);
-        }
-
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
         }
 
         #endregion

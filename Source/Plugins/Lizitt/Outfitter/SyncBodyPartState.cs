@@ -84,14 +84,10 @@ namespace com.lizitt.outfitter
             set { m_IncludeContext = value; }
         }
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous)
+        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
+            // Makes no changes to the outgoing outfit, so can ignore forced.
             Synchronize(sender.Outfit, previous);
-        }
-
-        void IBodyObserver.OnSoftReset(Body sender)
-        {
-            // Do nothing.
         }
 
         /// <summary>

@@ -80,9 +80,10 @@ namespace com.lizitt.outfitter
             ProcessMountPoints(outfit, context);
         }
 
-        public override void ClearContext(Outfit outfit)
+        public override void ClearContext(Outfit outfit, bool wasForced)
         {
-            ProcessBodyParts(outfit, null);
+            // Always clear, even if forced.
+            ProcessBodyParts(outfit, null);  // Null is correct.  All context's have been set to the body.
             ProcessMountPoints(outfit, null);
         }
 

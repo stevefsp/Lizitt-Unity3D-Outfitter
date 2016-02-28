@@ -92,6 +92,40 @@ namespace com.lizitt.outfitter
         /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
         /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
         /// </para>
+        /// <para>
+        /// <paramref name="forceRelease"/> is used for operations such as baking, where the outfit being released
+        /// needs to maintain its current state rather than undergo reversion operations.  Any accessories managed 
+        /// by the body will be left in place rather than removed and stored in the body.
+        /// </para>
+        /// </remarks>
+        /// <param name="outfit">
+        /// The outfit to apply to the body, or null to remove the current outfit.
+        /// </param>
+        /// <param name="forceRelease">
+        /// Release the current outfit with all of its assets intact, including assets normally expected to be 
+        /// returned to the body or otherwise removed.
+        /// </param>
+        /// <returns>
+        /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
+        /// </returns>
+        public abstract Outfit SetOutfit(Outfit outfit, bool forceRelease);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
+
+        /// <summary>
+        /// Sets the current outfit.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
+        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
+        /// </para>
+        /// <para>
+        /// <paramref name="forceRelease"/> is used for operations such as baking, where the outfit being released
+        /// needs to maintain its current state rather than undergo reversion operations.  Any accessories managed 
+        /// by the body will be left in place rather than removed and stored in the body.
+        /// </para>
         /// </remarks>
         /// <param name="outfit">
         /// The outfit to apply to the body, or null to remove the current outfit.
@@ -99,7 +133,12 @@ namespace com.lizitt.outfitter
         /// <returns>
         /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
         /// </returns>
-        public abstract Outfit SetOutfit(Outfit outfit);
+        public Outfit SetOutfit(Outfit outfit)
+        {
+            return SetOutfit(outfit, false);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         #endregion
 

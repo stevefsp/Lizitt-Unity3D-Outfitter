@@ -72,7 +72,7 @@ namespace com.lizitt.outfitter
 
             m_Outfit = outfit;
 
-            // The loop has to be forward.  Clients may expect that behavior.  E.g. Accessories
+            // The loop has to be forward.  Reasonable for clients to expect that behavior.  E.g. Accessories
             // earlier in the list have priority.
 
             bool needsPurge = false;
@@ -272,8 +272,11 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="accessory">The accessory to change.</param>
         /// <param name="settings">The new settings for the accessory.</param>
+        /// <param name="retryStored">
+        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
+        /// </param>
         /// <returns>The result of the modification.</returns>
-        public MountResult Modify(Accessory accessory, AccessoryAddSettings settings)
+        public MountResult Modify(Accessory accessory, AccessoryAddSettings settings, bool retryStored = false)
         {
             if (!accessory)
             {
@@ -281,12 +284,13 @@ namespace com.lizitt.outfitter
                 return MountResult.FailedOnError;
             }
 
-            // Remember: Don't need to check mounter validity.  Settings setter does that.
+            // Remember: Don't need to check mounter validity.  Settings did that.
+            var status = MountResult.FailedOnError;
+            bool retryMounts = false;
 
             for (var i = 0; i < m_Items.Count; i++)
             {
                 var mountInfo = m_Items[i];
-
 
                 if (mountInfo.Accessory && mountInfo.Accessory == accessory)
                 {
@@ -294,9 +298,11 @@ namespace com.lizitt.outfitter
                      * Design note:
                      * 
                      * There can be lots of reasons for modifying an accessory, some of which don't need/want a
-                     * re-mount.  But it is better to keep it simple.  All modify calls for a mounted accessory
-                     * result in a mount.)
+                     * re-mount.  But it is better to keep it simple.  All modify calls result in a mount call.)
                      */
+
+                    bool wasMounted = mountInfo.Accessory.Status.IsMounted();
+
                     mountInfo.Apply(settings);
 
                     if (m_Outfit)
@@ -308,21 +314,61 @@ namespace com.lizitt.outfitter
 
                     m_Items[i] = mountInfo;
                     
-                    return mountInfo.Accessory.Status.IsMounted() ? MountResult.Success : MountResult.Stored;
+                    status = mountInfo.Accessory.Status.IsMounted() ? MountResult.Success : MountResult.Stored;
+
+                    if (wasMounted && retryStored && status == MountResult.Stored)
+                        retryMounts = true;
+                    else
+                        return status;
                 }
             }
 
-            Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, this);
-            return MountResult.FailedOnError;
+            if (retryMounts)
+            {
+                // Will only get here if there was no failure.
+                RetryStoredMounts(accessory);
+            }
+            else
+                 Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, this);
+
+            return status;
         }
 
-        public MountResult Modify(Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false)
+        /// <summary>
+        /// Modify and remount the accessory already being managed.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The most common reason for modifying an accessory is to mount it to a new location on the current target.  
+        /// Modifying any setting will result in a remount attempt.  <strong>Any</strong> failure to mount will result
+        /// in the accessory being stored.
+        /// </para>
+        /// <para>
+        /// Will always attempt a mount/remount if <see cref="Outfit"/> is non-null.
+        /// </para>
+        /// <para>
+        /// A failure to mount when needed will result in a transition to storage.  All other errors will
+        /// result in no change to the accessory's state, so an accessory will never be discarded by a failed
+        /// modify.
+        /// </para>
+        /// </remarks>
+        /// <param name="accessory">The accessory.</param>
+        /// <param name="locationType">The mount location.</param>
+        /// <param name="ignoreRestrictions">
+        /// If true, ignore 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
+        /// </param>
+        /// <param name="retryStored">
+        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
+        /// </param>
+        /// <returns>The result of the modification.</returns>
+        public MountResult Modify(
+            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false, bool retryStored = false)
         {
             var settings = new AccessoryAddSettings();
             settings.IgnoreRestrictions = ignoreRestrictions;
             settings.LocationType = locationType;
 
-            return Modify(accessory, settings);
+            return Modify(accessory, settings, retryStored);
         }
 
         #endregion
@@ -332,23 +378,15 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Removes the accessory from management, unmounting as needed.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// There are vaious reasons why an accessory that was added isn't recognized by the
-        /// remove operation.  Some examples:  The accessory may have unmounted itself or been
-        /// unmounted directly through the outfit. Outfit specific accessories are auto-removed 
-        /// when the outfit changes.
-        /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory to remove.</param>
-        /// <param name="priorityMounter">
-        /// The priority mounter to use if unmounting is required.  If non-null, this will
-        /// override any value provided during the add operation.
+        /// <param name="retryStored">
+        /// If true and the removed accesosry was mounted, then retry mounts for any stored accessories.
         /// </param>
         /// <returns>
         /// True if accessory was removed, false if the accessory is unrecognized.
         /// </returns>
-        public bool Remove(Accessory accessory)
+        public bool Remove(Accessory accessory, bool retryStored = false)
         {
             if (!accessory)
                 return false;
@@ -359,8 +397,13 @@ namespace com.lizitt.outfitter
 
                 if (mountInfo.Accessory == accessory)
                 {
+                    var wasMounted = mountInfo.Accessory.Status.IsMounted();
+
                     UnlinkAccessory(i, true);
-                    accessory.Release();  // Keep it simple.
+                    accessory.Release();  // Keep it simple.  Let the event do the cleanup.
+
+                    if (wasMounted && retryStored)
+                        RetryStoredMounts(null);
 
                     return true;
                 }
@@ -426,6 +469,24 @@ namespace com.lizitt.outfitter
             accessory.transform.localRotation = Quaternion.identity;
 
             return true;
+        }
+
+        private void RetryStoredMounts(Accessory ingoreAccessory)
+        {
+            if (!m_Outfit)
+                return;
+
+            for (var i = 0; i < m_Items.Count; i++)
+            {
+                var mountInfo = m_Items[i];
+
+                if (mountInfo.Accessory && mountInfo.Accessory != ingoreAccessory 
+                    && mountInfo.Accessory.Status == AccessoryStatus.Stored)
+                {
+                    if (MountToOutfit(ref mountInfo) == MountResult.Success)
+                        m_Items[i] = mountInfo;
+                }
+            }
         }
 
         private void PurgeNullAcessories()

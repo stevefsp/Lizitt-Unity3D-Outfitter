@@ -38,22 +38,12 @@ namespace com.lizitt.outfitter.editor
             get { return target as BodyPart; }
         }
 
-        //private bool m_IsAsset;
-
-        //void OnEnable()
-        //{
-        //    m_IsAsset = AssetDatabase.Contains(target);
-        //}
-
         /// <summary>
         /// See Unity documentation.
         /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-
-            //if (m_IsAsset)
-            //    return;
 
             OutfitterEditorUtil.ShowInspectorActions = 
                 EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");

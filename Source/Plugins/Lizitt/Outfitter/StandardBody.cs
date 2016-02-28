@@ -27,6 +27,30 @@ namespace com.lizitt.outfitter
     /// <summary>
     /// Implements all standard <see cref="Body"/> features.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The body expectes that it will retain control of its outfit until the outfit is removed using
+    /// <see cref="SetOutfit"/>.  If it detects a loss of control, then it will behave as follows:
+    /// </para>
+    /// <para>
+    /// If the outfit bake event is received the body will perform a forced release.  (See the <see cref="SetOutfit"/> 
+    /// documentation.)
+    /// </para>
+    /// <para>
+    /// If a non-bake outfit destroy event is received, the body will attempt a normal release in order to recover
+    /// its assets as best it can.
+    /// </para>
+    /// <para>
+    /// If the body loses ownership of its outfit, or the outfit transtions to the 'stored' or 'unmanaged' state, the
+    /// body will perform a normal release.
+    /// </para>
+    /// <para>
+    /// If the body detects that the outfit was destroyed improperly using Object.Destroy() instead of 
+    /// <see cref="Outfit.Destroy"/> then it will perform a forced release in order to clean itself up.  Observers
+    /// will receive the event so they also have a chance to cleanup. What is permanently lost depends on the steps used 
+    /// to destroy the outfit.
+    /// </para>
+    /// </remarks>
     [RequireComponent(typeof(BodyAccessoryManager))]
     [AddComponentMenu(LizittUtil.LizittMenu + "StandardBody", OutfitterUtil.BaseMenuOrder + 3)]
     public class StandardBody
@@ -37,17 +61,16 @@ namespace com.lizitt.outfitter
         [Space]
 
         [SerializeField]
-        [Tooltip("The motion root when there is no outfit assigned.  The body's transform will be used if not assigned"
-            + " prior to initialization.")]
+        [Tooltip("The motion root when there is no outfit assigned.  (Defaults to the body's transform.)")]
         [LocalComponentPopupAttribute(typeof(Transform), true)]
         private Transform m_DefaultMotionRoot = null;
 
         /// <summary>
-        /// The motion root to use when there is no outfit assigned.
+        /// The motion root when there is no outfit assigned. 
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The body's transform will be used if not assigned prior to initialization.
+        /// Defaults to the body's transform.
         /// </para>
         /// </remarks>
         public Transform DefaultMotionRoot
@@ -63,18 +86,18 @@ namespace com.lizitt.outfitter
             set { m_DefaultMotionRoot = value ? value : transform; }
         }
 
-        public override Transform MotionRoot
+        public sealed override Transform MotionRoot
         {
             // Must always be avaiable, even in editor mode.
             get { return Outfit ? Outfit.MotionRoot : DefaultMotionRoot; }
         }
 
-        public override Collider PrimaryCollider
+        public sealed override Collider PrimaryCollider
         {
             get { return Outfit ? Outfit.PrimaryCollider : null; }
         }
 
-        public override Rigidbody PrimaryRigidBody
+        public sealed override Rigidbody PrimaryRigidBody
         {
             get { return Outfit ? Outfit.PrimaryRigidbody : null; }
         }
@@ -91,7 +114,7 @@ namespace com.lizitt.outfitter
         [HideInInspector]
         private bool m_HasOutfit;  // Used to detect if the outfit has been improperly destroyed.
 
-        public override Outfit Outfit
+        public sealed override Outfit Outfit
         {
             get
             {
@@ -102,7 +125,7 @@ namespace com.lizitt.outfitter
 
         public sealed override Outfit SetOutfit(Outfit outfit, bool forceRelease)
         {
-            // Warning: This method can be called by CheckOutfitLost().  So make sure not code paths trigger that
+            // Warning: This method can be called by CheckOutfitLost().  So make sure no code paths trigger that
             // method.
 
             if (outfit)
@@ -122,7 +145,15 @@ namespace com.lizitt.outfitter
                 }
             }
 
-            var origOutfit = m_Outfit ? m_Outfit : null;
+            if (forceRelease && !m_HasOutfit)
+            {
+                Debug.LogWarning("Force release ignored.  Body has no outfit to release.", this);
+                forceRelease = false;
+            }
+
+            forceRelease = forceRelease || (m_HasOutfit && !m_Outfit);
+
+            var origOutfit = m_Outfit ? m_Outfit : null;  // Get rid of potential destoryed reference early.
 
             if (m_Outfit)
             {
@@ -202,8 +233,8 @@ namespace com.lizitt.outfitter
         {
             if (sender.Owner != gameObject)
             {
-                Debug.LogErrorFormat(this, "Unexpected outfit ownership change.  Soft reset"
-                    + " performed: Outfit: {0}, New owner: {1}", sender.name,
+                Debug.LogWarningFormat(this, "Unexpected loss of outfit ownership.  Outfit auto-released."
+                    + " Outfit: {0}, New owner: {1}", sender.name,
                     sender.Owner ? sender.Owner.name : "None");
 
                 sender.RemoveObserver(this);
@@ -217,8 +248,8 @@ namespace com.lizitt.outfitter
                 case OutfitStatus.Stored:
                 case OutfitStatus.Unmanaged:
 
-                    Debug.LogErrorFormat(this, "Unsupported outfit status change.  Soft reset"
-                        + " performed: Outfit: {0}, Status: {1}", sender.name, sender.Status);
+                    Debug.LogErrorFormat(this, "Unsupported outfit status change.   Outfit auto-released."
+                        + " Outfit: {0}, Status: {1}", sender.name, sender.Status);
 
                     sender.RemoveObserver(this);
                     SetOutfit(null);
@@ -239,14 +270,14 @@ namespace com.lizitt.outfitter
 
         #endregion
 
-        #region Outfit Utilities
+        #region Outfit Utilities Members
 
         /// <summary>
-        /// Do not call this method from <see cref="SetOutfit"/>!!!!! It can cause reversion.
+        /// Do not call this method from <see cref="SetOutfit"/>!!!!! It can result in an infinite loop.
         /// </summary>
         private void CheckOutfitLost()
         {
-            // Don't worry about losing ownership.  That is non-fatal and much less likely to occur.
+            // Don't worry about losing ownership.  That is detected by an event.
             if (m_HasOutfit && !m_Outfit)
             {
                 Debug.LogError("Outfit was improperly destroyed after assignment to body."
@@ -259,9 +290,15 @@ namespace com.lizitt.outfitter
 
         #region Accessories
 
+        /// <summary>
+        /// Do not access directly.  Use <see cref="AccessoriesLocal"/>.
+        /// </summary>
         private BodyAccessoryManager m_Accessories;
 
-        public BodyAccessoryManager AccessoriesLocal
+        /// <summary>
+        /// The accessory manager.
+        /// </summary>
+        protected BodyAccessoryManager AccessoriesLocal
         {
             get 
             {
@@ -272,7 +309,7 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public override IBodyAccessoryManager Accessories
+        public sealed override IBodyAccessoryManager Accessories
         {
             get { return AccessoriesLocal; }
         }
@@ -326,6 +363,26 @@ namespace com.lizitt.outfitter
             Observers.SendOutfitChange(this, previous, wasForced);
         }
 
+        /// <summary>
+        /// Called at the end of an outfit change operation.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// There are three situations when a forced release is performed:
+        /// </para>
+        /// <para>
+        /// <ul>
+        /// <li><see cref="SetOutfit"/> was used to initiate the forced release.</li>
+        /// <li>A bake event was received from the outfit.</li>
+        /// <li>
+        /// The body detected that the outfit was improperly destroyed using Object.Destory() directly, instead of
+        /// through <see cref="Outfit.Destory"/>.
+        /// </li>
+        /// </ul>
+        /// </para>
+        /// </remarks>
+        /// <param name="previous">The previous outfit, or null if there is none.</param>
+        /// <param name="wasForced">True if a forced release was performed.</param>
         protected virtual void OnOutfitChange(Outfit previous, bool wasForced)
         {
             // Do nothing.

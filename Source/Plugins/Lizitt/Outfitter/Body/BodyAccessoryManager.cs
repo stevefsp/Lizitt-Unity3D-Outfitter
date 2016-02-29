@@ -326,7 +326,7 @@ namespace com.lizitt.outfitter
             if (retryMounts)
             {
                 // Will only get here if there was no failure.
-                RetryStoredMounts(accessory);
+                RetryStoredAccessories(accessory);
             }
             else
                  Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, this);
@@ -403,7 +403,7 @@ namespace com.lizitt.outfitter
                     accessory.Release();  // Keep it simple.  Let the event do the cleanup.
 
                     if (wasMounted && retryStored)
-                        RetryStoredMounts(null);
+                        RetryStoredAccessories(null);
 
                     return true;
                 }
@@ -448,18 +448,22 @@ namespace com.lizitt.outfitter
         private MountResult MountToOutfit(ref AccessoryMountInfo mountInfo)
         {
             // If this is a remount and it fails the accessory will be released.  So...
+            var origIgnore = m_IgnoreAccessoryStateEvent;
             m_IgnoreAccessoryStateEvent = mountInfo.Accessory;
 
             var status = m_Outfit.Mount(mountInfo.Accessory, mountInfo.LocationType,
                 mountInfo.IgnoreRestrictions, mountInfo.Mounter, mountInfo.AdditionalCoverage);
 
-            m_IgnoreAccessoryStateEvent = null;
+            m_IgnoreAccessoryStateEvent = origIgnore;
 
             return status;
         }
 
         private bool StoreAccessory(ref AccessoryMountInfo mountInfo)
         {
+            var origIgnore = m_IgnoreAccessoryStateEvent;
+            m_IgnoreAccessoryStateEvent = mountInfo.Accessory;
+
             var accessory = mountInfo.Accessory;
             
             accessory.Store(gameObject);
@@ -468,10 +472,17 @@ namespace com.lizitt.outfitter
             accessory.transform.localPosition = Vector3.zero;
             accessory.transform.localRotation = Quaternion.identity;
 
+            m_IgnoreAccessoryStateEvent = origIgnore;
+
             return true;
         }
 
-        private void RetryStoredMounts(Accessory ingoreAccessory)
+        public void RetryStoredAccessories()
+        {
+            RetryStoredAccessories(null);
+        }
+
+        private void RetryStoredAccessories(Accessory ingoreAccessory)
         {
             if (!m_Outfit)
                 return;
@@ -530,32 +541,61 @@ namespace com.lizitt.outfitter
 
         #region Accessory Observer
 
+        [SerializeField]
+        [Tooltip(" E.g. If the manager detects that 'HatA' has been released, try to mount all"
+            + " stored accessories just in case the release allows any of them to mount. (Does not apply to"
+            + " manual operations performed using the manager method.)")]
+        private bool m_AutoRetryStored = false;
+
+        /// <summary>
+        /// Try mounting stored accessories when an accessory is auto-removed due to an external state change event.
+        /// (Does not apply to manual operations performed using the manager method.)
+        /// </summary>
+        public bool AutoRetryStored
+        {
+            get { return m_AutoRetryStored; }
+            set { m_AutoRetryStored = value; }
+        }
+
         void IAccessoryObserver.OnStateChange(Accessory sender)
         {
             if (m_IgnoreAccessoryStateEvent == sender)
                 return;
+
+            bool wasReleased = false;
 
             switch (sender.Status)
             {
                 case AccessoryStatus.Unmanaged:
 
                     UnlinkAccessory(sender);
+                    wasReleased = true;
+
                     break;
 
                 case AccessoryStatus.Stored:
 
                     if (sender.Owner != gameObject)
+                    {
                         UnlinkAccessory(sender);
+                        wasReleased = true;
+                    }
 
                     break;
 
                 default:
 
                     if (!m_Outfit || sender.Owner != m_Outfit.gameObject)
+                    {
                         UnlinkAccessory(sender);
+                        wasReleased = true;
+                    }
 
                     break;
             }
+
+            if (wasReleased && m_AutoRetryStored)
+                RetryStoredAccessories(null);
         }
 
         void IAccessoryObserver.OnDestroy(Accessory sender, DestroyType typ)

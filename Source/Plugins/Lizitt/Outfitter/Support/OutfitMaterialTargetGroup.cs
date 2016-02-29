@@ -25,6 +25,51 @@ using System.Collections.Generic;
 namespace com.lizitt.outfitter
 {
     /// <summary>
+    /// Provides a user friendly re-orderable list of local outfit materials when added to
+    /// a <see cref="OutfitMaterialTargetGroup"/> field.
+    /// </summary>
+    public class OutfitMaterialTargetGroupAttribute
+        : PropertyAttribute
+    {
+        /// <summary>
+        /// The path to the reference object to search for local components, relative to 
+        /// SerializedProperty.serializedObject, or null if the reference object is 
+        /// SerializedProperty.serializedObject.targetObject.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If non-null, the path must refer to a serialized property of type 'ObjectReference'.
+        /// </para>
+        /// </remarks>
+        public string SearchPropertyPath { get; private set; }
+
+        /// <summary>
+        /// If true, then the list is allowed to contain multiple targets for each material type.
+        /// </summary>
+        public bool AllowMultipleTargets { get; private set; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If <paramref name="searchPropertyPath"/> is non-null, it must refer to a serialized 
+        /// property of type 'ObjectReference'.
+        /// </para>
+        /// </remarks>
+        /// <param name="searchPropertyPath">
+        /// The path to the reference object to search for local components, relative to 
+        /// SerializedProperty.serializedObject, or null if the reference object is 
+        /// SerializedProperty.serializedObject.targetObject.
+        /// </param>
+        public OutfitMaterialTargetGroupAttribute(bool allowMultipleTargets = false, string searchPropertyPath = null)
+        {
+            SearchPropertyPath = searchPropertyPath;
+            AllowMultipleTargets = allowMultipleTargets;
+        }
+    }
+
+    /// <summary>
     ///  A group of outfit material targets. (Body, head, eyes, etc.)
     /// </summary>
     [System.Serializable]

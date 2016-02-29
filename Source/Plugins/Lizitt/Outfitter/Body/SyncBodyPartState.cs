@@ -37,7 +37,7 @@ namespace com.lizitt.outfitter
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync BodyPart State",
         order = OutfitterUtil.BodyObserverMenuOrder + 2)]
     public class SyncBodyPartState
-        : ScriptableObject, IBodyObserver
+        : BodyObserverObject
     {
         [SerializeField]
         [Tooltip("Persist the body part collider status.")]
@@ -84,7 +84,7 @@ namespace com.lizitt.outfitter
             set { m_IncludeContext = value; }
         }
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             // Makes no changes to the outgoing outfit, so can ignore forced.
             Synchronize(sender.Outfit, previous);

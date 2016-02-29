@@ -33,19 +33,18 @@ namespace com.lizitt.outfitter
     /// is no previous outfit or the previous outfit does not have an animator.
     /// </para>
     /// <para>
-    /// Only supports one Animator component per outfit.
+    /// The state synchronization will fail if the animator is in transition at the type of the observer event. Only 
+    /// supports one Animator component per outfit. 
     /// </para>
     /// <para>
-    /// Active at design-time with the exception of state synchronization.
-    /// </para>
-    /// <para>
-    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// Active at design-time with the exception of state synchronization. Can be an observer of any number of 
+    /// <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync Body Outfit Animators",
         order = OutfitterUtil.BodyObserverMenuOrder + 3)]
     public class SyncBodyAnimators
-        : ScriptableObject, IBodyObserver
+        : BodyObserverObject
     {
         #region Settings
 
@@ -81,7 +80,7 @@ namespace com.lizitt.outfitter
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             Synchronize(sender.Outfit, previous, wasForced);
         }

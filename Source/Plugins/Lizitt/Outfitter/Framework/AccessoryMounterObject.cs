@@ -40,7 +40,7 @@ namespace com.lizitt.outfitter
     /// Actual support dependeds on the concrete implemenation.
     /// </para>
     /// </remarks>
-    public abstract class AccessoryMounter
+    public abstract class AccessoryMounterObject
         : ScriptableObject, IAccessoryMounter
     {
         public abstract BodyCoverage GetCoverageFor(MountPoint location);

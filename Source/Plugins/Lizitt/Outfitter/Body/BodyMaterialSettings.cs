@@ -40,7 +40,7 @@ namespace com.lizitt.outfitter
     /// </remarks>
     [AddComponentMenu(LizittUtil.LizittMenu + "Body Material Settings", OutfitterUtil.BodyObserverMenuOrder)]
     public sealed class BodyMaterialSettings
-        : MonoBehaviour, IBodyObserver
+        : BodyObserverBehaviour
     {
         #region Primary Settings
 
@@ -92,7 +92,7 @@ namespace com.lizitt.outfitter
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             // Sync on force release.  Still appropriate to record available state.
             if (m_Persist && previous)

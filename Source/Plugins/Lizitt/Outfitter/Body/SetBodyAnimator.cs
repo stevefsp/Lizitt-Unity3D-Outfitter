@@ -40,7 +40,7 @@ namespace com.lizitt.outfitter
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Set Body Animator",
         order = OutfitterUtil.BodyObserverMenuOrder + 3)]
     public class SetBodyAnimator
-        : ScriptableObject, IBodyObserver
+        : BodyObserverObject
     {
         #region Settings
 
@@ -82,7 +82,7 @@ namespace com.lizitt.outfitter
 
         #region Body Observer
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             Apply(sender.Outfit);
 

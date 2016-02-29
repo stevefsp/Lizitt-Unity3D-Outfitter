@@ -28,9 +28,9 @@ namespace com.lizitt.outfitter
     /// is assigned to a body.
     /// </summary>
     public abstract class ApplyBodyOutfitContext
-        : ScriptableObject, IBodyObserver
+        : BodyObserverObject
     {
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             if (sender.Outfit)
                 ApplyContext(sender.Outfit, GetContext(sender, previous));

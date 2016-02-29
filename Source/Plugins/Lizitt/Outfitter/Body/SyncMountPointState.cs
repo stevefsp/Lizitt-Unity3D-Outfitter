@@ -38,7 +38,7 @@ namespace com.lizitt.outfitter
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync MountPoint State",
         order = OutfitterUtil.BodyObserverMenuOrder + 2)]
     public class SyncMountPointState
-        : ScriptableObject, IBodyObserver
+        : BodyObserverObject
     {
         [SerializeField]
         [Tooltip("Synchronize the mount point 'is blocked' state.")]
@@ -67,9 +67,8 @@ namespace com.lizitt.outfitter
             set { m_IncludeContext = value; }
         }
 
-        void IBodyObserver.OnOutfitChange(Body sender, Outfit previous, bool wasForced)
+        protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
-
             Synchronize(sender.Outfit, previous);
         }
 

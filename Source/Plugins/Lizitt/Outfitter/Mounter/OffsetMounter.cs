@@ -34,7 +34,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     public abstract class OffsetMounter
-        : AccessoryMounter
+        : AccessoryMounterObject
     {
         [Space]
 

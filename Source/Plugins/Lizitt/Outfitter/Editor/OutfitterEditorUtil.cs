@@ -38,206 +38,206 @@ namespace com.lizitt.outfitter.editor
 
         #region Outfit Type
 
-        private static GUIContent[] m_AllOutfitNames;
-        private static int[] m_AllValues;
+        //private static GUIContent[] m_AllOutfitNames;
+        //private static int[] m_AllValues;
 
-        private static GUIContent[] m_ExcludeNoneOutfitNames;
-        private static int[] m_ExcludeNoneOutfitValues;
+        //private static GUIContent[] m_ExcludeNoneOutfitNames;
+        //private static int[] m_ExcludeNoneOutfitValues;
 
-        private static GUIContent[] m_ExcludeCustomOutfitNames;
-        private static int[] m_ExcludeCustomOutfitValues;
+        //private static GUIContent[] m_ExcludeCustomOutfitNames;
+        //private static int[] m_ExcludeCustomOutfitValues;
 
-        #region Standard Outfit Arrays
+        //#region Standard Outfit Arrays
 
-        private static GUIContent[] m_StandardOutfitNames;
-        private static int[] m_StandardOutfitValues;
+        //private static GUIContent[] m_StandardOutfitNames;
+        //private static int[] m_StandardOutfitValues;
 
-        /// <summary>
-        /// The <see cref="OutfitType"/> names for the standard outfits.  (Not custom, not None)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is a reference to a global array.  Don't make changes to it.  The reason it is
-        /// a reference is to reduce construction and garbage collection costs in editor GUI
-        /// operations.
-        /// </para>
-        /// <para>
-        /// Thhe order of the array is the same as <see cref="StandardOutfitValues"/>.
-        /// </para>
-        /// </remarks>
-        public static GUIContent[] StandardOutfitNames
-        {
-            get
-            {
-                if (m_StandardOutfitNames == null)
-                    BuildStandard();
+        ///// <summary>
+        ///// The <see cref="OutfitType"/> names for the standard outfits.  (Not custom, not None)
+        ///// </summary>
+        ///// <remarks>
+        ///// <para>
+        ///// This is a reference to a global array.  Don't make changes to it.  The reason it is
+        ///// a reference is to reduce construction and garbage collection costs in editor GUI
+        ///// operations.
+        ///// </para>
+        ///// <para>
+        ///// Thhe order of the array is the same as <see cref="StandardOutfitValues"/>.
+        ///// </para>
+        ///// </remarks>
+        //public static GUIContent[] StandardOutfitNames
+        //{
+        //    get
+        //    {
+        //        if (m_StandardOutfitNames == null)
+        //            BuildStandard();
 
-                return m_StandardOutfitNames;
-            }
-        }
+        //        return m_StandardOutfitNames;
+        //    }
+        //}
 
-        /// <summary>
-        /// The <see cref="OutfitType"/> values for the standard outfits.  (Not custom, not None)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// This is a reference to a global array.  Don't make changes to it.  The reason it is
-        /// a reference is to reduce construction and garbage collection costs in editor GUI
-        /// operations.
-        /// </para>
-        /// <para>
-        /// Thhe order of the array is the same as <see cref="StandardOutfitNames"/>.
-        /// </para>
-        /// </remarks>
-        public static int[] StandardOutfitValues
-        {
-            get
-            {
-                if (m_StandardOutfitValues == null)
-                    BuildStandard();
+        ///// <summary>
+        ///// The <see cref="OutfitType"/> values for the standard outfits.  (Not custom, not None)
+        ///// </summary>
+        ///// <remarks>
+        ///// <para>
+        ///// This is a reference to a global array.  Don't make changes to it.  The reason it is
+        ///// a reference is to reduce construction and garbage collection costs in editor GUI
+        ///// operations.
+        ///// </para>
+        ///// <para>
+        ///// Thhe order of the array is the same as <see cref="StandardOutfitNames"/>.
+        ///// </para>
+        ///// </remarks>
+        //public static int[] StandardOutfitValues
+        //{
+        //    get
+        //    {
+        //        if (m_StandardOutfitValues == null)
+        //            BuildStandard();
 
-                return m_StandardOutfitValues;
-            }
-        }
+        //        return m_StandardOutfitValues;
+        //    }
+        //}
 
-        private static void BuildStandard()
-        {
-            var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
-            var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
+        //private static void BuildStandard()
+        //{
+        //    var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
+        //    var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
 
-            for (int i = lin.Count - 1; i >= 0; i--)
-            {
-                if (!((OutfitType)liv[i]).IsStandard())
-                {
-                    lin.RemoveAt(i);
-                    liv.RemoveAt(i);
-                }
-            }
+        //    for (int i = lin.Count - 1; i >= 0; i--)
+        //    {
+        //        if (!((OutfitType)liv[i]).IsStandard())
+        //        {
+        //            lin.RemoveAt(i);
+        //            liv.RemoveAt(i);
+        //        }
+        //    }
 
-            m_StandardOutfitNames = CreateLabels(lin);
-            m_StandardOutfitValues = liv.ToArray();
-        }
+        //    m_StandardOutfitNames = CreateLabels(lin);
+        //    m_StandardOutfitValues = liv.ToArray();
+        //}
 
-        #endregion
+        //#endregion
 
-        /// <summary>
-        /// Draw the standard <see cref="OutfitType"/> GUI pop-up.
-        /// </summary>
-        /// <param name="position">The position to draw the GUI item.</param>
-        /// <param name="label">The GUI label.</param>
-        /// <param name="selectedValue">The currently selected outfit type value.</param>
-        /// <param name="filterType">The filter to apply to the GUI item.</param>
-        /// <returns>
-        /// The outfit type value that is selected, or the value of 
-        /// <see cref="OutfitterUtil.DefaultOutfit"/> if <paramref name="selectedValue"/> is invalid.
-        /// </returns>
-        public static int OutfitTypePopup(
-            Rect position, GUIContent label, int selectedValue, OutfitFilterType filterType)
-        {
-            /*
-             * Design notes:
-             * 
-             * The reason integers are used instead of the enum is to support 
-             * SerializedProperties as the main use case.  SerializedProperties store enums
-             * as integers.
-             */
+        ///// <summary>
+        ///// Draw the standard <see cref="OutfitType"/> GUI pop-up.
+        ///// </summary>
+        ///// <param name="position">The position to draw the GUI item.</param>
+        ///// <param name="label">The GUI label.</param>
+        ///// <param name="selectedValue">The currently selected outfit type value.</param>
+        ///// <param name="filterType">The filter to apply to the GUI item.</param>
+        ///// <returns>
+        ///// The outfit type value that is selected, or the value of 
+        ///// <see cref="OutfitterUtil.DefaultOutfit"/> if <paramref name="selectedValue"/> is invalid.
+        ///// </returns>
+        //public static int OutfitTypePopup(
+        //    Rect position, GUIContent label, int selectedValue, OutfitFilterType filterType)
+        //{
+        //    /*
+        //     * Design notes:
+        //     * 
+        //     * The reason integers are used instead of the enum is to support 
+        //     * SerializedProperties as the main use case.  SerializedProperties store enums
+        //     * as integers.
+        //     */
 
-            GUIContent[] names;
-            int[] values;
+        //    GUIContent[] names;
+        //    int[] values;
 
-            switch (filterType)
-            {
-                case OutfitFilterType.StandardOnly:
+        //    switch (filterType)
+        //    {
+        //        case OutfitFilterType.StandardOnly:
 
-                    names = StandardOutfitNames;
-                    values = StandardOutfitValues;
+        //            names = StandardOutfitNames;
+        //            values = StandardOutfitValues;
 
-                    break;
+        //            break;
 
-                case OutfitFilterType.ExcludeNone:
+        //        case OutfitFilterType.ExcludeNone:
 
-                    if (m_ExcludeNoneOutfitNames == null)
-                    {
-                        var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
-                        var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
+        //            if (m_ExcludeNoneOutfitNames == null)
+        //            {
+        //                var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
+        //                var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
 
-                        for (int i = lin.Count - 1; i >= 0; i--)
-                        {
-                            if ((OutfitType)liv[i] == OutfitType.None)
-                            {
-                                lin.RemoveAt(i);
-                                liv.RemoveAt(i);
-                                break;
-                            }
-                        }
+        //                for (int i = lin.Count - 1; i >= 0; i--)
+        //                {
+        //                    if ((OutfitType)liv[i] == OutfitType.None)
+        //                    {
+        //                        lin.RemoveAt(i);
+        //                        liv.RemoveAt(i);
+        //                        break;
+        //                    }
+        //                }
 
-                        m_ExcludeNoneOutfitNames = CreateLabels(lin);
-                        m_ExcludeNoneOutfitValues = liv.ToArray();
-                    }
+        //                m_ExcludeNoneOutfitNames = CreateLabels(lin);
+        //                m_ExcludeNoneOutfitValues = liv.ToArray();
+        //            }
 
-                    names = m_ExcludeNoneOutfitNames;
-                    values = m_ExcludeNoneOutfitValues;
+        //            names = m_ExcludeNoneOutfitNames;
+        //            values = m_ExcludeNoneOutfitValues;
 
-                    break;
+        //            break;
 
-                case OutfitFilterType.ExcludeCustom:
+        //        case OutfitFilterType.ExcludeCustom:
 
-                    if (m_ExcludeCustomOutfitNames == null)
-                    {
-                        var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
-                        var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
+        //            if (m_ExcludeCustomOutfitNames == null)
+        //            {
+        //                var lin = new List<string>(System.Enum.GetNames(typeof(OutfitType)));
+        //                var liv = new List<int>(System.Enum.GetValues(typeof(OutfitType)) as int[]);
 
-                        for (int i = lin.Count - 1; i >= 0; i--)
-                        {
-                            if (((OutfitType)liv[i]).IsCustom())
-                            {
-                                lin.RemoveAt(i);
-                                liv.RemoveAt(i);
-                            }
-                        }
+        //                for (int i = lin.Count - 1; i >= 0; i--)
+        //                {
+        //                    if (((OutfitType)liv[i]).IsCustom())
+        //                    {
+        //                        lin.RemoveAt(i);
+        //                        liv.RemoveAt(i);
+        //                    }
+        //                }
 
-                        m_ExcludeCustomOutfitNames = CreateLabels(lin);
-                        m_ExcludeCustomOutfitValues = liv.ToArray();
-                    }
+        //                m_ExcludeCustomOutfitNames = CreateLabels(lin);
+        //                m_ExcludeCustomOutfitValues = liv.ToArray();
+        //            }
 
-                    names = m_ExcludeCustomOutfitNames;
-                    values = m_ExcludeCustomOutfitValues;
+        //            names = m_ExcludeCustomOutfitNames;
+        //            values = m_ExcludeCustomOutfitValues;
 
-                    break;
+        //            break;
 
-                default:
+        //        default:
 
-                    if (m_AllOutfitNames == null)
-                    {
-                        m_AllOutfitNames = CreateLabels(
-                            new List<string>(System.Enum.GetNames(typeof(OutfitType))));
-                        m_AllValues = System.Enum.GetValues(typeof(OutfitType)) as int[];
-                    }
+        //            if (m_AllOutfitNames == null)
+        //            {
+        //                m_AllOutfitNames = CreateLabels(
+        //                    new List<string>(System.Enum.GetNames(typeof(OutfitType))));
+        //                m_AllValues = System.Enum.GetValues(typeof(OutfitType)) as int[];
+        //            }
 
-                    names = m_AllOutfitNames;
-                    values = m_AllValues;
+        //            names = m_AllOutfitNames;
+        //            values = m_AllValues;
 
-                    break;
-            }
+        //            break;
+        //    }
 
-            int currentIdx = 0;
+        //    int currentIdx = 0;
 
-            for (int i = 0; i < values.Length; i++)
-            {
-                var typ = values[i];
-                if (typ == selectedValue)
-                {
-                    currentIdx = i;
-                    break;
-                }
-                else if (typ == (int)OutfitterUtil.DefaultOutfit)
-                    currentIdx = i;  // Use default if current not found.
-            }
+        //    for (int i = 0; i < values.Length; i++)
+        //    {
+        //        var typ = values[i];
+        //        if (typ == selectedValue)
+        //        {
+        //            currentIdx = i;
+        //            break;
+        //        }
+        //        else if (typ == (int)OutfitterUtil.DefaultOutfit)
+        //            currentIdx = i;  // Use default if current not found.
+        //    }
 
-            int selectedIdx = EditorGUI.Popup(position, label, currentIdx, names);
+        //    int selectedIdx = EditorGUI.Popup(position, label, currentIdx, names);
 
-            return values[selectedIdx];
-        }
+        //    return values[selectedIdx];
+        //}
 
         #endregion
 

@@ -121,11 +121,8 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="accessory">The accessory.</param>
         /// <param name="settings">The new settings.</param>
-        /// <param name="retryStored">
-        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
-        /// </param>
         /// <returns>The result of the modification.</returns>
-        MountResult Modify(Accessory accessory, AccessoryAddSettings settings, bool retryStored = false);
+        MountResult Modify(Accessory accessory, AccessoryAddSettings settings);
 
         /// <summary>
         /// Modify and remount the accessory already being managed.
@@ -146,24 +143,23 @@ namespace com.lizitt.outfitter
         /// <param name="ignoreRestrictions">
         /// If true, ignore 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
         /// </param>
-        /// <param name="retryStored">
-        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
-        /// </param>
         /// <returns>The result of the modification.</returns>
         MountResult Modify(
-            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false, bool retryStored = false);
+            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false);
 
         /// <summary>
         /// Remove the accessory.
         /// </summary>
         /// <param name="accessory">The accessory.</param>
-        /// <param name="retryStored">
-        /// If true and the removed accesosry was mounted, then retry mounts for any stored accessories.
-        /// </param>
         /// <returns>
         /// True if the accessory was known to the body and removed.  Otherwise the accessory was not recognized.
         /// </returns>
-        bool Remove(Accessory accessory, bool retryStored = false);
+        bool Remove(Accessory accessory);
+
+        /// <summary>
+        /// Attempt to mount all stored accessories.
+        /// </summary> 
+        void TryMountStored();
 
         /// <summary>
         /// The number of accessories that have been added.

@@ -272,11 +272,8 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="accessory">The accessory to change.</param>
         /// <param name="settings">The new settings for the accessory.</param>
-        /// <param name="retryStored">
-        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
-        /// </param>
         /// <returns>The result of the modification.</returns>
-        public MountResult Modify(Accessory accessory, AccessoryAddSettings settings, bool retryStored = false)
+        public MountResult Modify(Accessory accessory, AccessoryAddSettings settings)
         {
             if (!accessory)
             {
@@ -286,7 +283,7 @@ namespace com.lizitt.outfitter
 
             // Remember: Don't need to check mounter validity.  Settings did that.
             var status = MountResult.FailedOnError;
-            bool retryMounts = false;
+            bool tryMountStored = false;
 
             for (var i = 0; i < m_Items.Count; i++)
             {
@@ -316,17 +313,17 @@ namespace com.lizitt.outfitter
                     
                     status = mountInfo.Accessory.Status.IsMounted() ? MountResult.Success : MountResult.Stored;
 
-                    if (wasMounted && retryStored && status == MountResult.Stored)
-                        retryMounts = true;
+                    if (wasMounted && m_AutoRetryStored && status == MountResult.Stored)
+                        tryMountStored = true;
                     else
                         return status;
                 }
             }
 
-            if (retryMounts)
+            if (tryMountStored)
             {
                 // Will only get here if there was no failure.
-                RetryStoredAccessories(accessory);
+                TryToMountStored(accessory);
             }
             else
                  Debug.LogError("Attempt made to modify an unknown accessory: " + accessory.name, this);
@@ -357,18 +354,15 @@ namespace com.lizitt.outfitter
         /// <param name="ignoreRestrictions">
         /// If true, ignore 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
         /// </param>
-        /// <param name="retryStored">
-        /// If true and the modified accessory transtions to stored, then retry mounts for any stored accessories.
-        /// </param>
         /// <returns>The result of the modification.</returns>
         public MountResult Modify(
-            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false, bool retryStored = false)
+            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false)
         {
             var settings = new AccessoryAddSettings();
             settings.IgnoreRestrictions = ignoreRestrictions;
             settings.LocationType = locationType;
 
-            return Modify(accessory, settings, retryStored);
+            return Modify(accessory, settings);
         }
 
         #endregion
@@ -386,7 +380,7 @@ namespace com.lizitt.outfitter
         /// <returns>
         /// True if accessory was removed, false if the accessory is unrecognized.
         /// </returns>
-        public bool Remove(Accessory accessory, bool retryStored = false)
+        public bool Remove(Accessory accessory)
         {
             if (!accessory)
                 return false;
@@ -402,8 +396,8 @@ namespace com.lizitt.outfitter
                     UnlinkAccessory(i, true);
                     accessory.Release();  // Keep it simple.  Let the event do the cleanup.
 
-                    if (wasMounted && retryStored)
-                        RetryStoredAccessories(null);
+                    if (wasMounted && m_AutoRetryStored)
+                        TryToMountStored(null);
 
                     return true;
                 }
@@ -477,12 +471,25 @@ namespace com.lizitt.outfitter
             return true;
         }
 
-        public void RetryStoredAccessories()
+        [SerializeField]
+        [Tooltip("Whenever an accessory release is detected, try to mount all stored accessories.)")]
+        private bool m_AutoRetryStored = false;
+
+        /// <summary>
+        /// Whenever an accessory release is detected, try to mount all stored accessories
+        /// </summary>
+        public bool AutoRetryStored
         {
-            RetryStoredAccessories(null);
+            get { return m_AutoRetryStored; }
+            set { m_AutoRetryStored = value; }
         }
 
-        private void RetryStoredAccessories(Accessory ingoreAccessory)
+        public void TryMountStored()
+        {
+            TryToMountStored(null);
+        }
+
+        private void TryToMountStored(Accessory ingoreAccessory)
         {
             if (!m_Outfit)
                 return;
@@ -494,8 +501,10 @@ namespace com.lizitt.outfitter
                 if (mountInfo.Accessory && mountInfo.Accessory != ingoreAccessory 
                     && mountInfo.Accessory.Status == AccessoryStatus.Stored)
                 {
-                    if (MountToOutfit(ref mountInfo) == MountResult.Success)
-                        m_Items[i] = mountInfo;
+                    if (MountToOutfit(ref mountInfo) != MountResult.Success)
+                        StoreAccessory(ref mountInfo);
+
+                     m_Items[i] = mountInfo;
                 }
             }
         }
@@ -541,22 +550,6 @@ namespace com.lizitt.outfitter
 
         #region Accessory Observer
 
-        [SerializeField]
-        [Tooltip(" E.g. If the manager detects that 'HatA' has been released, try to mount all"
-            + " stored accessories just in case the release allows any of them to mount. (Does not apply to"
-            + " manual operations performed using the manager method.)")]
-        private bool m_AutoRetryStored = false;
-
-        /// <summary>
-        /// Try mounting stored accessories when an accessory is auto-removed due to an external state change event.
-        /// (Does not apply to manual operations performed using the manager method.)
-        /// </summary>
-        public bool AutoRetryStored
-        {
-            get { return m_AutoRetryStored; }
-            set { m_AutoRetryStored = value; }
-        }
-
         void IAccessoryObserver.OnStateChange(Accessory sender)
         {
             if (m_IgnoreAccessoryStateEvent == sender)
@@ -595,7 +588,7 @@ namespace com.lizitt.outfitter
             }
 
             if (wasReleased && m_AutoRetryStored)
-                RetryStoredAccessories(null);
+                TryToMountStored(null);
         }
 
         void IAccessoryObserver.OnDestroy(Accessory sender, DestroyType typ)

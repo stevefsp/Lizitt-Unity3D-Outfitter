@@ -21,6 +21,7 @@
  */
 using UnityEditor;
 using UnityEngine;
+using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -58,8 +59,7 @@ namespace com.lizitt.outfitter.editor
 
             settings.ListHeaderLabel = label.text;
 
-            settings.ElementHeight = EditorGUIUtility.singleLineHeight * 1.25f
-                + EditorGUIUtility.standardVerticalSpacing;
+            settings.ElementHeight = ReorderableListControl.SingleElementHeight;
 
             settings.ValidateElement = Validate;
             settings.DrawElement = DrawElement;
@@ -82,8 +82,7 @@ namespace com.lizitt.outfitter.editor
         private static void DrawElement(
             Rect position, SerializedProperty property, GUIContent label, GUIStyle labelStyle)
         {
-            var rect = new Rect(
-                position.x, position.y, ElementLabelWidth, EditorGUIUtility.singleLineHeight);
+            var rect = new Rect(position.x, position.y, ElementLabelWidth, EditorGUIUtility.singleLineHeight);
 
             EditorGUI.LabelField(rect, label, labelStyle);
 

@@ -42,6 +42,13 @@ namespace com.lizitt.outfitter
     public sealed class BodyMaterialSettings
         : BodyObserverBehaviour
     {
+        /*
+         * Design note: 
+         * 
+         * There are special custom editor restrictions.  See field notes for details.
+         * 
+         */
+
         #region Primary Settings
 
         [Space]
@@ -85,8 +92,15 @@ namespace com.lizitt.outfitter
         public OutfitMaterialGroup OutfitMaterials
         {
             get { return m_Materials; }
-            // Only add a setter if it is truely needed.  It introduces reference sharing that is not serializable.
+            // Only add a setter if it is truely needed.  It would introduce reference sharing that is not serializable.
         }
+
+        // Custom editor note:  The custom editor detects this field for special handling by its array status.
+        // This method will be broken if another array is added to this class.
+        [SerializeField]
+        [Tooltip("Material types to ignore when synchonizing.  (Useful when a material type should never change for"
+            + " the body, or does not use a common set of materials across all outfits.")]
+        private OutfitMaterialType[] m_IgnoreTypes = new OutfitMaterialType[0];
 
         #endregion
 
@@ -96,7 +110,7 @@ namespace com.lizitt.outfitter
         {
             // Sync on force release.  Still appropriate to record available state.
             if (m_Persist && previous)
-                m_Materials.SyncFrom(previous, true, false);
+                m_Materials.SyncFrom(previous, true, false, m_IgnoreTypes);
 
             if (sender.Outfit)
                 m_Materials.ApplyTo(sender.Outfit);

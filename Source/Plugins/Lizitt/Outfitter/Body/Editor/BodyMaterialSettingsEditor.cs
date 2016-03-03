@@ -25,56 +25,42 @@ using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
-    /// <summary>
-    /// <see cref="StandardAccessory"/> custom editor.
-    /// </summary>
-    [CustomEditor(typeof(StandardAccessory))]
-    public class StandardAccessoryEditor
+    [CustomEditor(typeof(BodyMaterialSettings))]
+    public class BodyMaterialSettingsEditor
         : Editor
     {
-        private static BehaviourPropertyHelper<StandardAccessory> m_Helper = null;
+        private ReorderableListControl m_ListControl;
 
-        void OnEnable()
-        {
-            if (m_Helper == null)
-                m_Helper = new BehaviourPropertyHelper<StandardAccessory>();
-        }
-
-        /// <summary>
-        /// See Unity documentation.
-        /// </summary>
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            m_Helper.LoadProperties(serializedObject, false);
+            var prop = serializedObject.GetIterator();
+
+            prop.NextVisible(true);  // Ignore the script field.
+            while (prop.NextVisible(false))
+            {
+                if (prop.isArray)
+                    DrawIgnores(prop);
+                else
+                    EditorGUILayout.PropertyField(prop);
+            }
 
             EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(m_Helper.ExtractProperty<MountPointType>());
-            EditorGUILayout.Space();
-
-            var observerProp = m_Helper.ExtractProperty<AccessoryObserverGroup>();
-            var mounterProp = m_Helper.ExtractProperty<AccessoryMounterGroup>();
-
-            m_Helper.DrawProperties();
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.PropertyField(mounterProp);
-
-            DrawObservers(observerProp);
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawObservers(SerializedProperty prop)
+        private void DrawIgnores(SerializedProperty property)
         {
-            EditorGUILayout.Space();
-            prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, new GUIContent(prop.displayName, prop.tooltip));
-            if (prop.isExpanded)
-                EditorGUILayout.PropertyField(prop);
-            else
-                EditorGUILayout.Space();
+            if (m_ListControl == null)
+            {
+                m_ListControl = new ReorderableListControl(
+                    property, "Do not persist", ReorderableListControl.SingleElementHeight);
+            }
+
+            var position = EditorGUILayout.GetControlRect(false, m_ListControl.GetPropertyHeight(property));
+            m_ListControl.OnGUI(position, property, GUIContent.none); 
         }
     }
 }

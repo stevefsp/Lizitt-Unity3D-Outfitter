@@ -100,8 +100,7 @@ namespace com.lizitt.outfitter.editor
         private void DrawElement(
             Rect position, SerializedProperty property, GUIContent label, GUIStyle labelStyle)
         {
-            var rect = new Rect(
-                position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+            var rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
             EditorGUI.LabelField(rect, label, labelStyle);
 

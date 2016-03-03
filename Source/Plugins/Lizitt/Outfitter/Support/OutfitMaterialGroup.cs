@@ -189,13 +189,19 @@ namespace com.lizitt.outfitter
         /// Synchronizes the materials in the outfit to the group.
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// <paramref name="ignore"/> is useful when a material type should never change for this particular group, or 
+        /// the material type does not use a common set of materials across all outfits, so it is unsuitable for
+        /// synchronization.
+        /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit to synchronize from.</param>
         /// <param name="addNew">
         /// Add materials that exist in the outfit but not in the group, otherwise ignore new materials.
         /// </param>
         /// <param name="removeUndefined">Remove materials not found in the outfit from the group.</param>
-        public void SyncFrom(Outfit outfit, bool addNew, bool removeUndefined)
+        /// <param name="ignore">Material types to ignore.  (Don't add, don't alter.)</param>
+        public void SyncFrom(Outfit outfit, bool addNew, bool removeUndefined, OutfitMaterialType[] ignore = null)
         {
             if (!outfit)
             {
@@ -206,6 +212,9 @@ namespace com.lizitt.outfitter
             for (int i = m_Items.Count - 1; i >= 0; i--)
             {
                 var item = m_Items[i];
+
+                if (Contains(ignore, item.MaterialType))
+                    continue;
 
                 var omat = outfit.GetSharedMaterial(item.MaterialType);
                 if (omat)
@@ -223,10 +232,31 @@ namespace com.lizitt.outfitter
                 for (int i = 0; i < outfit.OutfitMaterialCount; i++)
                 {
                     var omat = outfit.GetSharedMaterial(i);
-                    if (omat.Material)
+                    if (omat.Material && !Contains(ignore, omat.MaterialType))
                         this[omat.MaterialType] = omat.Material;
                 }
             }
         }
+
+        /// <summary>
+        /// Returns true if the array contains the specified material type.
+        /// </summary>
+        /// <param name="items">The array to check.</param>
+        /// <param name="typ">The material type to search for.</param>
+        /// <returns>True if the array contains the specified material type.</returns>
+        public static bool Contains(OutfitMaterialType[] items, OutfitMaterialType typ)
+        {
+            if (items != null)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (items[i] == typ)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+
     }
 }

@@ -39,7 +39,7 @@ namespace com.lizitt.outfitter
     /// release automatically remove the accessory.
     /// </para>
     /// </remarks>
-    [SerializeField]
+    [AddComponentMenu(LizittUtil.LizittMenu + "Body Accessory Manager", OutfitterUtil.BaseMenuOrder + 4)]
     public class BodyAccessoryManager
         : MonoBehaviour, IAccessoryObserver, IBodyAccessoryManager
     {

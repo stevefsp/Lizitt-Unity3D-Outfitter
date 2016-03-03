@@ -292,8 +292,9 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.LabelField("Status");
             EditorGUILayout.BeginHorizontal();
 
-            m_ColliderStatusChoice =
-                (ColliderStatus)EditorGUILayout.EnumPopup(m_ColliderStatusChoice);
+            var position = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+            m_ColliderStatusChoice = EditorGUIDraw.FilteredColliderStatusPopup(
+                position, GUIContent.none, m_ColliderStatusChoice, ColliderStatusCategory.RigidBody);
 
             GUI.enabled = outfit.BodyPartCount > 0;
             if (GUILayout.Button(BodyPartStatusLabel, GUILayout.MaxWidth(BtnWidth)))

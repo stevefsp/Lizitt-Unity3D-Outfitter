@@ -29,6 +29,7 @@ namespace com.lizitt.outfitter.editor
     /// <see cref="SimpleOffsetAccessory"/> custom editor.
     /// </summary>
     [CustomEditor(typeof(SimpleOffsetAccessory))]
+    [CanEditMultipleObjects]
     public class SimpleOffsetAccessoryEditor
         : Editor
     {
@@ -48,20 +49,24 @@ namespace com.lizitt.outfitter.editor
             serializedObject.Update();
 
             EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
 
-            var acc = target as Accessory;
-            EditorGUILayout.LabelField(
-                string.Format("Owner is '{0}' ({1})", (acc.Owner ? acc.Owner.name : "None"), acc.Status));
+            if (!serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.BeginHorizontal();
 
-            GUI.enabled = acc.Owner;
-            if (GUILayout.Button("->", GUILayout.MaxWidth(30)))
-                Selection.activeObject = acc.Owner;
-            GUI.enabled = true;
+                var acc = target as Accessory;
+                EditorGUILayout.LabelField(
+                    string.Format("Owner is '{0}' ({1})", (acc.Owner ? acc.Owner.name : "None"), acc.Status));
 
-            EditorGUILayout.EndHorizontal();
+                GUI.enabled = acc.Owner;
+                if (GUILayout.Button("->", GUILayout.MaxWidth(30)))
+                    Selection.activeObject = acc.Owner;
+                GUI.enabled = true;
 
-            m_Helper.LoadProperties(serializedObject, true);
+                EditorGUILayout.EndHorizontal();
+            }
+
+            m_Helper.LoadProperties(serializedObject, false);
 
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(m_Helper.ExtractProperty<MountPointType>());
@@ -82,6 +87,13 @@ namespace com.lizitt.outfitter.editor
         private void DrawObservers(SerializedProperty prop)
         {
             EditorGUILayout.Space();
+
+            if (serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.HelpBox("Multi-object editing not supported for Observers.", MessageType.None);
+                return;
+            }
+
             prop.isExpanded = EditorGUILayout.Foldout(prop.isExpanded, new GUIContent(prop.displayName, prop.tooltip));
             if (prop.isExpanded)
                 EditorGUILayout.PropertyField(prop);

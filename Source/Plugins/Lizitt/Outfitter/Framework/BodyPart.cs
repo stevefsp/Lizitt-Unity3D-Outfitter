@@ -72,7 +72,7 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("The body part's collider.")]
-        [RequiredValue(typeof(Collider))]
+        [RequiredValue(typeof(Collider), true)]
         private Collider m_Collider = null;
 
         /// <summary>

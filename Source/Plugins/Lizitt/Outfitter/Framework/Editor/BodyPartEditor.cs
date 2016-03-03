@@ -21,6 +21,7 @@
  */
 using UnityEditor;
 using UnityEngine;
+using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -28,6 +29,7 @@ namespace com.lizitt.outfitter.editor
     /// <see cref="BodyPart"/> custom editor.
     /// </summary>
     [CustomEditor(typeof(BodyPart))]
+    [CanEditMultipleObjects]
     public partial class BodyPartEditor
         : Editor
     {
@@ -38,12 +40,33 @@ namespace com.lizitt.outfitter.editor
             get { return target as BodyPart; }
         }
 
+        void OnEnable()
+        {
+            if (!Target.Collider)
+            {
+                var col = Target.GetComponentInChildren<Collider>();
+                if (col)
+                {
+                    Undo.IncrementCurrentGroup();
+                    Undo.RecordObject(Target, "Initialize Body Part Collider");
+                    Target.Collider = col;
+                    Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+                }
+            }
+        }
+
         /// <summary>
         /// See Unity documentation.
         /// </summary>
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+
+            if (serializedObject.isEditingMultipleObjects)
+            {
+                EditorGUILayout.HelpBox("Multi-object editing not supported for actions.", MessageType.None);
+                return;
+            }
 
             OutfitterEditorUtil.ShowInspectorActions = 
                 EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
@@ -54,16 +77,27 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
         }
 
-        public void DrawActions()
+        #endregion
+
+        #region Actions
+
+        private readonly GUIContent m_StatusLabel = 
+            new GUIContent("Collider Status", "Modifies the current collider status.");
+
+        private void DrawActions()
         {
             var bp = Target;
 
-            var nstatus = (ColliderStatus)EditorGUILayout.EnumPopup("Collider Status", bp.ColliderStatus);
+            //var nstatus = (ColliderStatus)EditorGUILayout.EnumPopup("Collider Status", bp.ColliderStatus);
+
+            var nstatus = EditorGUIDraw.FilteredColliderStatusPopup(
+                EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel, 
+                bp.ColliderStatus, bp.Collider);
 
             if (nstatus != bp.ColliderStatus)
                 SetColliderStatus(bp, nstatus);
         }
-
+         
         public static bool SetColliderStatus(
             BodyPart bodyPart, ColliderStatus status, bool singleUndo = true, string undoLabel = null)
         {

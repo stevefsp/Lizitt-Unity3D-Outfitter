@@ -24,17 +24,14 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Sets the animator controller of incoming outfits based on the settings.
+    /// Sets the animator controller of incoming outfits.
     /// </summary>
     /// <remarks>
     /// <para>
     /// Only supports one animator component per outfit.
     /// </para>
     /// <para>
-    /// Active at design-time.
-    /// </para>
-    /// <para>
-    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    ///  Active at design-time. Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Set Body Animator",
@@ -47,7 +44,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The controller to apply to incoming outfits.")]
         [RequiredValue(typeof(RuntimeAnimatorController))]
-        private RuntimeAnimatorController m_Controller = null;
+        private RuntimeAnimatorController m_Controller = null;  // TODO: Add setter/getter.
 
         [SerializeField]
         [Tooltip("Always set the incoming outfit's animator controller.  Otherwise, only set the controller if it"
@@ -65,13 +62,13 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Remove the previous outfit's animator controller, unless the outfit was force released.")]
+        [Tooltip("Remove the outgoing outfit's animator controller, unless the outfit was force released.")]
         private bool m_IncludeRemoval = false;
 
         /// <summary>
-        /// Remove the previous outfit's animator controller, unless the outfit was force released.
+        /// Remove the outgoing outfit's animator controller, unless the outfit was force released.
         /// </summary>
-        /// <seealso cref="Body.ForceRelease"/>
+        /// <seealso cref="SetOutfit(Outfit, bool)"/>
         public bool IncludeRemoval
         {
             get { return m_IncludeRemoval; }
@@ -98,6 +95,10 @@ namespace com.lizitt.outfitter
 
         #region Main Handler
 
+        /// <summary>
+        /// Apply the animator to the outfit based on the observer's settings.
+        /// </summary>
+        /// <param name="outfit"></param>
         public void Apply(Outfit outfit)
         {
             if (!outfit)
@@ -117,7 +118,7 @@ namespace com.lizitt.outfitter
         #region Utilities
 
         /// <summary>
-        /// Get the outfit's animator, or null if none found.
+        /// Get the outfit's animator, or null if there is none.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -128,7 +129,7 @@ namespace com.lizitt.outfitter
         /// <returns>The outfit's animator, or null if none found.</returns>
         protected virtual Animator GetAnimator(Outfit outfit)
         {
-            return outfit.GetAnimator();
+            return outfit ? outfit.GetAnimator() : null;
         }
 
         #endregion

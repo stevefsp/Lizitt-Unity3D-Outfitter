@@ -29,15 +29,38 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all Monobehaviour based outfit observers inherit from this class.  It is simply a
-    /// useful base from which to provide common utility features.
+    /// useful base from which to provide common utility and editor search features.
     /// </para>
     /// </remarks>
     public abstract class OutfitObserverBehaviour
         : MonoBehaviour, IOutfitObserver
     {
-        public abstract void OnStateChange(Outfit sender);
-        public abstract void OnMountAccessory(Outfit sender, Accessory accessory);
-        public abstract void OnReleaseAccessory(Outfit sender, Accessory accessory);
-        public abstract void OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit);
+        void IOutfitObserver.OnStateChange(Outfit sender)
+        {
+            OnStateChange(sender);
+        }
+
+        protected abstract void OnStateChange(Outfit sender);
+
+        void IOutfitObserver.OnMountAccessory(Outfit sender, Accessory accessory)
+        {
+            OnMountAccessory(sender, accessory);
+        }
+
+        protected abstract void OnMountAccessory(Outfit sender, Accessory accessory);
+
+        void IOutfitObserver.OnReleaseAccessory(Outfit sender, Accessory accessory)
+        {
+            OnReleaseAccessory(sender, accessory);
+        }
+
+        protected abstract void OnReleaseAccessory(Outfit sender, Accessory accessory);
+
+        void IOutfitObserver.OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit)
+        {
+            OnDestroy(sender, typ, referenceOutfit);
+        }
+
+        protected abstract void OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit);
     }
 }

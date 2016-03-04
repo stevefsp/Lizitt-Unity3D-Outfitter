@@ -29,13 +29,24 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all ScriptableObject based accessory observers inherit from this class.  It is 
-    /// simply a useful base from which to provide common utility features.
+    /// simply a useful base from which to provide common utility and editor search features.
     /// </para>
     /// </remarks>
     public abstract class AccessoryObserverObject
         : ScriptableObject, IAccessoryObserver
     {
-        public abstract void OnStateChange(Accessory sender);
-        public abstract void OnDestroy(Accessory sender, DestroyType typ);
+        void IAccessoryObserver.OnStateChange(Accessory sender)
+        {
+            OnStateChange(sender);
+        }
+
+        protected abstract void OnStateChange(Accessory sender);
+
+        void IAccessoryObserver.OnDestroy(Accessory sender, DestroyType typ)
+        {
+            OnDestroy(sender, typ);
+        }
+
+        protected abstract void OnDestroy(Accessory sender, DestroyType typ);
     }
 }

@@ -28,12 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Designed for use as a field in a Unity component.  It provides a better editor experience 
-    /// than is available for arrays.
-    /// </para>
-    /// <para>
-    /// WARNING: This class can't be used in an array.  E.g. An array of MountPointGroup objects, 
-    /// or an array of objects that contain MountPointGroup objects.
+    /// Designed for use as a field in a Unity component.  It provides a better editor experience when used with 
+    /// <see cref="ObjectListAttribute"/>.
     /// </para>
     /// </remarks>
     [System.Serializable]
@@ -45,17 +41,25 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="bufferSize">The internal buffer size.</param>
+        /// <param name="bufferSize">The internal buffer size. [Limit: >= 0]</param>
         public MountPointGroup(int bufferSize)
         {
             m_Items = new MountPoint[Mathf.Max(0, bufferSize)];
         }
 
         /// <summary>
+        /// The maximum number of items in the group. (Some entries may be null.)
+        /// </summary>
+        public int Count
+        {
+            // Can be null during initial instantiation in the editor.
+            get { return m_Items == null ? 0 : m_Items.Length; }
+        }
+
+        /// <summary>
         /// The item at the specified index, or null if there is none.
         /// </summary>
-        /// <param name="index">
-        /// Index. [Limit: 0 &lt;= value &lt; <see cref="BufferSize"/>]
+        /// <param name="index">Index. [Limit: 0 &lt;= value &lt; <see cref="Count"/>]
         /// </param>
         /// <returns>The item at the specified index, or null if there is none.</returns>
         public MountPoint this[int index]
@@ -97,31 +101,21 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// The maximum number of items in the group. [Limit: >= 0]
-        /// </summary>
-        public int BufferSize
-        {
-            // Can be null during initial instantiation in the editor.
-            get { return m_Items == null ? 0 : m_Items.Length; }
-        }
-
-        /// <summary>
         /// Replaces the current items with the specified items.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// To use this method safely either set <paramref name="asReference"/> to false or
-        /// discard all external refrences to <paramref name="items"/>.
+        /// To use this method safely either set <paramref name="asReference"/> to false or discard all external 
+        /// refrences to <paramref name="items"/>.
         /// </para>
         /// </remarks>
         /// <param name="mountPoints">The object to update. (Required)</param>
         /// <param name="items">The items.</param>
         /// <param name="asReference">
-        /// If true the internal buffer will be replaced with a reference to 
-        /// <paramref name="items"/>, otherwise <paramref name="items"/> will be copied.
+        /// If true the internal buffer will be replaced with a reference to <paramref name="items"/>, otherwise 
+        /// <paramref name="items"/> will be copied.
         /// </param>
-        public static void UnsafeReplaceItems(
-            MountPointGroup mountPoints, bool asReference, params MountPoint[] items)
+        public static void UnsafeReplaceItems(MountPointGroup mountPoints, bool asReference, params MountPoint[] items)
         {
             if (items == null)
                 mountPoints.Clear();
@@ -132,9 +126,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Clear all items, optionally resizing the internal buffer in the process.
         /// </summary>
-        /// <param name="bufferSize">
-        /// The new buffer size or -1 to keep the current buffer. [Limites: >= 0, or -1]
-        /// </param>
+        /// <param name="bufferSize">The new buffer size or -1 to keep the current buffer. [Limites: >= 0, or -1]</param>
         public void Clear(int bufferSize = 0)
         {
             m_Items = new MountPoint[Mathf.Max(0, bufferSize)];
@@ -145,8 +137,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="gameObject">The owner, or null.</param>
         /// <param name="unassignedOnly">
-        /// If true, ownership will only be set for items that have no owner assigned.  
-        /// Otherwise the new owner will be applied to all items.
+        /// If true, ownership will only be set for items that have no owner assigned. Otherwise the new owner will 
+        /// be applied to all items.
         /// </param>
         public void SetOwnership(GameObject gameObject, bool unassignedOnly = false)
         {
@@ -181,7 +173,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The number of assigned items in the group.  (Non-null, non-destroyed)
         /// </summary>
-        public int Count
+        public int AssignedCount
         {
             get
             {

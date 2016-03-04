@@ -28,12 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Designed for use as a field in a Unity component.  It provides a better editor 
-    /// experience than is available for arrays.
-    /// </para>
-    /// <para>
-    /// WARNING: This class can't be used in an array.  E.g. An array of BodyPartGroup objects, 
-    /// or an array of objects that contain BodyPartGroup objects.
+    /// Designed for use as a field in a Unity component.  It provides a better editor experience when used with 
+    /// <see cref="ObjectListAttribute"/>.
     /// </para>
     /// </remarks>
     [System.Serializable]
@@ -47,7 +43,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="bufferSize">The internal buffer size.</param>
+        /// <param name="bufferSize">The internal buffer size. [Limit: >= 0]</param>
         public BodyPartGroup(int bufferSize)
         {
             m_Items = new BodyPart[Mathf.Max(0, bufferSize)];
@@ -58,9 +54,9 @@ namespace com.lizitt.outfitter
         #region Item Related
 
         /// <summary>
-        /// The maximum number of items in the group. [Limit: >= 0]
+        /// The maximum number of items in the group. (Some entries may be null.)
         /// </summary>
-        public int BufferSize
+        public int Count
         {
             // Can be null during initial instantiation in the editor.
             get { return m_Items == null ? 0 : m_Items.Length; }
@@ -69,9 +65,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The item at the specified index, or null if there is none.
         /// </summary>
-        /// <param name="index">
-        /// Index. [Limit: 0 &lt;= value &lt; <see cref="BufferSize"/>]
-        /// </param>
+        /// <param name="index"> Index. [Limit: 0 &lt;= value &lt; <see cref="Count"/>]</param>
         /// <returns>The item at the specified index, or null if there is none.</returns>
         public BodyPart this[int index]
         {
@@ -107,8 +101,6 @@ namespace com.lizitt.outfitter
             }
         }
 
-
-
         /// <summary>
         /// True if the group contains at least one non-null item.
         /// </summary>
@@ -128,7 +120,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The number of assigned items in the group.  (Non-null, non-destroyed)
         /// </summary>
-        public int Count
+        public int AssignedCount
         {
             get
             {
@@ -211,8 +203,8 @@ namespace com.lizitt.outfitter
         /// <param name="bodyParts">The object to update. (Required)</param>
         /// <param name="items">The items.</param>
         /// <param name="asReference">
-        /// If true the internal buffer will be replaced with a reference to 
-        /// <paramref name="items"/>, otherwise <paramref name="items"/> will be copied.
+        /// If true the internal buffer will be replaced with a reference to <paramref name="items"/>, otherwise 
+        /// <paramref name="items"/> will be copied.
         /// </param>
         public static void UnsafeReplaceItems(
             BodyPartGroup bodyParts, bool asReference, params BodyPart[] items)
@@ -234,8 +226,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <param name="gameObject">The owner, or null.</param>
         /// <param name="unassignedOnly">
-        /// If true, ownership will only be set for items that have no owner assigned.  
-        /// Otherwise the new owner will be applied to all items.
+        /// If true, ownership will only be set for items that have no owner assigned. Otherwise the new owner will
+        /// be applied to all items.
         /// </param>
         public void SetOwnership(GameObject gameObject, bool unassignedOnly = false)
         {
@@ -251,20 +243,10 @@ namespace com.lizitt.outfitter
             }
         }
 
-        public BodyPart FirstItem
-        {
-            get
-            {
-                for (int i = 0; i < m_Items.Length; i++)
-                {
-                    if (m_Items[i])
-                        return m_Items[i];
-                }
-
-                return null;
-            }
-        }
-
+        /// <summary>
+        /// Apply the specified layer to all items in the group.
+        /// </summary>
+        /// <param name="layer">The layer. [0 &lt;= value &lt=; 31]</param>
         public void ApplyLayerToAll(int layer)
         {
             if (layer < 0 || layer > 31)
@@ -280,6 +262,10 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// Apply the collider status to all items in the group.
+        /// </summary>
+        /// <param name="status">The status to apply.</param>
         public void ApplyStatusToAll(ColliderStatus status)
         {
             for (int i = 0; i < m_Items.Length; i++)

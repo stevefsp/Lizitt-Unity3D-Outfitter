@@ -40,17 +40,13 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// A persistant accessory will be mounted to all targets that accept the accessory.  Otherwise it will
-        /// be stored for later mounting.
-        /// </para>
-        /// <para>
         /// This method will return only three results: 'success', 'stored', and 'failed on error'.  This is
         /// because a non-error failure to mount results in storage.</para>
         /// </remarks>
-        /// <param name="accessory">The accessory.</param>
+        /// <param name="accessory">The accessory. (Required)</param>
         /// <param name="settings">The mount settings.</param>
         /// <param name="mustMount">
-        /// If true a failure to immediately mount will result in a failure to add.  Otherwise a failure to 
+        /// If true, a failure to immediately mount will result in a failure to add.  Otherwise a failure to 
         /// immeidately mount will result in the accessory being stored.
         /// </param>
         /// <returns> The result of the add operation.</returns>
@@ -106,12 +102,12 @@ namespace com.lizitt.outfitter
         MountResult Add(Accessory accessory, bool ignoreRestrictions = false, bool mustMount = false);
 
         /// <summary>
-        /// Modify and remount the accessory already being managed.
+        /// Modify and attempt a mount of an accessory already under management.
         /// </summary>
         /// <remarks>
         /// <para>
         /// The most common reason for modifying an accessory is to mount it to a new location on the current target.  
-        /// Modifying any setting will result in a remount attempt.  <strong>Any</strong> failure to mount will result
+        /// Modifying any setting will result in a mount attempt.  <strong>Any</strong> failure to mount will result
         /// in the accessory being stored.
         /// </para>
         /// <para>
@@ -162,7 +158,7 @@ namespace com.lizitt.outfitter
         void TryMountStored();
 
         /// <summary>
-        /// The number of accessories that have been added.
+        /// The maximum number of accessories under management.  (Mounted or stored.)
         /// </summary>
         /// <remarks>
         /// <para>

@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all MonoBeahviour based mounters inherit from this class.  It is simply a
-    /// useful base from which to provide common utility features.
+    /// useful base from which to provide common utility and editor search features.
     /// </para>
     /// <para>
     /// Mounters based on this class can support both concurrent mount operations and full state serialization.

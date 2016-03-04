@@ -24,18 +24,21 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A utility class for managing a list of accessory observers.
+    /// A utility class for managing a list of ordered <see cref="Accessory"/> observers.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// WARNING: This class can't be used in an array.  E.g. An array of AccessoryOberverGroup objects, 
-    /// or an array of objects that contain AccessoryOberverGroup objects.
-    /// </para>
-    /// </remarks>
     [System.Serializable]
     public class AccessoryObserverGroup
         : ObjectList<IAccessoryObserver>
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        public AccessoryObserverGroup(int initialCapacity)
+            : base(initialCapacity)
+        {
+        }
+
         /// <summary>
         /// Send the <see cref="IAccessoryObserver.OnStateChange"/> event to all observers.
         /// </summary>
@@ -52,15 +55,6 @@ namespace com.lizitt.outfitter
             }
             if (hasNull)
                 PurgeDestroyed();
-        }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="initialCapacity">The initial capacity of the list.</param>
-        public AccessoryObserverGroup(int initialCapacity)
-            : base(initialCapacity)
-        {
         }
 
         /// <summary>

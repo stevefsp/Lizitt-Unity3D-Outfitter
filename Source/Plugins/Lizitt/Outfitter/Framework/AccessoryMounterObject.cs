@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all ScriptableObject based mounters inherit from this class.  It is simply a
-    /// useful base from which to provide common utility features.
+    /// useful base from which to provide common utility and editor search features.
     /// </para>
     /// <para>
     /// It is important to support concurrent mount operations for mounters that are designed to be project assets.  

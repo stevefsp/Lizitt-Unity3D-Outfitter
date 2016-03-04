@@ -43,12 +43,12 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The current/desired location of the accessory accessory.")]
+        [Tooltip("The current/desired location of the accessory.")]
         [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_LocationType;
 
         /// <summary>
-        /// The current/desired location of the accessory accessory.
+        /// The current/desired location of the accessory.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -62,20 +62,20 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The mounter that will be used as the priority mounter for all mount operations."
-            + " (Including automatic transfer's between outfits.) (Optional)")]
+        [Tooltip("The mounter that will be used as the priority mounter for all mount operations. (Including "
+            + " automatic transfer's between outfits.) (Optional)")]
         [RequireObjectType(typeof(IAccessoryMounter))]
         private Object m_Mounter;
 
         /// <summary>
-        /// The mounter that will be used as the priority mounter for all mount operations.
-        /// (Including automatic transfer's between outfits.)
+        /// The mounter that will be used as the priority mounter for all mount operations. (Including automatic 
+        /// transfer's between outfits.)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Only UnityEngine.Objects will be accepted.  Attempting to set a non-UnityEngine.Object will result in null being
-        /// assigned. (Along with an error message.)  A destroyed object reference will never be returned.  If
-        /// the current object is destroyed, a true null reference will be returned.
+        /// Only UnityEngine.Objects will be accepted.  Attempting to set a non-UnityEngine.Object will result in 
+        /// null being assigned. (Along with an error message.)  A destroyed object reference will never be returned.  
+        /// If the current object is destroyed, a true null reference will be returned.
         /// </para>
         /// </remarks>
         public IAccessoryMounter Mounter

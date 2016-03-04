@@ -24,11 +24,11 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Defines the renderer target of a common (well known) outfit material.
+    /// Defines the renderer target of an outfit material.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This object is helpful in defining a common (well knwon) renderer material that can be accessed by clients
+    /// This object is helpful in defining a well known renderer material that can be accessed by clients
     /// without the need to know where the renderer or material is.  I.e. A client can access the material only 
     /// using its <see cref="OutfitMaterialType"/>.
     /// </para>
@@ -52,12 +52,17 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The location of the material. (Required)")]
+        [Tooltip("The location of the material.")]
         private RendererMaterialPtr m_Target;
 
         /// <summary>
-        /// The location of the material. (Required)
+        /// The location of the material.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Setting the target to null is allowed, but it will result in an undefined target.  (Non-functional)
+        /// </para>
+        /// </remarks>
         public RendererMaterialPtr Target
         {
             get { return m_Target; }
@@ -68,7 +73,9 @@ namespace com.lizitt.outfitter
         /// Constructor.
         /// </summary>
         /// <param name="typ">The material type.</param>
-        /// <param name="target">The location of the material.</param>
+        /// <param name="target">
+        /// The location of the material. (Null will result in an undefined target. (Non-functional)
+        /// </param>
         public OutfitMaterialTarget(OutfitMaterialType typ, RendererMaterialPtr target)
         {
             this.m_Type = typ;
@@ -82,6 +89,8 @@ namespace com.lizitt.outfitter
         {
             get { return m_Target != null && m_Target.IsDefined; }
         }
+
+        // TODO: Add accessors for the non-shared material.  That is a valid use case.
 
         /// <summary>
         /// The target's material, or null if there is none.

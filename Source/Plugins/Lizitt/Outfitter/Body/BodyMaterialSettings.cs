@@ -28,8 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Can be assigned as an observer to only a single body at a time while <see cref="PersistSettings"/> is true,
-    /// otherwise can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// Can observer only a single <see cref="Body"/> at a time while <see cref="PersistSettings"/> is true, otherwise
+    /// can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// <para>
     /// There are two modes: Override and persist.  In override mode the component will apply the outfit 
@@ -43,7 +43,7 @@ namespace com.lizitt.outfitter
         : BodyObserverBehaviour
     {
         /*
-         * Design note: 
+         * Design notes: 
          * 
          * There are special custom editor restrictions.  See field notes for details.
          * 
@@ -55,19 +55,19 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [Tooltip("Persist changes to outfit materials while the outfit is asigned to the body.  Otherwise simply"
-            + " override incoming outfits with these fixed settings.")]
+            + " override incoming outfits with these static settings.")]
         private bool m_Persist = true;
 
         /// <summary>
-        /// Persist material changes between outfits as they are swapped out, otherwise always overrides
-        /// outfit materials with the current settings.
+        /// Persist changes to outfit materials while the outfit is asigned to the body.  Otherwise simply
+        /// override incoming outfits with these static settings.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// With persistance enabled all outfit materials from the outgoing outfit will be synchronzied with
-        /// the current settings in an additive manner.  Materials of exising types are matched to those
-        /// in the outfit, and new types are added.  The result is that the settings always contains the last 
-        /// know material for each material type.
+        /// Except as modified by <see cref="IgnoreTypes"/>: With persistance enabled all outfit materials from 
+        /// the outgoing outfit will be synchronzied with the current settings in an additive manner.  Materials 
+        /// of existing types are synchronized with those of outgoing outfit, and new types are added.  The result 
+        /// is that the settings always contain the last know material for each type.
         /// </para>
         /// <para>
         /// When persistance is disabled the setting will never change autoamtically. (Override mode)
@@ -95,12 +95,26 @@ namespace com.lizitt.outfitter
             // Only add a setter if it is truely needed.  It would introduce reference sharing that is not serializable.
         }
 
-        // Custom editor note:  The custom editor detects this field for special handling by its array status.
+        // Custom editor note:  The custom editor uses its array status to detect it for special handling.
         // This method will be broken if another array is added to this class.
+        // No tooltip because of custom editor.
         [SerializeField]
-        [Tooltip("Material types to ignore when synchonizing.  (Useful when a material type should never change for"
-            + " the body, or does not use a common set of materials across all outfits.")]
         private OutfitMaterialType[] m_IgnoreTypes = new OutfitMaterialType[0];
+
+        /// <summary>
+        /// Material types to ignore when synchonizing.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is useful when a material type should never change for the body, or does not use a common set of 
+        /// materials across all outfits.
+        /// </para>
+        /// </remarks>
+        public OutfitMaterialType[] IgnoreTypes
+        {
+            get { return m_IgnoreTypes; }
+            // Only add a setter if it is truely needed.  It would introduce reference sharing that is not serializable.
+        }
 
         #endregion
 

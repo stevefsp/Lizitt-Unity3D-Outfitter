@@ -40,8 +40,8 @@ namespace com.lizitt.outfitter
          * asset or scene object.
          * 
          * Whith one exception the names and values have been synchronized with the equivalent bones defined in 
-         * UnityEngine.HumanBodyBones for convenience. None of the core outfitter code depends on this.
-         * The exception is 'spine', which has been renamed to 'midtorso' for clarity.  The value of 'midetorso'
+         * UnityEngine.HumanBodyBones.  This is for convenience. None of the core outfitter code depends on it.
+         * The exception is 'spine', which has been renamed to 'midtorso' for clarity.  The value of 'midtorso'
          * remains the same as 'spine'.
          * 
          */

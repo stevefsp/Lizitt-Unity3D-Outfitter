@@ -25,20 +25,22 @@ using System.Collections.Generic;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Provides a user friendly re-orderable list of local outfit materials when added to
-    /// a <see cref="OutfitMaterialTargetGroup"/> field.
+    /// Provides a user friendly re-orderable list of local outfit materials when added to a 
+    /// <see cref="OutfitMaterialTargetGroup"/> field.
     /// </summary>
     public class OutfitMaterialTargetGroupAttribute
         : PropertyAttribute
     {
+        // TODO: Add support both absolute and relative paths.
+
         /// <summary>
-        /// The path to the reference object to search for local components, relative to 
-        /// SerializedProperty.serializedObject, or null if the reference object is 
-        /// SerializedProperty.serializedObject.targetObject.
+        /// The path to the reference object to search for local components.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// If non-null, the path must refer to a serialized property of type 'ObjectReference'.
+        /// The value is relative to SerializedProperty.serializedObject, or null if the reference object is 
+        /// SerializedProperty.serializedObject.targetObject. If non-null, the path must refer to a serialized 
+        /// property of type 'ObjectReference'.
         /// </para>
         /// </remarks>
         public string SearchPropertyPath { get; private set; }
@@ -70,7 +72,7 @@ namespace com.lizitt.outfitter
     }
 
     /// <summary>
-    ///  A group of outfit material targets. (Body, head, eyes, etc.)
+    ///  A group of ordered outfit material targets. (Body, head, eyes, etc.)
     /// </summary>
     [System.Serializable]
     public class OutfitMaterialTargetGroup
@@ -79,7 +81,7 @@ namespace com.lizitt.outfitter
         private List<OutfitMaterialTarget> m_Items = new List<OutfitMaterialTarget>(0);
 
         /// <summary>
-        /// The maximum number of materials currently defined.
+        /// The maximum number of materials currently defined.  (Some entries may be undefined.)
         /// </summary>
         public int Count
         {
@@ -87,7 +89,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// The outfit material target at the specified index. (May not be fully defined.)
+        /// The outfit material target at the specified index. (May be undefined.)
         /// </summary>
         /// <remarks>
         /// <para>
@@ -95,7 +97,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="index">The index.</param>
-        /// <returns>The outfit material target at the specified index.  (May not be fully defined.)</returns>
+        /// <returns>The outfit material target at the specified index.  (May be undefined.)</returns>
         public OutfitMaterialTarget this[int index]
         {
             get { return m_Items[index]; }
@@ -123,10 +125,8 @@ namespace com.lizitt.outfitter
         /// <param name="target">The target.</param>
         public void AddTarget(OutfitMaterialType typ, RendererMaterialPtr target)
         {
-            // Note: Duplicate entries for the same type doesn't matter.  Just extra processing. Defining the same
-            // target for more than one type is odd, but can be a valid use case. Adding undefined target it odd, 
-            // but doesn't hurt anything, so it is not worth  adding, testing, and maintaining a bunch of 
-            // error/warning checks.
+            // Adding undefined target it odd, but doesn't hurt anything, so it is not worth  adding, testing, and
+            // maintaining a bunch of error/warning checks.
 
             m_Items.Add(new OutfitMaterialTarget(typ, target));
         }
@@ -136,7 +136,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Just because an outfit material exists does not mean that it is fully defined. It may not have it's
+        /// Just because a material type is in the group not mean that it is fully defined. It may not have it's
         /// renderer assigned, or its material index may be set to an undefined value.
         /// </para>
         /// <para>
@@ -181,6 +181,8 @@ namespace com.lizitt.outfitter
 
             return result;
         }
+
+        // TODO: Add accessores for non-shared materials.
 
         /// <summary>
         /// Get the shared material for the specified type, or null there is none.

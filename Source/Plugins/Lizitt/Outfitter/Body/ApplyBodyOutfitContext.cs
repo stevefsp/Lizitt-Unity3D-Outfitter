@@ -25,7 +25,7 @@ namespace com.lizitt.outfitter
 {
     /// <summary>
     /// Base class for body observer assets that need to apply a context to outfit components whenever the outfit
-    /// is assigned to a body.
+    /// is assigned to or released from a <see cref="Body"/>.
     /// </summary>
     public abstract class ApplyBodyOutfitContext
         : BodyObserverObject
@@ -38,6 +38,9 @@ namespace com.lizitt.outfitter
             if (previous)
                 ClearContext(previous, wasForced);
         }
+
+        // Yes, these members are meant to be public.  Not all that usesful for normal clients.  But very useful for
+        // unit testing.
 
         /// <summary>
         /// Get the context to apply to the outfit's components.

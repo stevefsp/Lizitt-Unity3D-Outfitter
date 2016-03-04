@@ -28,8 +28,8 @@ namespace com.lizitt.outfitter
     /// Displays an <see cref="OutfitMaterialGroup"/> as a user friendly re-orderable list.
     /// </summary>
     /// <para>
-    /// Warning: This attribute can't be used when there is more than one <see cref="OutfitMaterialGroup"/> objects
-    /// contained within a SerializableObject.  This is a limitation of the Unity's ReorderableList control.
+    /// Warning: This attribute can't be used when there is more than one <see cref="OutfitMaterialGroup"/> object
+    /// within a SerializableObject.  This is a limitation of Unity's ReorderableList control.
     /// </para>
     /// </remarks>
     public class OutfitMaterialGroupAttribute
@@ -117,7 +117,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The item at the specified index. (May be undefined.)
         /// </summary>
-        /// <param name="index">The index. [0 &lt;= value &tl; <see cref="Count"/>]</param>
+        /// <param name="index">The index. [0 &lt;= value &tl;= <see cref="Count"/>]</param>
         /// <returns>The item at the specified index.</returns>
         public OutfitMaterial this[int index]
         {
@@ -200,12 +200,12 @@ namespace com.lizitt.outfitter
         /// Add materials that exist in the outfit but not in the group, otherwise ignore new materials.
         /// </param>
         /// <param name="removeUndefined">Remove materials not found in the outfit from the group.</param>
-        /// <param name="ignore">Material types to ignore.  (Don't add, don't alter.)</param>
+        /// <param name="ignore">Material types to ignore.  (Do not add, don't alter.)</param>
         public void SyncFrom(Outfit outfit, bool addNew, bool removeUndefined, OutfitMaterialType[] ignore = null)
         {
             if (!outfit)
             {
-                Debug.LogError("Can't synchronized from a null outfit.");
+                Debug.LogError("Can't synchronize from a null outfit.");
                 return;
             }
 
@@ -228,7 +228,7 @@ namespace com.lizitt.outfitter
 
             if (addNew)
             {
-                // Technically the material is sync'd twice.  But this is still the most efficient method.
+                // Technically the material may be sync'd twice.  But this is still the most efficient method.
                 for (int i = 0; i < outfit.OutfitMaterialCount; i++)
                 {
                     var omat = outfit.GetSharedMaterial(i);

@@ -35,8 +35,7 @@ namespace com.lizitt.outfitter
          * The meaning of the names can be repurposed with the exception of 'root'.  Do not remove 'root' or change 
          * its value.  All other names and values can be refactored and repurposed as desired. 
          * 
-         * New name-value pairs can be added at any time. Unused pairs can be removed with no impact. Unused pairs 
-         * other than 'root' can be removed with no impact. 
+         * New name-value pairs can be added at any time. Unused pairs other than 'root' can be removed with no impact. 
          * 
          * Be careful when removing pairs that have been used, or changing values that have been assigned to an 
          * asset or scene object.

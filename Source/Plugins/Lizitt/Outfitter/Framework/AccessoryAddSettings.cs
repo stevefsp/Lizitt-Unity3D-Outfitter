@@ -34,7 +34,7 @@ namespace com.lizitt.outfitter
         public MountPointType LocationType { get; set; }
 
         /// <summary>
-        /// If true, ignore outfit 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
+        /// If true, ignore 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
         /// </summary>
         public bool IgnoreRestrictions { get; set; }
 

@@ -58,11 +58,11 @@ namespace com.lizitt.outfitter
         BodyCoverage GetCoverageFor(MountPoint location);
 
         /// <summary>
-        /// The default location type the of the mounter.
+        /// The default location of the mounter.
         /// <remarks>
         /// <para>
         /// All mounters must be able to mount to at least one type of mount point.  This property defines that type.
-        /// But there is no quarentee that the mounter will successfully mount all accessories and to all all 
+        /// But there is no quarentee that the mounter will successfully mount all accessories to all 
         /// locations of this type since a mounter is allowed to have complex prerequisites.  E.g. Only mount to 
         /// locations that are part of an outfit and the outfit is in a particular configuration.  The only way to
         /// guarentee a successful mount is to first check <see cref="CanMount"/>.
@@ -76,8 +76,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// There are several common reasons the mounter will return false.  The mount location is not supported.
-        /// The accessory is not is a supported state.  The type of  the accessory is not supported. Etc. 
+        /// There are several common reasons the mounter will return false.  The mount location is not supported,
+        /// the accessory is not is a supported state, the type of  the accessory is not supported. Etc. 
         /// For example: A mounter may be designed to only mount a two handed weapon from the right hand to 
         /// the upper back, so it will return false if the accessory is not a two handed weapon currently mounted 
         /// to the right hand, or the mount location is not the upper back.
@@ -107,6 +107,8 @@ namespace com.lizitt.outfitter
         /// <returns>True if initialization was successful.  False if the mount operation is not supported.</returns>
         bool InitializeMount(Accessory accessory, MountPoint location);
 
+        // TODO: EVAL: Add the ability to supply a custom deltaTime to the update method.
+
         /// <summary>
         /// Processes the mount operation until it completes.
         /// </summary>
@@ -119,7 +121,7 @@ namespace com.lizitt.outfitter
         /// <param name="accessory">The accessory to update. (Required)</param>
         /// <param name="location">The mount location. (Required)</param>
         /// <param name="immediateComplete">
-        /// If true then the mounter should complete immeidately, even though it may normally take time to complete.
+        /// If true then the mount operation should complete immeidately, even though it may normally have a duration.
         /// False to complete its update normally.
         /// </param>
         /// <returns>True while the mount operation is in-progress.  False when the operation is complete.</returns>
@@ -145,7 +147,7 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// What a mounter does is implementation specific.  If a mounter is associated with only a single accessory
-        /// it may choose to destroy itself.  If it serves mulitple accessories then is may choose to do nothing.
+        /// it may choose to destroy itself.  If it services mulitple accessories then is may choose to do nothing.
         /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory about to be destroyed. (Required)</param>

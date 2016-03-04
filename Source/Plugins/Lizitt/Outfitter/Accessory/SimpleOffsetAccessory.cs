@@ -24,13 +24,13 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// An accessory with a built-in mounter that immediately mounts to its location with position and 
+    /// An accessory with a built-in mounter that immediately mounts to its location with optional position and 
     /// rotation offsets.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The mount operation will always succeed if the location is of type <see cref="LocationType"/> and the owner is
-    /// non-null.
+    /// The mount operation will always succeed if the mount point's location type is the same as 
+    /// <see cref="DefaultLocationType"/> and the supplied owner is non-null.
     /// </para>
     /// </remarks>
     [AddComponentMenu(LizittUtil.LizittMenu + "Simple Offset Accessory", OutfitterUtil.BaseMenuOrder + 1)]
@@ -40,10 +40,10 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The location the accessory can mount to.")]
         [SortedEnumPopup(typeof(MountPointType))]
-        private MountPointType m_Location = (MountPointType)0;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<
+        private MountPointType m_Location = (MountPointType)0;  // Type is required by custom editor. <<<<<<<<<<<<<<<<<<
 
         /// <summary>
-        /// The location the mounter can mount to.
+        /// The location the accesory can mount to.
         /// </summary>
         public sealed override MountPointType DefaultLocationType
         {
@@ -51,7 +51,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Set the location the mounter can mount to.
+        /// Set the location the accessory can mount to.
         /// </summary>
         public void SetDefaultLocationType(MountPointType value)
         {
@@ -61,7 +61,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The coverage of the accessory on a successful mount operation.")]
         [EnumFlags(typeof(BodyCoverage), OutfitterUtil.SortBodyCoverage)]
-        private BodyCoverage m_Coverage = 0;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        private BodyCoverage m_Coverage = 0;  // Type is required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         /// <summary>
         /// The coverage of the accessory on a successful mount operation.
@@ -73,13 +73,13 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Returns <see cref="MountedCoverage"/> if <paramref name="location"/> is equal to <see cref="LocationType"/>, 
-        /// otherwise zero.
+        /// Returns <see cref="MountedCoverage"/> if the <paramref name="location"/>s type is equal to 
+        /// <see cref="DefaultLocationType"/>.  Otherwise zero.
         /// </summary>
         /// <param name="location">The location to check.</param>
         /// <returns>
-        /// <see cref="MountedCoverage"/> if <paramref name="location"/> is equal to <see cref="LocationType"/>, 
-        /// otherwise zero.
+        /// <see cref="MountedCoverage"/> if the <paramref name="location"/>s type is equal to 
+        /// <see cref="DefaultLocationType"/>.  Otherwise zero.
         /// </returns>
         public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {

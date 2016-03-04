@@ -54,17 +54,18 @@ namespace com.lizitt.outfitter
         /// they are rarely appropriate for any outfit no longer associated with the observer.
         /// </para>
         /// <para>
-        /// If <paramref name="wasForced"/> is true but <paramref name="previous"/> is null, then a completely 
-        /// uncontrolled loss of the previous outfiit occured.  (E.g. The outfit was destroyed using Object.Destory().)
+        /// A completely uncontrolled loss of the previous outfiit occured if <paramref name="wasForced"/> is true 
+        /// but <paramref name="previous"/> is null.  E.g. The outfit was improperly destroyed using 
+        /// Object.Destory().
         /// </para>
         /// </remarks>
-        /// <param name="sender">The body sending the event. (Required)</param>
+        /// <param name="sender">The soruce of the event. (Required)</param>
         /// <param name="previous">
-        /// The outfit that was replaced and has been released by the body, or null if there is none.
+        /// The original outfit that was replaced and has been released by the body, or null if there is none.
         /// </param>
         /// <param name="wasForced">
-        /// If true the outfit was force released and should be excempt from release activities that alter
-        /// its state.
+        /// If true the outfit was force released and should be generally excempt from release activities that 
+        /// alter its state.
         /// </param>
         void OnOutfitChange(Body sender, Outfit previous, bool wasForced);
     }

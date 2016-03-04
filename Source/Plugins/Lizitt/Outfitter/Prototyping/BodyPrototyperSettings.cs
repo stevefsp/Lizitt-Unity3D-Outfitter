@@ -6,10 +6,15 @@ using UnityEditor;
 
 namespace com.lizitt.outfitter.proto
 {
+    /// <summary>
+    /// A component useful for prototyping body and its features.  (Editor only.)
+    /// </summary>
     [AddComponentMenu(LizittUtil.LizittMenu + "Body Prototyper Settings (Editor Only)", OutfitterUtil.EditorOnlyMenuOrder)]
     public class BodyPrototyperSettings
         : MonoBehaviour
     {
+        // TODO: Add proper documentation.
+
         #region Body
 
         [SerializeField]

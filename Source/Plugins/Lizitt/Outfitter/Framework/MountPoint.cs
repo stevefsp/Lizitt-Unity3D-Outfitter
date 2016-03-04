@@ -28,7 +28,7 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// While mount points are normally associated with an <see cref="Outfit"/>, the owner may any GameObject.
+    /// While mount points are normally associated with an <see cref="Outfit"/>, the owner can be any GameObject.
     /// Standard components don't care.
     /// </para>
     /// </remarks>
@@ -39,7 +39,7 @@ namespace com.lizitt.outfitter
         : MonoBehaviour
     {
         [SerializeField]
-        [Tooltip("The location type of the mount point.")]
+        [Tooltip("The location of the mount point.")]
         [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_Location = (MountPointType)1;
 
@@ -57,17 +57,12 @@ namespace com.lizitt.outfitter
         private GameObject m_Context = null;
 
         /// <summary>
-        /// The data context of the mount point.  (Optional)
+        /// The data context of the mount point. (Optional)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is an informational field.  It can be used to provide information to users of the mount point.  For 
-        /// example, it can be set to the agent that owns the outfit that owns the mount point.
-        /// </para>
-        /// <para>
-        /// Standard components automatically initialize this value to their own GameObject if the value is not
-        /// aleady assigned.  This is meant as a helpful automation.  The value can be reassigned as desired
-        /// without impacting standard component behavior.
+        /// This is an informational field used to provide context to users of the body part.  For example, it can
+        /// be set to the agent that owns the outfit that owns the body part.
         /// </para>
         /// </remarks>
         public GameObject Context
@@ -85,9 +80,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is a hint.  How other components handle this flag is implementation specific.  The general rule is
+        /// This is a hint. How other components handle this flag is implementation specific.  The general rule is
         /// that the component responsbile for asking an accessory to mount to a mount point is responsible for 
-        /// first checking and responding to its blocked status.
+        /// first checking and responding for checking the blocked state.
         /// </para>
         /// </remarks>
         public bool IsBlocked
@@ -101,6 +96,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
+        /// The main purpose of this method is to synchronized the state of mount points on two different outfits.
+        /// </para>
+        /// <para>
         /// The 'is blocked' state and context are synchronized, depending on the parameter values.  Other properties 
         /// such as location type, transform values, etc., are ignored.
         /// </para>
@@ -110,8 +108,8 @@ namespace com.lizitt.outfitter
         /// <param name="includeBlocked">Synchronize the mount point 'is blocked' state.</param>
         /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
         /// <param name="ignoreContext">
-        /// The context that should never be synchronized. (Usually the object <paramref name="to"/> is a member of,
-        /// such at its Outfit. (Required if <paramref name="includeContext"/> is true.)
+        /// The context that should never be synchronized. (Usually the object <paramref name="from"/> is a member of,
+        /// such at its outfit. (Required if <paramref name="includeContext"/> is true.)
         /// </param>
         public static void Synchronize(MountPoint to, MountPoint from, 
             bool includeBlocked, bool includeContext, GameObject ignoreContext)

@@ -29,18 +29,18 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Accessories are any game object that needs to be attached to a mount point.  They can be visible, such
-    /// as a hat, sun glasses, a baseball bat, etc.  Or they can be purely functional such as a perception 
-    /// system. Accessories are usually components meant to be attached to outfits. But they can be attached to 
+    /// An accesory is any game object that needs to be attached to a mount point.  It can be visible, such
+    /// as a hat, sun glasses, a baseball bat, etc.  Or it can be purely functional such as a perception 
+    /// system. An accessory is usually a component meant to be attached to outfits. But it can be attached to 
     /// any mount point, no matter the owner.  
     /// </para>
     /// <para>
-    /// The meaning of 'attached' and 'mounted' is implementation specific.  The accessory may be parented
-    /// to its mount point, or it may simply use the mount point as a reference location.  (E.g. A fairy that flutters
+    /// The meaning of 'attached' and 'mounted' is implementation specific.  An accessory may be parented to its 
+    /// mount point, or it may simply use the mount point as a reference location.  (E.g. A fairy that flutters
     /// arount in the vicinity of the mount point.)
     /// </para>
     /// <para>
-    /// The functionality of an Accessory can extended in one of two ways:  Class extension and through the use 
+    /// The functionality of an Accessory can be extended in one of two ways:  Class extension and through the use 
     /// of <see cref="IAccessoryObserver"/>s.  
     /// </para>
     /// <para>
@@ -95,8 +95,8 @@ namespace com.lizitt.outfitter
         /// will be null.
         /// </para>
         /// <para>
-        /// The meaning of and 'mounted' is implementation specific.  The accessory may be parented
-        /// to its mount point, or it may simply use the mount point as a reference location.  (E.g. A fairy that flutters
+        /// The meaning of and 'mounted' is implementation specific.  The accessory may be parented to its mount 
+        /// point, or it may simply use the mount point as a reference location.  (E.g. A fairy that flutters
         /// arount in the vicinity of the mount point.)
         /// </para>
         /// </remarks>
@@ -107,21 +107,19 @@ namespace com.lizitt.outfitter
         #region Coverage and Limits
 
         /// <summary>
-        /// If true the accessory can be attached to a mount point no matter the value of
-        /// the mount point owner's 'accessories limited' flag.
+        /// If true the accessory can be attached to a mount point no matter the value of the target's 
+        /// 'accessories limited' flag.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This flag is a hint.  While a concreate accessory can perform any sort of validation it
-        /// choses before mounting, an accessory is not repsonbile for knowing anything about
-        /// the owner of the mount point it is given.  It is generally the responsibility of
-        /// the component that is telling the accessory to mount to first check this flag
-        /// and respond accordingly.
+        /// This flag is a hint.  While a concreate accessory can perform any sort of validation it choses before
+        /// mounting, an accessory is not repsonbile for knowing anything about the mount point it is given.  It is
+        /// generally the responsibility of the component that is telling the accessory to mount to first check 
+        /// this flag and respond accordingly.
         /// </para>
         /// <para>
-        /// Limited outfits are outfits that generally should not have visible accessories 
-        /// attached. E.g. You generally don't want a hat or glasses to be attached to a full
-        /// coverage outfit such as a space suit.
+        /// Limited outfits are outfits that generally should not have visible accessories attached. E.g. You 
+        /// generally don't want a hat or glasses to be attached to a full coverage outfit such as a space suit.
         /// </para>
         /// </remarks>
         public abstract bool IgnoreLimited { get; set; }
@@ -138,7 +136,7 @@ namespace com.lizitt.outfitter
         public abstract BodyCoverage CurrentCoverage { get; }
 
         /// <summary>
-        /// The body coverage of the accessory when attached to the specified location.
+        /// The body coverage of the accessory when mounted to the specified location.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -147,7 +145,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="location">The mount location.</param>
-        /// <returns>The body coverage of the accessory when attached to the specified mount point.</returns>
+        /// <returns>The body coverage of the accessory when mounted to the specified mount point.</returns>
         /// <seealso cref="CanMount"/>
         public abstract BodyCoverage GetCoverageFor(MountPoint location);
 
@@ -205,16 +203,15 @@ namespace com.lizitt.outfitter
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Mount the accessory to the specified mount point.
+        /// Mount the accessory to the specified location.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method will always succeed if <see cref="CanMount(MountPointType, BodyCoverage)"/> return true.
+        /// This method will always succeed if <see cref="CanMount(MountPoint, BodyCoverage)"/> returns true.
         /// </para>
         /// <para>
-        /// It is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation 
-        /// it is valid to simply call this method on a list f all available accessories to let the accessory decide 
-        /// whether or not it can mount.
+        /// Supports lazy calling.  E.g. As an optimitation it is valid to simply call this method on a list of 
+        /// available accessories and let each accessory decide whether or not it can mount.
         /// </para>
         /// <para>
         /// <paramref name="additionalCoverage"/> is useful in situations where an accessory uses a generic mounter
@@ -222,14 +219,12 @@ namespace com.lizitt.outfitter
         /// added to the coverage supplied by the mounter and/or built into the accessory.
         /// </para>
         /// </remarks>
-        /// <param name="location">The mount point. (Required)</param>
+        /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
-        /// <param name="priorityMounter">
-        /// The mounter to attempt to use before any others are tried.  (I.e. A custom mounter.) (Optional)
-        /// </param>
+        /// <param name="priorityMounter">The mounter to attempt before any others are tried. (Optional) </param>
         /// <param name="additionalCoverage">
-        /// Additional coverage to apply on a successful mount, above and beyond the coverage supplied by the mounter
-        /// and/or built into the accessory.
+        /// Additional coverage to apply on a successful mount, above and beyond the coverage supplied by the 
+        /// mounter and/or built into the accessory. (Optional)
         /// </param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
         public abstract bool Mount(MountPoint location, GameObject owner, IAccessoryMounter priorityMounter, 
@@ -239,23 +234,20 @@ namespace com.lizitt.outfitter
         // HACK: Unity 5.3.1: Workaround for Mono's optional parameter key duplication bug.
 
         /// <summary>
-        /// Mount the accessory to the specified mount point.
+        /// Mount the accessory to the specified location.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method will always succeed if <see cref="CanMount(MountPointType, BodyCoverage)"/> return true.
+        /// This method will always succeed if <see cref="CanMount(MountPoint, BodyCoverage)"/> returns true.
         /// </para>
         /// <para>
-        /// It is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation 
-        /// it is valid to simply call this method on a list f all available accessories to let the accessory decide 
-        /// whether or not it can mount.
+        /// Supports lazy calling.  E.g. As an optimitation it is valid to simply call this method on a list of 
+        /// available accessories and let each accessory decide whether or not it can mount.
         /// </para>
-        /// <param name="location">The mount point. (Required.)</param>
-        /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
-        /// <param name="priorityMounter">
-        /// The mounter to attempt to use before any others are tried.  (I.e. A custom mounter.) (Optional)
-        /// </param>
         /// </remarks>
+        /// <param name="location">The mount location. (Required)</param>
+        /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
+        /// <param name="priorityMounter">The mounter to attempt before any others are tried. (Optional)</param>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
         public bool Mount(MountPoint location, GameObject owner, IAccessoryMounter priorityMounter)
         {
@@ -263,20 +255,19 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Mount the accessory to the specified mount point.
+        /// Mount the accessory to the specified location.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method will always succeed if <see cref="CanMount(MountPointType, BodyCoverage)"/> return true.
+        /// This method will always succeed if <see cref="CanMount(MountPoint, BodyCoverage)"/> returns true.
         /// </para>
         /// <para>
-        /// It is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation 
-        /// it is valid to simply call this method on a list f all available accessories to let the accessory decide 
-        /// whether or not it can mount.
+        /// Supports lazy calling.  E.g. As an optimitation it is valid to simply call this method on a list of 
+        /// available accessories and let each accessory decide whether or not it can mount.
         /// </para>
-        /// <param name="location">The mount point. (Required)</param>
+        /// </remarks>
+        /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
-        /// </para>
         /// <returns>True if the mount succeeded, otherwise false.</returns>
         public bool Mount(MountPoint location, GameObject owner)
         {
@@ -325,8 +316,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is the best way of destroying an accessory since the accessory will send out events to its observers
-        /// and other associated components so they can properly respond.
+        /// This is the best way of destroying an accessory since it allows the accessory to notify its observers
+        /// and any other associated components so they can properly respond.
         /// </para>
         /// <para>
         /// If <paramref name="prepareOnly"/> is false the component will destroy itself, so the client only needs
@@ -344,7 +335,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// It is a valid behavior for an accessory to reject a bake and simply auto-release as a result of the 
         /// request.  This supports situations where an accessory is semi-independant. E.g. A fairy that is 
-        /// fluttering around an outfit's head. A bake (a.k.a death) of the agent results in the fairy being freed.
+        /// fluttering around the outfit's head. A bake (a.k.a death) of the outfit results in the fairy being freed.
         /// </para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
@@ -361,12 +352,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is the best way of destroying an accessory since the accessory will send out events to its observers
-        /// and other associated components so they can properly respond.
-        /// </para>
-        /// <para>
-        /// The component will destroy itself, so the client only needs to call this method then dispose of its 
-        /// references.
+        /// This is the best way of destroying an accessory since it allows the accessory to notify its observers
+        /// and any other associated components so they can properly respond.
         /// </para>
         /// <para><strong>Baking</strong></para>
         /// <para>
@@ -377,10 +364,13 @@ namespace com.lizitt.outfitter
         /// <para>
         /// It is a valid behavior for an accessory to reject a bake and simply auto-release as a result of the 
         /// request.  This supports situations where an accessory is semi-independant. E.g. A fairy that is 
-        /// fluttering around an outfit's head. A bake (a.k.a death) of the agent results in the fairy being freed.
+        /// fluttering around the outfit's head. A bake (a.k.a death) of the outfit results in the fairy being freed.
         /// </para>
         /// </remarks>
         /// <param name="typ">The type of destruction.</param>
+        /// <param name="prepareOnly">
+        /// If true, the component will only prepare for destruction, but won't actually destroy itself.
+        /// </param>
         public void Destroy(DestroyType typ)
         {
             Destroy(typ, false);
@@ -456,6 +446,8 @@ namespace com.lizitt.outfitter
 
 #if UNITY_EDITOR
 
+        #region Editor Only
+
         /// <summary>
         /// Add all UnityEngine.Object's that may change while performing accessory operations to the provided list. 
         /// (Including the accessory itself.) (Will not clear the list prior to use.)
@@ -503,6 +495,8 @@ namespace com.lizitt.outfitter
 
             return list;
         }
+
+        #endregion
 
 #endif
     }

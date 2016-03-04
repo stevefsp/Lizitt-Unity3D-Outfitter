@@ -29,11 +29,22 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The body is useful when an agent's outfits are transient in nature.  It allows important settings and
+    /// There are two primary use cases for a body:
+    /// </para>
+    /// <para>
+    /// An agent's outfits are transient in nature - The body allows important settings and
     /// components to be persisted as outfits are swapped in and out. For example, adding an accessory such as
     /// a perception system to the body will result in the accessory automatically transfering between outfits
-    /// as they change.  Observers can be used to apply, override, and persist other settings not automatically handled
-    /// by the body. E.g. Apply material overrides, persist collider status, etc. 
+    /// as they change. 
+    /// </para>
+    /// <para>
+    /// The outfits supplied to an agent are generic in nature and per agent adjustements need to be made - The body
+    /// can be preloaded with accessories specific to the agent.  Observers can be added to apply overrides and other
+    /// agent specific settings.
+    /// </para>
+    /// <para>
+    /// The only built in persitance is for accessories.  But observers can be used to apply, override, and 
+    /// persist other settings. E.g. Apply material overrides, persist collider status, etc. 
     /// </para>
     /// </remarks>
     public abstract class Body
@@ -90,21 +101,18 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
-        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.  (Assuming <paramref name="outfit"/>
-        /// is not null.)
+        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
         /// </para>
         /// <para>
         /// <paramref name="forceRelease"/> is used for operations such as baking, where the outfit being released
         /// needs to maintain its current state rather than undergo reversion operations.  Any accessories managed 
         /// by the body will be left in place rather than removed and stored in the body.  Observers decide for
-        /// themselves how to respond to a force release.
+        /// themselves how to respond to a forced release.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit to apply to the body, or null to remove the current outfit.</param>
         /// <param name="forceRelease">Release the current outfit with minimal state changes.</param>
-        /// <returns>
-        /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
-        /// </returns>
+        /// <returns>The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.</returns>
         public abstract Outfit SetOutfit(Outfit outfit, bool forceRelease);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,14 +124,12 @@ namespace com.lizitt.outfitter
         /// <remarks>
         /// <para>
         /// If there is an error that prevents <paramref name="outfit"/> from being applied then its reference 
-        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.  (Assuming <paramref name="outfit"/>
-        /// is not null.)
+        /// is returned, so <c>SetOutfit(outfit) == outfit</c> indicates a failure.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit to apply to the body, or null to remove the current outfit.</param>
-        /// <returns>
-        /// The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.
-        /// </returns>
+        /// <param name="forceRelease">Release the current outfit with minimal state changes.</param>
+        /// <returns>The previous outfit, or a refererence to <paramref name="outfit"/> if there was an error.</returns>
         public Outfit SetOutfit(Outfit outfit)
         {
             return SetOutfit(outfit, false);
@@ -149,7 +155,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// An observer can only be added once and it must be implmented by a UnityEngine.Object for serialization puposes.
+        /// An observer can only be added once and it must be implmented by a UnityEngine.Object for serialization 
+        /// puposes.
         /// </para>
         /// </remarks>
         /// <param name="observer">The observer to add. (Required. Must be a UnityEngine.Object.)</param>

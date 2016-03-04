@@ -55,9 +55,9 @@ namespace com.lizitt.outfitter
         #region Utility Members
 
         /// <summary>
-        /// Apply the outfit materials to anoutfit.
+        /// Apply the outfit materials to the outfit.
         /// </summary>
-        /// <param name="outfit">The outfit.</param>
+        /// <param name="outfit">The outfit. (Required)</param>
         public int ApplyMaterials(Outfit outfit)
         {
             return m_Materials.ApplyTo(outfit);

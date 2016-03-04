@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// There is no requirement that all MonoBehaviour based body observers inherit from this class.  It is 
-    /// simply a useful base from which to provide common utility features.
+    /// simply a useful base from which to provide common utility and editor search features.
     /// </para>
     /// </remarks>
     public abstract class BodyObserverBehaviour

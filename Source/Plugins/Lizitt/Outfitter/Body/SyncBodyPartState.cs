@@ -24,15 +24,15 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Synchronize the state of the previous outfit's body parts to the the current outfit.
+    /// Synchronize the state of the outgoing outfit's body parts to the current outfit.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// Active at design-time. Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// <para>
-    /// Limitation: This observer is designed for memory efficiency.  It only synchronizes between two known 
-    /// outfits, so the last known state is lost if the body outfit is set to null.
+    /// This observer is designed for memory efficiency.  It only synchronizes between two known outfits, so the last 
+    /// known state is lost if the body outfit is set to null.
     /// </para>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync BodyPart State",
         order = OutfitterUtil.BodyObserverMenuOrder + 2)]
@@ -40,11 +40,11 @@ namespace com.lizitt.outfitter
         : BodyObserverObject
     {
         [SerializeField]
-        [Tooltip("Persist the body part collider status.")]
+        [Tooltip("Persist the collider status.")]
         private bool m_IncludeStatus = true;
 
         /// <summary>
-        /// Persist the body part coller status.
+        /// Persist the collider status.
         /// </summary>
         public bool IncludeStatus
         {
@@ -53,11 +53,11 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Persist the body part collider layer.")]
+        [Tooltip("Persist the collider layer.")]
         private bool m_IncludeLayer = true;
 
         /// <summary>
-        /// Persist the body part collider layer.
+        /// Persist the collider layer.
         /// </summary>
         public bool IncludeLayer
         {
@@ -66,18 +66,12 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Persist the body part context unless it is the previous outfit's GameObject.")]  // << This is the correct behavior!
+        [Tooltip("Persist the context unless it is the outgoing outfit's GameObject.")]  // << This is the correct behavior!
         private bool m_IncludeContext = false;
 
         /// <summary>
-        /// Persist the body part context unless it is the previous outfit's GameObject.
+        /// Persist the context unless it is the outgoing outfit's GameObject.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The 'previous' body part's context will not be synchronized if the 'current' body part's context 
-        /// if it is the previous outfit's GameObject.
-        /// </para>
-        /// </remarks>
         public bool IncludeContext
         {
             get { return m_IncludeContext; }
@@ -91,28 +85,28 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Synchronize the body part state of all common body parts based on the obvserver's configutation.
+        /// Synchronize the body part state of all common body parts based on the obvserver's settings.
         /// </summary>
-        /// <param name="to">The outfit being synchonized to. (Required)</param>
-        /// <param name="from">The outfit being syncronzied from. (Required)</param>
+        /// <param name="to">The outfit being synchonized to.</param>
+        /// <param name="from">The outfit being syncronzied from.</param>
         public void Synchronize(Outfit to, Outfit from)
         {
             Outfit.SynchronizeBodyPartState(to, from, m_IncludeStatus, m_IncludeLayer, m_IncludeContext);
         }
 
         /// <summary>
-        /// Synchronize the state of the specified body part.
+        /// Synchronize the state of the specified body part based on the observer's settings
         /// </summary>
         /// <remarks>
         /// <para>
-        /// At most the status, layer, and context are synchronized, depending on the observer settings.  Other 
-        /// properties such as body part type, transform values, etc., are not included.
+        /// The status, layer, and context are synchronized, depending on the observer settings.  Other 
+        /// properties such as <see cref="BodyPartType"/>, transform values, etc., are not included.
         /// </para>
         /// </remarks>
         /// <param name="to">The body part to sync to. (Required)</param>
         /// <param name="from">The body part to sync from. (Required)</param>
         /// <param name="ignoreContext">
-        /// The context that should never be synchronized. (Usually the <paramref name="to"/>'s GameObject. 
+        /// The context that should never be synchronized. (Usually the <paramref name="from"/>'s GameObject. 
         /// (Required if observer is configured to include context.)
         /// </param>
         public virtual void Synchronize(BodyPart to, BodyPart from, GameObject ignoreContext)

@@ -28,11 +28,11 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Body parts provide higher resolution collision data than can be provied by a  single outfit collider.  
+    /// Body parts provide higher resolution collision data than can be provied by a single outfit collider.  
     /// <see cref="ColliderStatus"/> is used to  modify collider behavior as needed.
     /// </para>
     /// <para>
-    /// While body parts are normally associated with an <see cref="Outfit"/>, the owner may any GameObject.
+    /// While body parts are normally associated with an <see cref="Outfit"/>, the owner can be any GameObject.
     /// Standard components don't care.
     /// </para>
     /// </remarks>
@@ -57,12 +57,12 @@ namespace com.lizitt.outfitter
          */
 
         [SerializeField]
-        [Tooltip("The type (location) of the body part.")]
+        [Tooltip("The location of the body part.")]
         [SortedEnumPopup(typeof(BodyPartType))]
         private BodyPartType m_Type;
 
         /// <summary>
-        /// The type (location) of the body part.
+        /// The type of the body part.
         /// </summary>
         public BodyPartType PartType
         {
@@ -71,13 +71,17 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The body part's collider.")]
+        [Tooltip(
+            "The body part's collider. (If unassigned, defaults to the first collider found during a child search.)")]
         [RequiredValue(typeof(Collider), true)]
         private Collider m_Collider = null;
 
         /// <summary>
-        /// The body part's collider.
+        /// The body part's collider. (Required)  
         /// </summary>
+        /// <remarks>
+        /// <para>If unassigned, defaults to the first collider found during a child search.</para>
+        /// </remarks>
         public Collider Collider
         {
             get 
@@ -94,7 +98,6 @@ namespace com.lizitt.outfitter
 
                 m_Collider = value;
 
-                // Don't expect this to happen often, so benefit of these checks is worth it.
                 var rb = Rigidbody;
                 if (rb)
                 {
@@ -121,21 +124,16 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The data context of the body part.  (Optional)")]
+        [Tooltip("The data context of the body part. (Optional)")]
         private GameObject m_Context = null;
 
         /// <summary>
-        /// The data context of the body part.  (Optional)
+        /// The data context of the body part. (Optional)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is an informational field.  It can be used to provide information to users of the body part.  For 
-        /// example, it can be set to the agent that owns the outfit that owns the body part.
-        /// </para>
-        /// <para>
-        /// Standard components automatically initialize this value to their own GameObject if the value is not
-        /// aleady assigned.  This is meant as a helpful automation.  The value can be reassigned as desired
-        /// without impacting standard component behavior.
+        /// This is an informational field used to provide context to users of the body part.  For example, it can
+        /// be set to the agent that owns the outfit that owns the body part.
         /// </para>
         /// </remarks>
         public GameObject Context
@@ -163,12 +161,12 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The status is dependant on a combination of the collider and rigidbody.  Changes to 
-        /// the status result in changes to these components.
+        /// Changes to the status can result in changes to both the body part's collider and rigidbody.
         /// </para>
         /// </remarks>
         public ColliderStatus ColliderStatus
         {
+            // Property first, then field.
             get { return Collider ? m_Collider.GetStatus() : ColliderStatus.Disabled; }
             set
             {
@@ -187,6 +185,9 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
+        /// The main purpose of this method is to synchronized the state of body parts on two different outfits.
+        /// </para>
+        /// <para>
         /// The status, layer, and context are synchronized, depending on the parameter values.  Other 
         /// properties such as body part type, transform values, etc., are not included.
         /// </para>
@@ -197,8 +198,8 @@ namespace com.lizitt.outfitter
         /// <param name="includeLayer">Synchronize the collider layer.</param>
         /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
         /// <param name="ignoreContext">
-        /// The context that should never be synchronized. (Usually the object <paramref name="to"/> is a member of,
-        /// such at its Outfit. (Required if <paramref name="includeContext"/> is true.)
+        /// The context that should never be synchronized. (Usually the object <paramref name="from"/> is a member of,
+        /// such at its outfit. (Required if <paramref name="includeContext"/> is true.)
         /// </param>
         public static void Synchronize(BodyPart to, BodyPart from,
             bool includeStatus, bool includeLayer, bool includeContext, GameObject ignoreContext)

@@ -23,9 +23,11 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
+    // TODO: Rename to OffsetMounterObject.  (Standard convention for abstract scriptable object classes.)
+
     /// <summary>
-    /// Provides common settings for a mounter that mounts and an accessory to a location with 
-    /// a position and rotation offset.
+    /// Provides common settings for a mounter that parents an accessory to a location with a position and rotation 
+    /// offset.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -42,7 +44,6 @@ namespace com.lizitt.outfitter
         [Tooltip("The coverage of the accessory on a successful mount operation.")]
         [EnumFlags(typeof(BodyCoverage), OutfitterUtil.SortBodyCoverage)]
         private BodyCoverage m_Coverage = 0;
-
 
         /// <summary>
         /// The coverage of the accessory on a successful mount operation.

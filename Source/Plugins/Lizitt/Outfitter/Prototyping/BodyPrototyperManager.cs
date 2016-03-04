@@ -6,11 +6,16 @@ using UnityEditor;
 
 namespace com.lizitt.outfitter.proto
 {
+    /// <summary>
+    /// A component useful for prototyping body and its features.  (Editor only.)
+    /// </summary>
     [AddComponentMenu(LizittUtil.LizittMenu + "Body Prototyper Manager (Editor Only)", OutfitterUtil.EditorOnlyMenuOrder)]
     [RequireComponent(typeof(BodyPrototyperSettings))]
     public class BodyPrototyperManager
         : MonoBehaviour
     {
+        // TODO: Add proper documentation.
+
         #region Settings
 
         private BodyPrototyperSettings m_Manager;

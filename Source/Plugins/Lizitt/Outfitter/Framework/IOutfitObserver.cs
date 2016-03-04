@@ -28,9 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most outfits require this interface to be implemented by a UnityEngine.Object for
-    /// serialization purposes, so outfits are allowed to reject observers that are not 
-    /// UnityEngine.Objects.
+    /// <see cref="Outfit"/> requires that this interface to be implemented by a UnityEngine.Object for serialization 
+    /// purposes.
     /// </para>
     /// </remarks>
     public interface IOutfitObserver
@@ -40,25 +39,24 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent when (<see cref="Outfit.Owner"/> and/or <see cref="Outfit.Status"/> 
-        /// have changed.
+        /// This event is sent when (<see cref="Outfit.Owner"/> and/or <see cref="Outfit.Status"/> have changed.
         /// </para>
         /// </remarks>
-        /// <param name="sender"></param>
+        /// <param name="sender">The source of the event. (Required)</param>
         void OnStateChange(Outfit sender);
 
         /// <summary>
         /// Process an accessory mount event.
         /// </summary>
-        /// <param name="sender">The outfit that mounted the accessory.</param>
-        /// <param name="accessory">The accessory that was mounted.</param>
+        /// <param name="sender">The source of the event. (Requred)</param>
+        /// <param name="accessory">The accessory that was mounted. (Required)</param>
         void OnMountAccessory(Outfit sender, Accessory accessory);
 
         /// <summary>
-        /// Process an accessory unmount event.
+        /// Process an accessory release event.
         /// </summary>
-        /// <param name="sender">The outfit that unmounted the accessory.</param>
-        /// <param name="accessory">The accessory that was unmounted.</param>
+        /// <param name="sender">The source of the event. (Requred)</param>
+        /// <param name="accessory">The accessory that was released. (Required)</param>
         void OnReleaseAccessory(Outfit sender, Accessory accessory);
 
         /// <summary>
@@ -66,31 +64,26 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent before the outfit performs any internal operations, so the
-        /// outfit starts out as valid.  Whether it stays they way depends on the actions
-        /// of the observers.
+        /// This event is sent before the outfit performs any destruction operations, so the outfit starts out as 
+        /// valid.  Whether it stays they way depends on the actions of the observers.
         /// </para>
         /// <para>
-        /// Destruction of the outfit is inevitable.  There is nothing an observer can do to
-        /// stop it.
+        /// Destruction of the outfit is inevitable.  There is nothing an observer can do to stop it.
         /// </para>
         /// <para>
-        /// Observers must only interact with outfit accessories through normal outfit operations.
-        /// (E.g. Remove them using the outfit's unmount method.)  Observers must not invalidate 
-        /// accessories owned by the outfit.
+        /// Observers must only interact with outfit accessories through normal outfit operations. E.g. Remove them 
+        /// using the outfit's release method.
         /// </para>
         /// <para>
-        /// The outfit reference is useful for certain types of bake related synchronization 
-        /// operations. (E.g. To bake the skinned mesh state from a source instance to its 
-        /// cloned instance.)
+        /// <paramref name="referenceOutfit"/> is useful for certain types of bake related synchronization 
+        /// operations. (E.g. To bake the skinned mesh state from a source instance to its cloned instance.)
         /// </para>
         /// </remarks>
         /// <param name="sender">The outfit that is to be destroyed.</param>
         /// <param name="typ">The destruction type.</param>
         /// <param name="referenceOutfit">
-        /// The outfit that the outfit being baked is derived from.
-        /// E.g. Was instanced from. Or null if the outfit has no applicable reference.
-        /// (Only applies to the 'bake' type.)
+        /// The outfit that the outfit being baked is derived from. E.g. Was instanced from. Or null if no
+        /// applicable reference is available. (Only applies to the 'bake' type.)
         /// </param>s
         void OnDestroy(Outfit sender, DestroyType typ, Outfit referenceOutfit);
     }

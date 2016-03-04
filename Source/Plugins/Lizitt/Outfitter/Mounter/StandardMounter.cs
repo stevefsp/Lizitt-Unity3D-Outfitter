@@ -23,10 +23,16 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
+    // TODO: Rename to StandardOffsetMounter.  (Easier to find.)
+
     /// <summary>
-    /// A mounter that will immediately snap the accessory to a location with optional position and rotation offsets.
+    /// A mounter that immediately parents to its location with optional position and rotation offsets.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// The mount operation will always succeed if the mount point's location type is the same as 
+    /// <see cref="DefaultLocationType"/>.
+    /// </para>
     /// <para>
     /// Update completes immediately.  Supports multiple concurrent mount operations.
     /// </para>
@@ -38,17 +44,20 @@ namespace com.lizitt.outfitter
         [Space(8)]
 
         [SerializeField]
-        [Tooltip("The location the mounter can mount to.")]
+        [Tooltip("The location the accessory can mount to.")]
         [SortedEnumPopup(typeof(MountPointType))]
         private MountPointType m_Location = (MountPointType)0;
 
+        /// <summary>
+        /// The location the accessory can mount to.
+        /// </summary>
         public override MountPointType DefaultLocationType
         {
             get { return m_Location; }
         }
 
         /// <summary>
-        /// The location the mounter can mount to.
+        /// Set the location the accessory can mount to.
         /// </summary>
         public void SetDefaultLocationType(MountPointType value)
         {

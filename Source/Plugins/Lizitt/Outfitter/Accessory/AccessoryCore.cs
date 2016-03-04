@@ -24,11 +24,11 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Implements the most common shared <see cref="Accessory"/> features.
+    /// Implements the most common <see cref="Accessory"/> features.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// In short, with a few minor exceptions, the only feature that extensions of this class need to implemment is
+    /// With a few minor exceptions the only feature that extensions of this class need to implemment is
     /// mounting, and most of the plumbing for mounting is handled by this class.
     /// </para>
     /// <para>
@@ -47,6 +47,9 @@ namespace com.lizitt.outfitter
     /// See <see cref="StandardAccesory"/> and <see cref="SimpleOffsetAccessory"/> for example implementations.
     /// </para>
     /// </remarks>
+    /// <seealso cref="Accessory"/>
+    /// <seealso cref="StandardAccessory"/>
+    /// <see cref="SimpleOffsetAccessory"/>
     public abstract class AccessoryCore
         : Accessory
     {
@@ -103,7 +106,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Send during a state change event just before the observers are notified.
+        /// A state change event called just before the observers are notified.
         /// </summary>
         protected virtual void OnStateChange()
         {
@@ -141,16 +144,15 @@ namespace com.lizitt.outfitter
         #region Mounting
 
         /// <summary>
-        /// Mount the accessory to the specified mount point.
+        /// Mount the accessory to the specified location.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method will always succeed if <see cref="CanMount(MountPointType, BodyCoverage)"/> return true.
+        /// This method will always succeed if <see cref="CanMount(MountPoint, BodyCoverage)"/> returns true.
         /// </para>
         /// <para>
-        /// It is valid to use a call to this method without pre-checking mountability. E.g. As an optimitation 
-        /// it is valid to simply call this method on a list f all available accessories to let the accessory decide 
-        /// whether or not it can mount.
+        /// Supports lazy calling.  E.g. As an optimitation it is valid to simply call this method on a list of 
+        /// available accessories to let the accessory decide whether or not it can mount.
         /// </para>
         /// <para>
         /// <paramref name="additionalCoverage"/> is useful in situations where an accessory uses a generic mounter
@@ -158,15 +160,23 @@ namespace com.lizitt.outfitter
         /// added to the coverage supplied by the mounter and/or built into the accessory.
         /// </para>
         /// <para>
-        /// Mount priority is as follows:  The priority mounter supplied by the mount method, 
-        /// the mounter provided by <see cref="GetInitializedMounter"/>, <see cref="MountInternal"/> if 
-        /// <see cref="CanMountInteral"/> is true.  <see cref="MountInternal"/> only supports immediate completion.
+        /// Mounter priority is as follows:
+        /// </para>
+        /// <para>
+        /// <ol>
+        /// <li>The priority mounter supplied by the mount method.</li>
+        /// <li>The mounter provided by <see cref="GetInitializedMounter"/></li>
+        /// <li><see cref="MountInternal"/> if <see cref="CanMountInteral"/> is true</li>
+        /// </ol>
+        /// </para>
+        /// <para>
+        /// <see cref="MountInternal"/> only supports immediate completion.
         /// </para>
         /// </remarks>
         /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The object that will own the accessory after a successful mount. (Required)</param>
         /// <param name="priorityMounter">
-        /// The mounter to attempt before any others are tried.  (I.e. A custom mounter.) (Optional)
+        /// The mounter to attempt before any others are tried. (Optional)
         /// </param>
         /// <param name="additionalCoverage">
         /// Additional coverage to apply on a successful mount, above and beyond the coverage supplied by the 
@@ -216,7 +226,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This method will only be called if the <see cref="Mount"/> method's priority mounter was not selected.
+        /// This method will only be called if the mount method's priority mounter was not selected.
         /// It is called before trying <see cref="CanMountInternal"/>.
         /// </para>
         /// </remarks>
@@ -227,7 +237,7 @@ namespace com.lizitt.outfitter
 
         /// <summary>
         /// True if <see cref="MountInternal"/> can mount to the specified location using an immediate completion
-        /// internal mount process.
+        /// mount process.
         /// </summary>
         /// <param name="location">The mount location. (Required)</param>
         /// <param name="owner">The owner on a successful mount. (Required)</param>
@@ -244,7 +254,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="location">The mount location. (Required)</param>
-        /// <param name="owner">The owener on a successful mount. (Required.</param>
+        /// <param name="owner">The owner on a successful mount. (Required.)</param>
         /// <param name="resultCoverage">The resulting coverage of the mount.</param>
         protected abstract BodyCoverage MountInternal(MountPoint location, GameObject owner);
 
@@ -252,7 +262,7 @@ namespace com.lizitt.outfitter
         private IAccessoryMounter m_CurrentMounter = null;
 
         /// <summary>
-        /// Used so mouter coroutines know if they are still valid.
+        /// Used to detect if a mouter coroutine is still valid.
         /// </summary>
         [SerializeField]
         [HideInInspector]
@@ -328,7 +338,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Deactivation/activation will happen after the 'store' event and before the 'unstore' event.
+        /// Deactivation will happen after the 'store' event.  Activation will happen before the 'unstore' event.
         /// </para>
         /// </remarks>
         public bool UseDefaultStorage
@@ -384,7 +394,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Called on the destroy event before any other action is taken.
+        /// A destory event called before any other action is taken.  (Pre-destroy)
         /// </summary>
         /// <param name="typ">The destroy type.</param>
         protected virtual void OnDestroyLocal(DestroyType typ)

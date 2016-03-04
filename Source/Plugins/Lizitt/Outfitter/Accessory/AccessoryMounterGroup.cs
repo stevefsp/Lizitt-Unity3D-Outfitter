@@ -28,12 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Designed for use as a field in a Unity component.  It provides a better editor experience than is 
-    /// available for arrays.
-    /// </para>
-    /// <para>
-    /// WARNING: This class can't be used in an array.  E.g. An array of AccessoryMounterGroup objects, 
-    /// or an array of objects that contain AccessoryMounterGroup objects.
+    /// Designed for use as a field in a Unity component.  It it provides a better editor experience when used with 
+    /// <see cref="ObjectListAttribute"/>.
     /// </para>
     /// </remarks>
     [System.Serializable]
@@ -49,7 +45,7 @@ namespace com.lizitt.outfitter
         /// discard all external references to the <paramref name="items"/> array.
         /// </para>
         /// </remarks>
-        /// <param name="mounters">The object to udpate.  (Required)</param>
+        /// <param name="mounters">The object to udpate. (Required)</param>
         /// <param name="asReference">
         /// If true, the inernal buffer will be replaced by a referecne to <paramref name="items"/>.  
         /// Otherwise <paramref name="items"/> will be copied.
@@ -64,7 +60,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        /// <param name="initialCapacity">The initial capacity of the group.</param>
         public AccessoryMounterGroup(int initialCapacity)
             : base(initialCapacity)
         {
@@ -112,7 +108,7 @@ namespace com.lizitt.outfitter
         /// Send the <see cref="IAccessoryMounter.OnAccessoryDestroy"/> event to all mounters.
         /// </summary>
         /// <param name="sender">The accessory to be destroyed.</param>
-        /// <param name="typ">The destroy type being applied to the accessory.</param>
+        /// <param name="typ">The accessory destroy type.</param>
         public void SendAccessoryDestroy(Accessory sender, DestroyType typ)
         {
             for (int i = 0; i < Count; i++)

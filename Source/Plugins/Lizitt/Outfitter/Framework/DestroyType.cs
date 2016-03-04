@@ -42,7 +42,7 @@ namespace com.lizitt.outfitter
         /// Bake the component.
         /// </summary>
         /// <remarks>
-        /// What happens to a component is baked is context and implementation specific.
+        /// What happens to a component when it is baked is both context and implementation specific.
         /// </remarks>
         Bake,
     }

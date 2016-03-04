@@ -27,13 +27,14 @@ namespace com.lizitt.outfitter
     public enum MountResult
     {
         /// <summary>
-        /// Successfully mounted and, if applicable added.
+        /// Successfully mounted and/or added.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The exact meaning of this result is context senstive.  If it is returned by an outfit mount operation
-        /// it means the mount was successful.  If returned by an accessory manager, such as a Body component, it 
-        /// means that both the mount was successful and the manager accepted management of the accessory.
+        /// The exact meaning of this result is context senstive.  If it is returned by an <see cref="Outfit"/> mount 
+        /// operation it means the mount was successful.  If returned by an accessory manager, such as a 
+        /// <see cref="Body"/> component, it means that both the mount was successful and the manager accepted 
+        /// management of the accessory.
         /// </para>
         /// </remarks>
         Success = 1,
@@ -43,7 +44,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This status will only be returned by accessory managers that support storage, such as a Body component.
+        /// This status will only be returned by accessory managers that support storage, such as the 
+        /// <see cref="Body"/> component.
         /// </para>
         /// </remarks>
         Stored,
@@ -69,20 +71,23 @@ namespace com.lizitt.outfitter
         LocationBlocked,
 
         /// <summary>
-        /// Failed: Accessory rejected mount.  
-        /// (E.g. No mounter available and/or invalid state.)
+        /// Failed: Accessory rejected mount. (E.g. No mounter available and/or invalid state.)
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Mounters and accessories are designed to be used lazily.  It is acceptable to try to mount an accessory
-        /// to a mount point, or try to use a mounter with an accessory, without first checking to see if the operation
-        /// will succeed.  This status indicates a failure to mount due to the accessory deciding it can't mount
-        /// when asked to mount.
+        /// This result is usually not an error.  Mounters and accessories are designed to be used lazily. It is 
+        /// acceptable to try to mount an accessory to a mount point, or try to use a mounter with an accessory, 
+        /// without first checking to see if the operation will succeed.  This status indicates a failure 
+        /// to mount due to the accessory deciding it can't mount when asked to mount.
         /// </para>
         /// <para>
-        /// There are three main reasons an accessory will reject a mount request:  It doesn't know how to mount to the
-        /// requested location.  For complex accessories, the state of the accessory doesn't allow the mount.  Or 
-        /// there was an error in the requrest, such as a null mount location.
+        /// There are three main reasons an accessory will reject a mount request:
+        /// </para>
+        /// <para>
+        /// <ul>
+        /// <li>It doesn't know how to mount to the requested location</li>
+        /// <li>For complex accessories, the state of the accessory doesn't allow the mount.</li>
+        /// <li>There was an error in the requrest, such as a null mount location.</li>
         /// </para>
         /// </remarks>
         RejectedByAccessory,

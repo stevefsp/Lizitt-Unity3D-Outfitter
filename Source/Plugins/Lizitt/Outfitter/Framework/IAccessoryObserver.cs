@@ -28,9 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Most accessories require this interface to be implemented by a UnityEngine.Object for
-    /// serialization purposes, so accessories are allowed to reject observers that are not 
-    /// UnityEngine.Objects.
+    /// <see cref="Accessory"/> requires that this interface to be implemented by a UnityEngine.Object for 
+    /// serialization purposes.
     /// </para>
     /// </remarks>
     public interface IAccessoryObserver
@@ -40,13 +39,12 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent if any of the following accessory properties changes:
+        /// This event is sent if any of the following accessory properties change:
         /// <see cref="Accessory.Status"/>, <see cref="Accessory.Owner"/>, 
         /// <see cref="Accessory.CurrentLocation"/>.
         /// </para>
         /// </remarks>
         /// <param name="sender">The source of the accessory event.</param>
-        /// <param name="status">The accessory status.</param>
         void OnStateChange(Accessory sender);
 
         /// <summary>
@@ -54,13 +52,11 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This event is sent before the accessory performs any internal operations, so the
-        /// accessory starts out as valid.  Whether it stays they way depends on the actions
-        /// of the observers.
+        /// This event is sent before the accessory performs any destruction operations, so the accessory starts 
+        /// out as valid.  Whether it stays they way depends on the actions of the observers.
         /// </para>
         /// <para>
-        /// Destruction of the accessory is inevitable.  There is nothing an observer can do to
-        /// stop it.
+        /// Destruction of the accessory is inevitable.  There is nothing an observer can do to stop it.
         /// </para>
         /// </remarks>
         /// <param name="sender">The accessory that is to be destroyed.</param>

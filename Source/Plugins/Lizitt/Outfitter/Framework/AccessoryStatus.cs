@@ -46,7 +46,7 @@ namespace com.lizitt.outfitter
          * state to be controlled separately from its mount state.
          * 
          * Destroyed is not included because it is very brief and could cause confusion as to
-         * where to respond to it.  The proper place to respond is in the OnDestroy event, not
+         * where to respond to it.  The proper place to respond is in the accessory OnDestroy event, not
          * the OnStateChange event. 
          */
 

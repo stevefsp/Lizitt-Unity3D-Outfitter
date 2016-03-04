@@ -30,11 +30,11 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// The body expectes that it will retain control of its outfit until the outfit is removed using
-    /// <see cref="SetOutfit"/>.  If it detects a loss of control, then it will behave as follows:
+    /// <see cref="SetOutfit(Outfit)"/> or one of its overloads.  If the body detects a loss of control, then it 
+    /// will behave as follows:
     /// </para>
     /// <para>
-    /// If the outfit bake event is received the body will perform a forced release.  (See the <see cref="SetOutfit"/> 
-    /// documentation.)
+    /// If the outfit bake event is received the body will perform a forced release.
     /// </para>
     /// <para>
     /// If a non-bake outfit destroy event is received, the body will attempt a normal release in order to recover
@@ -47,8 +47,8 @@ namespace com.lizitt.outfitter
     /// <para>
     /// If the body detects that the outfit was destroyed improperly using Object.Destroy() instead of 
     /// <see cref="Outfit.Destroy"/> then it will perform a forced release in order to clean itself up.  Observers
-    /// will receive the event so they also have a chance to cleanup. What is permanently lost depends on the steps used 
-    /// to destroy the outfit.
+    /// will receive the event so they also have a chance to cleanup. What is permanently lost depends on the 
+    /// process used to destroy the outfit.
     /// </para>
     /// </remarks>
     [RequireComponent(typeof(BodyAccessoryManager))]
@@ -61,7 +61,7 @@ namespace com.lizitt.outfitter
         [Space]
 
         [SerializeField]
-        [Tooltip("The motion root when there is no outfit assigned.  (Defaults to the body's transform.)")]
+        [Tooltip("The motion root when there is no outfit is assigned.  (Defaults to the body's transform.)")]
         [LocalComponentPopupAttribute(typeof(Transform), true)]
         private Transform m_DefaultMotionRoot = null;
 
@@ -75,7 +75,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         public Transform DefaultMotionRoot
         {
-            // Must always be available, even in editor mode.
+            // Must always be available.
             get
             {
                 if (!m_DefaultMotionRoot)
@@ -88,7 +88,7 @@ namespace com.lizitt.outfitter
 
         public sealed override Transform MotionRoot
         {
-            // Must always be avaiable, even in editor mode.
+            // Must always be avaiable.
             get { return Outfit ? Outfit.MotionRoot : DefaultMotionRoot; }
         }
 
@@ -296,7 +296,7 @@ namespace com.lizitt.outfitter
         private BodyAccessoryManager m_Accessories;
 
         /// <summary>
-        /// The accessory manager.
+        /// The accessory manager.  (Its true type.)
         /// </summary>
         protected BodyAccessoryManager AccessoriesLocal
         {
@@ -376,7 +376,7 @@ namespace com.lizitt.outfitter
         /// <li>A bake event was received from the outfit.</li>
         /// <li>
         /// The body detected that the outfit was improperly destroyed using Object.Destory() directly, instead of
-        /// through <see cref="Outfit.Destory"/>.
+        /// <see cref="Outfit.Destory"/>.
         /// </li>
         /// </ul>
         /// </para>

@@ -24,15 +24,15 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Synchronize the state of the previous outfit's mount points to the the current outfit.
+    /// Synchronize the state of the outgoing outfit's mount points to the current outfit.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// Active at design-time. Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// <para>
-    /// Limitation: This observer is designed for memory efficiency.  It only synchronizes between two known 
-    /// outfits, so the last known state is lost if the body outfit is set to null.
+    /// This observer is designed for memory efficiency.  It only synchronizes between two known outfits, so the last 
+    /// known state is lost if the body outfit is set to null.
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync MountPoint State",
@@ -45,7 +45,7 @@ namespace com.lizitt.outfitter
         private bool m_IncludeBlocked = true;
 
         /// <summary>
-        /// Synchronize the mount point status.
+        /// Synchronize the mount point 'is blocked' state.
         /// </summary>
         public bool IncludeBlockedState
         {
@@ -54,11 +54,11 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Synchronize the mount point context as long as it isn't the outfit.")]  // This is the correct behavior.
+        [Tooltip("Persist the context unless it is the outgoing outfit's GameObject.")]  // This is the correct behavior.
         private bool m_IncludeContext = false;
 
         /// <summary>
-        /// Synchronize the mount point context as long as it isn't the outfit.
+        /// Persist the context unless it is the outgoing outfit's GameObject.
         /// </summary>
         /// </remarks>
         public bool IncludeContext
@@ -93,7 +93,9 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="to">The mount point to sync to. (Required)</param>
         /// <param name="from">The mount point to sync from. (Required)</param>
-        /// <param name="ignoreContext">The context that should never be synchronized. (Required)</param>
+        /// The context that should never be synchronized. (Usually the <paramref name="from"/>'s GameObject. 
+        /// (Required if observer is configured to include context.)
+        /// </param>
         public virtual void Synchronize(MountPoint to, MountPoint from, GameObject ignoreContext)
         {
             MountPoint.Synchronize(to, from, m_IncludeBlocked, m_IncludeContext, ignoreContext);

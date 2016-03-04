@@ -23,6 +23,10 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
+    /// <summary>
+    /// A utility class for managing a list of ordered <see cref="Body"/> observers.
+    /// </summary>
+    /// <seealso cref="IBodyObserver"/>
     [System.Serializable]
     public class BodyObserverGroup
         : ObjectList<IBodyObserver>
@@ -30,12 +34,20 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="initialCapacity">The initial capacity of the list.</param>
+        /// <param name="initialCapacity">The initial capacity of the group.</param>
         public BodyObserverGroup(int initialCapacity)
             : base(initialCapacity)
         {
         }
 
+        /// <summary>
+        /// Send the <see cref="IBodyObserver.OnOutfitChange"/> event to all observers.
+        /// </summary>
+        /// <param name="sender">The body sending the event. (Required)</param>
+        /// <param name="previous">The body's previous outfit, or null if there is none.</param>
+        /// <param name="wasForced">
+        /// True if the body was forced to release its previous outfit.
+        /// </param>
         public void SendOutfitChange(Body sender, Outfit previous, bool wasForced)
         {
             bool hasNull = false;

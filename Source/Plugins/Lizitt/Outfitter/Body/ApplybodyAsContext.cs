@@ -24,17 +24,17 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// Set the context of all of the outfit's components to the body's GameObject, and clears them when the outfit is 
-    /// released.
+    /// Set the context of outfit <see cref="MountPoint"/> and/or <see cref="BodyPart"/> components to the 
+    /// <see cref="Body"/>s GameObject, and clears them when the outfit is released.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Can be an observer of any number of concurrent <see cref="Body"/> instances.
+    /// Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Apply Body As Context",
         order = OutfitterUtil.BodyObserverMenuOrder + 2)]
-    public class ApplyBodyAsContext
+    public sealed class ApplyBodyAsContext
         : ApplyBodyOutfitContext
     {
         #region Settings
@@ -69,9 +69,9 @@ namespace com.lizitt.outfitter
 
         #region Overrides
 
-        public override GameObject GetContext(Body sender, Outfit previous)
+        public override GameObject GetContext(Body body, Outfit previous)
         {
-            return sender.gameObject;
+            return body.gameObject;
         }
 
         public override void ApplyContext(Outfit outfit, GameObject context)

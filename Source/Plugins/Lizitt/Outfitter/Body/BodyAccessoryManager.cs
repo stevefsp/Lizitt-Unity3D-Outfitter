@@ -25,18 +25,17 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// A component that implements persistant accessory management for a <see cref="Body"/> or body-like object 
-    /// where the target is an <see cref="Outfit"/>.
+    /// A component that implements persistant accessory management for a <see cref="Body"/> or body-like object.
     /// </summary>
     /// <remarks>
     /// <para>
     /// This component is usually a required component of a <see cref="Body"/>, but it can act as a persistant
-    /// accessory manager for any component that manages an outfit.  Just keep the outfit up-to-date then 
+    /// accessory manager for any component that manages outfits.  Just keep the outfit up-to-date and 
     /// add/modify/remove accessories.
     /// </para>
     /// <para>
-    /// This component keeps track of its accessories.  If ownership is taken over by an external component it will
-    /// release automatically remove the accessory.
+    /// This component keeps track of its accessories.  If ownership of an accessory is it transered to an
+    /// unknown owner it will automatically discard the accessory.
     /// </para>
     /// </remarks>
     [AddComponentMenu(LizittUtil.LizittMenu + "Body Accessory Manager", OutfitterUtil.BaseMenuOrder + 4)]
@@ -46,8 +45,7 @@ namespace com.lizitt.outfitter
         #region Outfit
 
         /// <summary>
-        /// The outfit that accessories are to be applied to, or null if there is no current
-        /// outfit.
+        /// The outfit that accessories are to be applied to, or null if there is no current outfit.
         /// </summary>
         [SerializeField]
         [HideInInspector]
@@ -58,13 +56,20 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Set the current outfit and update accessory mounting as appropriate.
+        /// Set the current outfit and update accessory mount status as appropriate.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If <paramref name="discardMounted"/> is false: All accessories will be stored if there is no outfit.  
+        /// Otherwise accessories are mounted to the new outfit or stored if they won't mount.
+        /// </para>
+        /// If <paramref name="discardMounted"/> is true: All accessories mounted to the current outfit will be left
+        /// mounted and discarded.  Behavior of stored accessories is the same as when <see cref="discardMounted"/>
+        /// is true.
+        /// </para>
+        /// </remarks>
         /// <param name="outfit">The outfit, or null if there is no outfit.</param>
-        /// <param name="discardMounted">
-        /// If true, discard any accessories mounted to the current outfit.  Otherwise release and store the
-        /// accessories.
-        /// </param>
+        /// <param name="discardMounted">If true, discard any accessories mounted to the current outfit.</param>
         public void SetOutfit(Outfit outfit, bool discardMounted = false)
         {
             if (m_Outfit == outfit)
@@ -115,18 +120,24 @@ namespace com.lizitt.outfitter
         private List<AccessoryMountInfo> m_Items = new List<AccessoryMountInfo>(4);
 
         /// <summary>
-        /// The number of accessories under management.
+        /// See <see cref="IBodyAccessoryManager.Count"/>.
         /// </summary>
         public int Count
         {
             get { return m_Items.Count; }
         }
 
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
+        /// </summary>
         public AccessoryMountInfo this[int index]
         {
             get { return m_Items[index]; }
         }
 
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
+        /// </summary>
         public AccessoryMountInfo this[Accessory accessory]
         {
             get
@@ -144,6 +155,9 @@ namespace com.lizitt.outfitter
             }
         }
 
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager.Contains"/>.
+        /// </summary>
         public bool Contains(Accessory accessory)
         {
             if (!accessory)
@@ -163,19 +177,9 @@ namespace com.lizitt.outfitter
         #region Add Accessory
 
         /// <summary>
-        /// Mount the accessory to all outfits, or store it when the it can't be mounted.
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
         /// </summary>
-        /// <param name="accessory">The accessory to add.</param>
-        /// <param name="addSettings">The accessory mount settings.</param>
-        /// <param name="mustMount">
-        /// If true a failure to immediately mount will result in a failure to add.  Otherwise
-        /// a failure to immeidately mount will result in the accessory being stored.
-        /// </param>
-        /// <returns>
-        /// The result of the add operation.  (Will only ever be 'success' or 'failure'.)
-        /// </returns>
-        public MountResult Add(
-            Accessory accessory, AccessoryAddSettings addSettings, bool mustMount = false)
+        public MountResult Add(Accessory accessory, AccessoryAddSettings addSettings, bool mustMount = false)
         {
             if (!accessory)
             {
@@ -183,7 +187,7 @@ namespace com.lizitt.outfitter
                 return MountResult.FailedOnError;
             }
 
-            // Remember: Don't need to check mounter validity.  Settings setter does that.
+            // Remember: Don't need to check mounter validity.  The addSettings structure does that.
 
             for (int i = 0; i < m_Items.Count; i++)
             {
@@ -229,7 +233,9 @@ namespace com.lizitt.outfitter
             return isMounted ? MountResult.Success : MountResult.Stored;
         }
 
-
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
+        /// </summary>
         public MountResult Add(
             Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false, bool mustMount = false)
         {
@@ -242,6 +248,9 @@ namespace com.lizitt.outfitter
             return Add(accessory, settings, mustMount);
         }
 
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
+        /// </summary>
         public MountResult Add(Accessory accessory, bool ignoreRestrictions = false, bool mustMount = false)
         {
             var settings = new AccessoryAddSettings();
@@ -258,21 +267,8 @@ namespace com.lizitt.outfitter
         #region Modify Accessory
 
         /// <summary>
-        /// Modify the settings for an existing accessory.  (Performs remounting as needed.)
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Will always attempt a mount/remount if <see cref="Outfit"/> is non-null.
-        /// </para>
-        /// <para>
-        /// A failure to mount when needed will result in a transition to storage.  All other errors will
-        /// result in no change to the accessory's state, so an accessory will never be discarded by a failed
-        /// modify.
-        /// </para>
-        /// </remarks>
-        /// <param name="accessory">The accessory to change.</param>
-        /// <param name="settings">The new settings for the accessory.</param>
-        /// <returns>The result of the modification.</returns>
         public MountResult Modify(Accessory accessory, AccessoryAddSettings settings)
         {
             if (!accessory)
@@ -332,31 +328,9 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Modify and remount the accessory already being managed.
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The most common reason for modifying an accessory is to mount it to a new location on the current target.  
-        /// Modifying any setting will result in a remount attempt.  <strong>Any</strong> failure to mount will result
-        /// in the accessory being stored.
-        /// </para>
-        /// <para>
-        /// Will always attempt a mount/remount if <see cref="Outfit"/> is non-null.
-        /// </para>
-        /// <para>
-        /// A failure to mount when needed will result in a transition to storage.  All other errors will
-        /// result in no change to the accessory's state, so an accessory will never be discarded by a failed
-        /// modify.
-        /// </para>
-        /// </remarks>
-        /// <param name="accessory">The accessory.</param>
-        /// <param name="locationType">The mount location.</param>
-        /// <param name="ignoreRestrictions">
-        /// If true, ignore 'limited accessory' and coverage restrictions.  (Other restictions may still apply.)
-        /// </param>
-        /// <returns>The result of the modification.</returns>
-        public MountResult Modify(
-            Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false)
+        public MountResult Modify(Accessory accessory, MountPointType locationType, bool ignoreRestrictions = false)
         {
             var settings = new AccessoryAddSettings();
             settings.IgnoreRestrictions = ignoreRestrictions;
@@ -370,16 +344,8 @@ namespace com.lizitt.outfitter
         #region Remove Accessory
 
         /// <summary>
-        /// Removes the accessory from management, unmounting as needed.
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
         /// </summary>
-        /// </remarks>
-        /// <param name="accessory">The accessory to remove.</param>
-        /// <param name="retryStored">
-        /// If true and the removed accesosry was mounted, then retry mounts for any stored accessories.
-        /// </param>
-        /// <returns>
-        /// True if accessory was removed, false if the accessory is unrecognized.
-        /// </returns>
         public bool Remove(Accessory accessory)
         {
             if (!accessory)
@@ -404,29 +370,6 @@ namespace com.lizitt.outfitter
             }
 
             return false;
-        }
-
-        #endregion
-
-        #region Reset
-
-        public void Reset()
-        {
-            m_Outfit = null;
-
-            for (int i = m_Items.Count - 1; i >= 0; i--)
-            {
-                if (m_Items[i].Accessory)
-                {
-                    if (m_Items[i].Accessory.Owner == this)
-                    {
-                        UnlinkAccessory(i, true);
-                        m_Items[i].Accessory.Release();
-                    }
-                }
-            }
-
-            m_Items.Clear();
         }
 
         #endregion
@@ -484,6 +427,9 @@ namespace com.lizitt.outfitter
             set { m_AutoRetryStored = value; }
         }
 
+        /// <summary>
+        /// See <see cref="IBodyAccessoryManager"/> documentation.
+        /// </summary>
         public void TryMountStored()
         {
             TryToMountStored(null);

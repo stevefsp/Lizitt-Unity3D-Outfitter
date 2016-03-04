@@ -28,10 +28,9 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This class implements the outfit features that are least likely to change from
-    /// implementation to implementation.  It is a good extension point for implementations
-    /// that need to have their own accessory handling, body part handling, and
-    /// material handling.
+    /// This class implements the outfit features that are least likely to change from implementation to 
+    /// implementation.  It is a good extension point for implementations that need to have their own accessory
+    /// body part, and material handling.
     /// </para>
     /// </remarks>
     public abstract class OutfitCore
@@ -40,10 +39,9 @@ namespace com.lizitt.outfitter
         /*
          * Design notes:
          * 
-         * Custom editors exist for this class.  In order to reduce hard coded field names,
-         * the fields are organized into sections. Take care when refactoring field names that
-         * are marked as being used in the editor, and make sure you understand the custom
-         * editor design before rearranging, adding, or deleting fields.
+         * Custom editors exist for this class.  In order to reduce hard coded field names, the fields are organized 
+         * into sections. Take care when refactoring field names that are marked as being used in the editor, and 
+         * make sure you understand the custom editor design before rearranging, adding, or deleting fields.
          */
 
         #region Core Settings (Editor Section)
@@ -53,7 +51,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The transform that is used to move the outfit. (Required)")]
         [LocalComponentPopupAttribute(typeof(Transform), true)]
-        private Transform m_MotionRoot;         // Refactor note: Field name used in the editor.
+        private Transform m_MotionRoot;         // Field name used in the custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         public sealed override Transform MotionRoot
         {
@@ -79,12 +77,10 @@ namespace com.lizitt.outfitter
         public static void UnsafeSetMotionRoot(OutfitCore outfit, Transform motionRoot)
         {
             // Hack: Naming convention: An overload failure requires this to be unique method name.
-            // This method used to be UnsafeSet(Outfit, Transform).  But for some reason 
-            // calls meant for this method were redirecting to 
-            // UnsafeSet(StandardOutfit, bool, BodyPart[]) in StandardBody, so had to 
-            // abandon the overload naming convention for this method.
-            // Note:  This problem only started to happen when the body part features were
-            // moved from OutfitCore to StandardOutfit.
+            // This method used to be UnsafeSet(Outfit, Transform).  But for some reason calls were redirecting to 
+            // UnsafeSet(StandardOutfit, bool, BodyPart[]) in StandardBody, so had to abandon the overload 
+            // naming convention for this method. Note:  This problem only started to happen when the body 
+            // part features were moved from OutfitCore to StandardOutfit.
 
             if (motionRoot)
             {
@@ -106,7 +102,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The main collider for the outfit. (Optional)")]
         [LocalComponentPopupAttribute(typeof(Collider))]
-        private Collider m_PrimaryCollider;         // Refactor note: Field name used in the editor.
+        private Collider m_PrimaryCollider;         // Field name used in the editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         public sealed override Collider PrimaryCollider
         {
@@ -142,7 +138,8 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        //[HideInInspector]
+        //[HideInInspector]  Don't hide.  The custom editor ignores this field and it is useful to see it in
+        // debug inspector.
         private GameObject m_Owner = null;
 
         public sealed override GameObject Owner
@@ -151,8 +148,8 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("Use the default storage for this outfit.  Activate/deactivate the"
-            + " component's GameObject as appropriate.")]
+        [Tooltip("Use the default storage for this outfit.  (Activates/deactivates the component's GameObject as"
+            + " appropriate.")]
         private bool m_UseDefaultStorage = true;
 
         /// <summary>
@@ -160,8 +157,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// If true, deactivates the component's GameObject when it transitions into 'stored', and
-        /// activates it when it transitions out of 'stored'.
+        /// If true, deactivates the component's GameObject when it transitions into 'stored', and activates it when 
+        /// it transitions out of 'stored'.
         /// </para>
         /// </remarks>
         public bool UseDefaultStorage
@@ -174,24 +171,24 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Behavior is undefined if the value of <see cref="UseDefaultStorage"/> is changed 
-        /// after outfit initialization.
+        /// Behavior is undefined if the value of <see cref="UseDefaultStorage"/> is changed after outfit 
+        /// initialization.
         /// </para>
         /// </remarks>
         public static void UnsafeSetUseDefaultStorage(OutfitCore outfit, bool useDefaultStorage)
         {
             /*
-             * Design note: The reason this is unsafe is because of unpredicable beahvior if
-             * the value is changed during use of the outfit.  E.g. What should the outfit do
-             * if default storage is turned off when it is already in storage?  What will the
-             * user expect?
+             * Design note: The reason this is unsafe is because of unpredicable beahvior if the value is changed 
+             * during use of the outfit.  E.g. What should the outfit do if default storage is turned off when it is
+             * already in storage?  What will the user expect?
              */
 
             outfit.m_UseDefaultStorage = useDefaultStorage;
         }
 
         [SerializeField]
-        //[HideInInspector]
+        //[HideInInspector]  Don't hide.  The custom editor ignores this field and it is useful to see it in
+        // debug inspector.
         private OutfitStatus m_Status;
 
         public sealed override  OutfitStatus Status
@@ -207,13 +204,12 @@ namespace com.lizitt.outfitter
         /// <paramref name="owner"/> must be non-null for all states except 'unmanaged'.
         /// </para>
         /// <para>
-        /// Activates and deactivates the component's GameObject as appropriate based on the value 
-        /// of <see cref="UseDefaultStorage"/>.
+        /// Activates and deactivates the component's GameObject as appropriate based on the value of 
+        /// <see cref="UseDefaultStorage"/>.
         /// </para>
         /// <para>
-        /// If using default storage: The 'stored' event will be sent before GameObject
-        /// deactivation.  The other events will be sent after activation.  (I.e. Events will 
-        /// always be sent while the GameObject is active.)
+        /// If using default storage: The 'stored' event will be sent before GameObject deactivation.  The other 
+        /// events will be sent after activation.  (I.e. Events will always be sent while the GameObject is active.)
         /// </para>
         /// </remarks>
         /// <param name="status">The status.</param>
@@ -232,7 +228,8 @@ namespace com.lizitt.outfitter
             if (m_Status == status && m_Owner == owner)
                 return true;
 
-            m_Owner = owner;
+            // TODO: Ignore and give a warning if owner is set for 'unmanaged.  (Let chance user confusion about what to check for status.)
+            m_Owner = owner;  
             m_Status = status;
 
             if (m_Status == OutfitStatus.Stored)
@@ -271,8 +268,9 @@ namespace com.lizitt.outfitter
         #region Accessory Settings
 
         [SerializeField]
-        [Tooltip("Only accessories marked to ignore this flag should be attached to the outfit.")]
-        private bool m_Limited;         // Refactor note: Field name used in the editor.
+        [Tooltip("Only accessories marked to ignore this flag will be attached to the outfit unless the behavior"
+            + "is overridden at mount time.")]
+        private bool m_Limited;         // Field name used in the editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         public override bool AccessoriesLimited
         {
@@ -282,8 +280,8 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The built-in coverage blocks for the outfit.  Accessories that have any of these"
-            + " coverages will not be able to attach to the outfit.")]
+        [Tooltip("The built-in coverage blocks for the outfit.  Accessories that have any of these coverages will"
+            + " not be able to attach to the outfit unless the behavior is overriden at mount time.")]
         [EnumFlags(typeof(BodyCoverage), OutfitterUtil.SortBodyCoverage)]
         private BodyCoverage m_Blocks = 0;
 
@@ -312,11 +310,13 @@ namespace com.lizitt.outfitter
 
         [SerializeField]
         [ObjectList("Mount Points")]
-        private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Refactor note: Field name used in the editor.
+        private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Field name used in the editor <<<<<<<<<<<<<<
+
+        // TODO: EVAL: Move all iteration methods to the base class.
 
         public sealed override int MountPointCount
         {
-            get { return m_MountPoints.BufferSize;  }
+            get { return m_MountPoints.Count;  }
         }
 
         public sealed override MountPoint GetMountPoint(int index)
@@ -338,19 +338,20 @@ namespace com.lizitt.outfitter
         /// accessories are attached.
         /// </para>
         /// <para>
-        /// If <paramref name="asReference"/> is true, then all external references to the
-        /// mount point array must be discared or behavior will be undefined.
+        /// If <paramref name="asReference"/> is true, then all external references to the 
+        /// <paramref name="mountPoints"/> array must be discared or behavior will be undefined.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit. (Required)</param>
-        /// <param name="asReference">If true, the <see cref="mountPoints"/> refrence will be used
-        /// internally, otherwise the array will be copied.</param>
+        /// <param name="asReference">
+        /// If true, the <paramref name="mountPoints"/> refrence will be used internally, otherwise the array will 
+        /// be copied.
+        /// </param>
         /// <param name="mountPoints">The mount points, or null to clear all mount points.</param>
-        public static void UnsafeSet(
-            OutfitCore outfit, bool asReference, params MountPoint[] mountPoints)
+        public static void UnsafeSet(OutfitCore outfit, bool asReference, params MountPoint[] mountPoints)
         {
-            // Design note: While odd, it is not required that a mount point be
-            // a child of the outfit, so don't put any restrictions in place for that.
+            // Design note: While an odd use case, it is not required that a mount point be a child of the outfit, so
+            // don't put any restrictions in place for that.
 
             if (mountPoints == null)
                 outfit.m_MountPoints.Clear();
@@ -362,8 +363,7 @@ namespace com.lizitt.outfitter
         /// Clear all mount points.
         /// </summary>
         /// <para>
-        /// Behavior is undefined if this method if used after outfit initialization or after
-        /// accessories are attached.
+        /// Behavior is undefined if this method if used after outfit initialization or after accessories are attached.
         /// </para>
         /// <param name="outfit">The outfit. (Required.)</param>
         public static void UnsafeClearMountPoints(OutfitCore outfit)
@@ -376,21 +376,20 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Behavior is undefined if this method if used after outfit initialization or after
-        /// accessories are attached.
+        /// Behavior is undefined if this method is used after outfit initialization or after accessories are attached.
         /// </para>
         /// <para>
-        /// If <paramref name="replace"/> is false, the order of currently defined mount points
-        /// will be preserved and new mount points will be added to the end of the list.
+        /// If <paramref name="replace"/> is false, the order of currently defined mount points will be preserved with
+        /// new mount points added to the end of the list.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit. (Required)</param>
         /// <param name="replace">
-        /// If true, all current mount points will be cleared and replaced with the result of
-        /// the refresh.  Otherwise only newly detected mount points will be added.
+        /// If true, all current mount points will be cleared and replaced with the result of he refresh.  Otherwise
+        /// only newly detected mount points will be added.
         /// </param>
         /// <returns>
-        /// The number of mount points added, or all if <paramref name="replace"/> is true.
+        /// The number of new mount points added, or the total count if <paramref name="replace"/> is true.
         /// </returns>
         public static int UnsafeRefreshMountPoints(OutfitCore outfit, bool replace = false)
         {
@@ -402,11 +401,11 @@ namespace com.lizitt.outfitter
                 return fitems.Length;
             }
 
-            var before = outfit.m_MountPoints.Count;
+            var before = outfit.m_MountPoints.AssignedCount;
 
             outfit.m_MountPoints.CompressAndAdd(fitems);
 
-            return outfit.m_MountPoints.Count - before;
+            return outfit.m_MountPoints.AssignedCount - before;
         }
 
         private void ResetMountPointSettings()
@@ -443,16 +442,15 @@ namespace com.lizitt.outfitter
 
         #region Utility Features
 
-        // Note: Static untility members specific to a feature are colocated with their feature.
+        // Note: Static utility members specific to a feature are colocated with the feature.
 
         /// <summary>
         /// Resets all field values except the observers.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The observers are not cleared by this method since there are use cases that require
-        /// observer communication after the reset.  (I.e. BakePost.)  Whatever calls the
-        /// reset must decide if/when to clear the observers.
+        /// The observers are not cleared by this method since there are use cases that require observer communication
+        /// after the reset.  Whatever calls the reset must decide if/when to clear the observers.
         /// </para>
         /// </remarks>
         protected virtual void Reset()
@@ -463,7 +461,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Refreshes an outfit's observers, purging all missing items and adding any new observers found on the 
+        /// Refreshes an outfit's observers, purging all missing items and adding any new observers local to the
         /// outfit's GameObject.
         /// </summary>
         /// <param name="outfit">The outfit. (Required.)</param>

@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// is no previous outfit or the previous outfit does not have an animator.
     /// </para>
     /// <para>
-    /// The state synchronization will fail if the animator is in transition at the type of the observer event. Only 
+    /// The state synchronization will fail if the animator is in transition at the time of the observer event. Only 
     /// supports one Animator component per outfit. 
     /// </para>
     /// <para>
@@ -49,14 +49,15 @@ namespace com.lizitt.outfitter
         #region Settings
 
         [SerializeField]
-        [Tooltip("Remove the previous outfit's animator controller after syncronization is complete, unless a"
-            + " forced release was performed.")]
+        [Tooltip("Remove the previous outfit's animator controller after syncronization is complete, unless the"
+            + " outfit was force released.")]
         private bool m_IncludeRemoval = true;
 
         /// <summary>
-        /// Remove the previous outfit's animator controller after syncronization is complete, unless a forced release
-        /// was performed.
+        /// Remove the outgoing outfit's animator controller after syncronization is complete, unless the outfit 
+        /// was force released.
         /// </summary>
+        /// <seealso cref="SetOutfit(Outfit, bool)"/>
         public bool IncludeRemoval
         {
             get { return m_IncludeRemoval; }
@@ -89,10 +90,19 @@ namespace com.lizitt.outfitter
 
         #region Main Handler
 
-        public void Synchronize(Outfit current, Outfit previous, bool blockRemoval = false)
+        /// <summary>
+        /// Perform a synchronization based on the observer's settings.
+        /// </summary>
+        /// <param name="to">The outfit being synchronized to.</param>
+        /// <param name="from">The outfit whose state is being synchronized to <paramref name="to"/>.</param>
+        /// <param name="blockRemoval">
+        /// If true, ignore the <see cref="IncludeRemoval"/> setting and block removal of the controller from
+        /// <paramref name="from"/>
+        /// </param>
+        public void Synchronize(Outfit to, Outfit from, bool blockRemoval = false)
         {
-            var currAnim = current ? GetAnimator(current) : null;
-            var prevAnim = previous ? GetAnimator(previous) : null;
+            var currAnim = to ? GetAnimator(to) : null;
+            var prevAnim = from ? GetAnimator(from) : null;
 
             if (currAnim && prevAnim)
             {
@@ -122,6 +132,7 @@ namespace com.lizitt.outfitter
         /// <returns>The animator, or null if none found.</returns>
         protected virtual Animator GetAnimator(Outfit outfit)
         {
+            // TODO: EVAL: Make this public?
             return outfit.GetAnimator();
         }
 
@@ -132,6 +143,7 @@ namespace com.lizitt.outfitter
         /// <param name="previous">The previous animator.</param>
         protected virtual void PerformAnimatorSync(Animator current, Animator previous)
         {
+            // TODO: EVAL: Make this public?
             current.SynchronizeFrom(previous);
         }
 

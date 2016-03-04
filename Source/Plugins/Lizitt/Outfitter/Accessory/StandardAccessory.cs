@@ -28,7 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This component is useful when the accessory needs to support multiple and/or complex mount senarios.
+    /// This component is useful when the accessory needs to support multiple and/or complex mount senarios.  It
+    /// supports up to three levels of mounters that are tried in the following order:
     /// </para>
     /// </remarks>
     [AddComponentMenu(LizittUtil.LizittMenu + "Standard Accessory", OutfitterUtil.BaseMenuOrder + 2)]
@@ -56,19 +57,25 @@ namespace com.lizitt.outfitter
         #region Mounters & Limits
 
         [SerializeField]
-        [Tooltip("If true and no other mounter is available, use the default mounter."
-            + " (The default mounter will immediately parent and snap the accesory to any"
-            + " mount point.)")]
+        [Tooltip("Use the default mounter if no other mounter is available. (Will immediately parent the accessory"
+            + " to any mount point with no offsets and no coverage.")]
         private bool m_UseDefaultMounter = false;
 
         /// <summary>
-        /// If true and no other mounter is available, use the default mounter.
+        /// Use the default mounter if no other mounter is available.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// The default mounter will immediately parent and snap the accesory to any mount point
-        /// with no offsets and no coverage.  (Though the <see cref="Mount"/> method's 
-        /// additional coverage parameter can be used to apply coverage.)   
+        /// The default mounter will immediately parent the accessory to any mount point with no offsets and no
+        /// coverage. (Though the mount method's 'additional coverage' parameter can be used to apply 
+        /// coverage.)   
+        /// </para>
+        /// <para>
+        /// <ol>
+        /// <li>The mounter provided to the mount method.</li>
+        /// <li><see cref="PriorityMounter"/></li>
+        /// <li>The 'normal' mounters in the order of their list.</li>
+        /// </ol>
         /// </para>
         /// </remarks>
         public bool UseDefaultMounter
@@ -85,9 +92,9 @@ namespace com.lizitt.outfitter
         private AccessoryMounterGroup m_Mounters = new AccessoryMounterGroup(1);
 
         /// <summary>
-        /// The size of the mounter buffer.
+        /// The maximum number of mounters the accessory contains.  (Some may be null.)
         /// </summary>
-        public int MounterBufferSize
+        public int MounterCount
         {
             get { return m_Mounters.Count; }
         }
@@ -101,7 +108,7 @@ namespace com.lizitt.outfitter
         /// </para>
         /// </remarks>
         /// <param name="index">
-        /// The index [0 &tl= value &lt; <see cref="MounterBufferSize"/>]
+        /// The index [0 &tl= value &lt; <see cref="MounterCount"/>]
         /// </param>
         /// <returns>The mounter at the specified index, or null if there is none.</returns>
         public IAccessoryMounter GetMounter(int index)
@@ -117,14 +124,9 @@ namespace com.lizitt.outfitter
         /// Behavior is undefined if this method if used after accessory initialization.
         /// </para>
         /// <para>
-        /// If <paramref name="asReference"/> is true, then all external references to the
-        /// mounters array must be discared or behavior will be undefined.
-        /// </para>
         /// </remarks>
         /// <param name="accessory">The accessory. (Required)</param>
-        /// <param name="asReference">If true the accessory will use the reference to the array.  
-        /// Otherwise the array will be copied.</param>
-        /// <param name="mountPoints">The mounters, or null to clear all mounters.</param>
+        /// <param name="mountPoints">The replacement mounters. (Required)</param>
         public static bool UnsafeReplaceMounters(StandardAccessory accessory, params IAccessoryMounter[] mounters)
         {
             AccessoryMounterGroup.UnsafeReplaceItems(accessory, accessory.m_Mounters, mounters);
@@ -132,7 +134,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Clear all mounters.
+        /// Clear all mounters.  (Except <see cref="PriorityMounter"/>.)
         /// </summary>
         /// <para>
         /// Behavior is undefined if this method if used after accessory initialization.
@@ -152,9 +154,14 @@ namespace com.lizitt.outfitter
         /// </summary>
         /// <remarks>
         /// <para>
-        /// When mounting, mounters are tried in the following order:  The mount method's
-        /// priority mounter, this priority mounter, then the 'normal' mounters in the order of their
-        /// list.
+        /// When mounting, mounters are tried in the following order:
+        /// </para>
+        /// <para>
+        /// <ol>
+        /// <li>The mounter provided to the mount method.</li>
+        /// <li>This mounter.</li>
+        /// <li>The 'normal' mounters in the order of their list.</li>
+        /// </ol>
         /// </para>
         /// </remarks>
         public IAccessoryMounter PriorityMounter
@@ -175,17 +182,17 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [Tooltip("The location type the accessory can always mount to. (The default mounter will be used if no"
+        [Tooltip("The location the accessory can always mount to. (The default mounter will be used if no"
             + " other mounter is avaiable.)")]
         [SortedEnumPopup(typeof(MountPointType))]
-        private MountPointType m_DefaultLocation;  // Required by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        private MountPointType m_DefaultLocation;  // Type is by custom editor. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
         /// <summary>
-        /// The location type the accessory can always mount to.
+        /// The location the accessory can always mount to.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// It no other mounter is available, then the default mounter will be used, even if it is disabled.
+        /// The default mounter will be used if no other mounter is avaiable.  (Even if it is disabled.)
         /// </para>
         /// </remarks>
         public sealed override MountPointType DefaultLocationType

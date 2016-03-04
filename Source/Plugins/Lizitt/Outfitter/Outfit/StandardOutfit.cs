@@ -25,19 +25,18 @@ using UnityEngine;
 namespace com.lizitt.outfitter
 {
     /// <summary>
-    /// An generalized outfit that implements all of the standard outfit behavior.
+    /// An outfit that implements all of the standard outfit behavior.
     /// </summary>
     [AddComponentMenu(LizittUtil.LizittMenu + "Standard Outfit", OutfitterUtil.BaseMenuOrder + 0)]
     public class StandardOutfit
         : OutfitCore, IAccessoryObserver
     {
-        /* 
+        /*
          * Design notes:
          * 
-         * Custom editors exist for this class.  In order to reduce hard coded field names,
-         * the fields are organized into sections. Take care when refactoring field names that
-         * are marked as being used in the editor, and make sure you understand the custom
-         * editor design before rearranging, adding, or deleting fields.
+         * Custom editors exist for this class.  In order to reduce hard coded field names, the fields are organized 
+         * into sections. Take care when refactoring field names that are marked as being used in the editor, and 
+         * make sure you understand the custom editor design before rearranging, adding, or deleting fields.
          */
 
         #region Body Parts (Editor Section)
@@ -50,7 +49,7 @@ namespace com.lizitt.outfitter
 
         public sealed override int BodyPartCount
         {
-            get { return m_Parts.BufferSize; }
+            get { return m_Parts.Count; }
         }
 
         public sealed override BodyPart GetBodyPart(int index)
@@ -59,20 +58,22 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Replaces the current body parts with the provided body parts.
+        /// Replaces the current body parts with the provided mounts points.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Behavior is undefined if this method if used after outfit initialization.
+        /// Behavior is undefined if this method if used after outfit initialization or after
+        /// accessories are attached.
         /// </para>
         /// <para>
-        /// If <paramref name="asReference"/> is true, then all external references to the body part array must be
-        /// discared or behavior will be undefined.
+        /// If <paramref name="asReference"/> is true, then all external references to the 
+        /// <paramref name="bodyParts"/> array must be discared or behavior will be undefined.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit. (Required)</param>
         /// <param name="asReference">
-        /// If true the outfit will use the reference to the body part rray.  Otherwise the array will be copied.
+        /// If true, the <paramref name="bodyParts"/> refrence will be used internally, otherwise the array will 
+        /// be copied.
         /// </param>
         /// <param name="mountPoints">The body parts, or null to clear all body parts.</param>
         public static void UnsafeSet(StandardOutfit outfit, bool asReference, params BodyPart[] bodyParts)
@@ -93,23 +94,25 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Refreshes the body parts by performing a child search.
+        /// Refreshes the body parts using a child search.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Behavior is undefined if this method if used after outfit initialization.
+        /// Behavior is undefined if this method is used after outfit initialization.
         /// </para>
         /// <para>
-        /// If <paramref name="replace"/> is false, the order of currently defined body parts will be preserved.  New
-        /// body parts will be added to the end of the body part list.
+        /// If <paramref name="replace"/> is false, the order of currently defined body parts will be preserved with
+        /// new body parts added to the end of the list.
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit. (Required)</param>
         /// <param name="replace">
-        /// If true, all current body parts will be cleared and replaced with the result of the refresh.  Otherwise
+        /// If true, all current body parts will be cleared and replaced with the result of he refresh.  Otherwise
         /// only newly detected body parts will be added.
         /// </param>
-        /// <returns>The number of body parts added, or all  if <paramref name="replace"/> is true.</returns>
+        /// <returns>
+        /// The number of new body parts added, or the total count if <paramref name="replace"/> is true.
+        /// </returns>
         public static int UnsafeRefreshBodyParts(StandardOutfit outfit, bool replace = false)
         {
             var items = outfit.GetComponentsInChildren<BodyPart>();
@@ -120,21 +123,23 @@ namespace com.lizitt.outfitter
                 return items.Length;
             }
 
-            var before = outfit.m_Parts.Count;
+            var before = outfit.m_Parts.AssignedCount;
 
             outfit.m_Parts.CompressAndAdd(items);
 
-            return outfit.m_Parts.Count - before;
+            return outfit.m_Parts.AssignedCount - before;
         }
 
         #endregion
 
         #region Renderers & Materials (Editor Section)
 
+        // TODO: EVAL: Create an attribute that checks that the renderer contains blend shapes.
+
         [SerializeField]
         [Tooltip("The renderer that contains the outfit's blend shapes.  (Optional)")]
         [LocalComponentPopupAttribute(typeof(Renderer))]
-        private SkinnedMeshRenderer m_BlendRenderer;         // Refactor note: Field name used in the editor.
+        private SkinnedMeshRenderer m_BlendRenderer;    // Refactor note: Field name used in the editor. <<<<<<<<<<<<<<<
 
         public sealed override SkinnedMeshRenderer BlendShapeRenderer
         {
@@ -186,12 +191,12 @@ namespace com.lizitt.outfitter
             return m_OutfitMaterialTargets.GetSharedMaterial(typ);
         }
 
-        public override int OutfitMaterialCount
+        public sealed override int OutfitMaterialCount
         {
             get { return m_OutfitMaterialTargets.Count; }
         }
 
-        public override OutfitMaterial GetSharedMaterial(int index)
+        public sealed override OutfitMaterial GetSharedMaterial(int index)
         {
             return m_OutfitMaterialTargets[index].SharedOutfitMaterial;
         }
@@ -206,14 +211,13 @@ namespace com.lizitt.outfitter
             return m_OutfitMaterialTargets.IsDefined(typ);
         }
 
-        public override OutfitMaterialType[] GetOutfitMaterialTypes()
+        public sealed override OutfitMaterialType[] GetOutfitMaterialTypes()
         {
             return m_OutfitMaterialTargets.GetMaterialTypes();
         }
 
         /// <summary>
-        /// Sets the specified outfit material target, or adds a new material target if the
-        /// type does not exist.
+        /// Sets the specified outfit material target, or adds a new material target if the type does not exist.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -224,11 +228,10 @@ namespace com.lizitt.outfitter
         /// <param name="outfit">The outfit. (Required)</param>
         /// <param name="typ">The material type.</param>
         /// <param name="target">The new target for the material type.</param>
-        public static void AddMaterialTarget(
-            StandardOutfit outfit, OutfitMaterialType typ, RendererMaterialPtr target)
+        public static void AddMaterialTarget( StandardOutfit outfit, OutfitMaterialType typ, RendererMaterialPtr target)
         {
-            // Design note: This is a class member because its use is expected to be limited
-            // to outfit initialization.  Don't want to unnecessarily clutter the instance API.
+            // Design note: This is a static member because its use is expected to be limited to outfit 
+            // initialization.  Don't want to unnecessarily clutter the instance API.
 
             outfit.m_OutfitMaterialTargets.AddTarget(typ, target);
         }
@@ -255,7 +258,7 @@ namespace com.lizitt.outfitter
         }
 
         [SerializeField]
-        [HideInInspector]
+        [HideInInspector]  // Too many dependancies to ever allow this field to be seen, even in the debug inspector.
         private List<Accessory> m_Accessories = new List<Accessory>(4);
 
         public sealed override int AccessoryCount
@@ -271,9 +274,8 @@ namespace com.lizitt.outfitter
         public sealed override MountResult Mount(Accessory accessory, MountPointType locationType, 
             bool ignoreRestrictions, IAccessoryMounter priorityMounter, BodyCoverage additionalCoverage)
         {
-            // Error checks are optimized with the assumption that the mount will succeed.
-            // Remounts to the same location are allowed.  (Mounter may have changed or may have special 
-            // remount behavior.)
+            // Error checks are optimized with the assumption that the mount will succeed. Remounts to the same 
+            // location are allowed.  (Mounter may have changed or may have special remount behavior.)
 
             var location = GetMountPoint(locationType);
             if (!location)
@@ -321,7 +323,7 @@ namespace com.lizitt.outfitter
 
             LinkAccessory(accessory);
 
-            Observers.SendMount(this, accessory);
+            Observers.SendAccessoryMount(this, accessory);
 
             return MountResult.Success;
         }
@@ -341,7 +343,7 @@ namespace com.lizitt.outfitter
 
         private void SendUnmount(Accessory accessory)
         {
-            Observers.SendRelease(this, accessory);
+            Observers.SendReleaseAccessory(this, accessory);
         }
 
         private void LinkAccessory(Accessory accessory)
@@ -457,11 +459,11 @@ namespace com.lizitt.outfitter
         /// The MotionRoot is guarenteed to be assigned after this process completes.
         /// </para>
         /// <para>
-        /// Will attempt to locate and assign the MotionRoot, primary collider, body parts, and mount points, 
+        /// Will attempt to locate and assign the MotionRoot, primary collider, body parts, mount points, 
         /// and observers.  Lists will be updated such that the order of existing items will not change.
         /// </para>
         /// <para>
-        /// Warning: Will not attempt to check the validity in existing settings. 
+        /// Warning: Does not attempt to check the validity in existing settings. 
         /// </para>
         /// </remarks>
         /// <param name="outfit">The outfit. (Required.)</param>

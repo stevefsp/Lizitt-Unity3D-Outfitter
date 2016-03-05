@@ -101,7 +101,7 @@ namespace com.lizitt.outfitter.editor
 
             var nstatus = EditorGUIDraw.FilteredColliderStatusPopup(
                 EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel,
-                bp.ColliderBehavior, ColliderBehaviorCategory.Rigidbody);
+                bp.ColliderBehavior, ColliderBehaviorCategory.RigidBody);
 
             if (nstatus != bp.ColliderBehavior)
                 EditorGUIUtil.SetRigidbodyBehavior(bp.Collider.GetAssociatedRigidBody(), (RigidbodyBehavior)nstatus);

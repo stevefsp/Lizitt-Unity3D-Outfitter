@@ -208,16 +208,27 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// Applies the colider status to all body parts owned by the outfit.
+        /// Applies the rigidbody behavior to all body parts owned by the outfit.
         /// </summary>
-        /// <param name="status">The desired status.</param>
-        public void ApplyBodyPartStatus(ColliderStatus status)
+        /// <remarks>
+        /// <para>
+        /// Warning: If non-body part colliders are associated with the same rigidbody as a body part collider, then 
+        /// the non-body part colliders will be caught up in the behavior change.
+        /// </para>
+        /// </remarks>
+        /// <param name="status">The desired behavior.</param>
+        public void ApplyBodyPartRehavior(RigidbodyBehavior behavior)
         {
+            // Optimized for one rigidbody per collider.  Other configurations will result in duplicated effort.
             for (int i = 0; i < BodyPartCount; i++)
             {
                 var item = GetBodyPart(i);
-                if (item)
-                    item.ColliderStatus = status;
+                if (item && item.Collider)
+                {
+                    var rb = item.Collider.GetAssociatedRigidBody();
+                    if (rb)
+                        rb.SetBehavior(behavior, true);
+                }
             }
         }
 

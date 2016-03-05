@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// Body parts provide higher resolution collision data than can be provied by a single outfit collider.  
-    /// <see cref="ColliderStatus"/> is used to  modify collider behavior as needed.
+    /// <see cref="RigidbodyBehavior"/> is used to modify body part behavior as needed.
     /// </para>
     /// <para>
     /// While body parts are normally associated with an <see cref="Outfit"/>, the owner can be any GameObject.
@@ -37,7 +37,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     /// <seealso cref="Outfit"/>
-    [AddComponentMenu(LizittUtil.LizittMenu + "Body Part", OutfitterUtil.BaseMenuOrder + 5)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Body Part", OutfitterUtil.OutfitMenuOrder + 1)]
     public class BodyPart
         : MonoBehaviour
     {
@@ -164,20 +164,10 @@ namespace com.lizitt.outfitter
         /// Changes to the status can result in changes to both the body part's collider and rigidbody.
         /// </para>
         /// </remarks>
-        public ColliderStatus ColliderStatus
+        public ColliderBehavior ColliderBehavior
         {
             // Property first, then field.
-            get { return Collider ? m_Collider.GetStatus() : ColliderStatus.Disabled; }
-            set
-            {
-                if (!Collider)
-                {
-                    Debug.LogError(PartType + ": Can't set status while the collider is null.", this);
-                    return;
-                }
-
-                m_Collider.SetStatus(value);
-            }
+            get { return Collider ? m_Collider.GetBehavior() : ColliderBehavior.Disabled; }
         }
 
         /// <summary>
@@ -194,7 +184,7 @@ namespace com.lizitt.outfitter
         /// </remarks>
         /// <param name="to">The body part to sync to. (Required)</param>
         /// <param name="from">The body part to sync from. (Required)</param>
-        /// <param name="includeStatus">Synchronize the collider status.</param>
+        /// <param name="includeRigidbodyBehavior">Synchronize the collider status.</param>
         /// <param name="includeLayer">Synchronize the collider layer.</param>
         /// <param name="includeContext">Synchronize the context unless it is <paramref name="ignoreContext"/>.</param>
         /// <param name="ignoreContext">
@@ -202,10 +192,23 @@ namespace com.lizitt.outfitter
         /// such at its outfit. (Required if <paramref name="includeContext"/> is true.)
         /// </param>
         public static void Synchronize(BodyPart to, BodyPart from,
-            bool includeStatus, bool includeLayer, bool includeContext, GameObject ignoreContext)
+            bool includeRigidbodyBehavior, bool includeLayer, bool includeContext, GameObject ignoreContext)
         {
-            if (includeStatus)
-                to.ColliderStatus = from.ColliderStatus;
+            if (includeRigidbodyBehavior)
+            {
+                if (to.Collider && from.Collider)
+                {
+                    var fromRb = from.Collider.GetAssociatedRigidBody();
+                    var toRb = to.Collider.GetAssociatedRigidBody();
+                    if (fromRb & toRb)
+                    {
+                        toRb.SetBehavior(fromRb.GetBehavior());
+                        toRb.useGravity = fromRb.useGravity;
+                        if (Application.isPlaying)
+                            toRb.detectCollisions = toRb.detectCollisions;
+                    }
+                }
+            }
 
             if (includeLayer)
                 to.ColliderLayer = from.ColliderLayer;

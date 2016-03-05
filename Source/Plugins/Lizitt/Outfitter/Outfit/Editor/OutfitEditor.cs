@@ -21,6 +21,7 @@
  */
 using UnityEditor;
 using UnityEngine;
+using com.lizitt.editor;
 
 namespace com.lizitt.outfitter.editor
 {
@@ -144,31 +145,35 @@ namespace com.lizitt.outfitter.editor
 
         #region Body Part Members
 
-        public static bool ApplyBodyPartColliderStatus(
-            Outfit outfit, ColliderStatus status, bool singleUndo = true, string undoLabel = null)
+        public static void ApplyBodyPartColliderStatus(Outfit outfit, RigidbodyBehavior status, bool singleUndo = true, 
+            string undoLabel = "Set BP Collider Status")
         {
             if (AssetDatabase.Contains(outfit))
             {
                 Debug.LogError("Can't modify an outfit asset.  Outfit must be in the scene.", outfit);
-                return false;
+                return;
             }
 
             if (outfit.BodyPartCount == 0)
-                return false;
+                return;
 
             if (singleUndo)
                 Undo.IncrementCurrentGroup();
 
-            undoLabel = string.IsNullOrEmpty(undoLabel) ? "Set BP Collider Status" : undoLabel;
+            for (int i = 0; i < outfit.BodyPartCount; i++)
+            {
+                var bp = outfit.GetBodyPart(i);
 
-            Undo.RecordObjects(Outfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
-
-            outfit.ApplyBodyPartStatus(status);
+                if (bp && bp.Collider)
+                {
+                    var rb = bp.Collider.GetAssociatedRigidBody();
+                    if (rb)
+                        EditorGUIUtil.SetRigidbodyBehavior(rb, status, false, undoLabel);
+                }
+            }
 
             if (singleUndo)
                 Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-
-            return true;
         }
 
         public static bool ApplyBodyPartLayer(
@@ -201,34 +206,6 @@ namespace com.lizitt.outfitter.editor
         #endregion
 
         #region Primary Collider Members
-
-        public static bool SetPrimaryColliderStatus(
-            Outfit outfit, ColliderStatus status, bool singleUndo = true, string undoLabel = null)
-        {
-            if (AssetDatabase.Contains(outfit))
-            {
-                Debug.LogError("Can't modify an outfit asset.  Outfit must be in the scene.", outfit);
-                return false;
-            }
-
-            if (!(outfit.PrimaryCollider && outfit.PrimaryRigidbody))
-                return false;
-
-            if (singleUndo)
-                Undo.IncrementCurrentGroup();
-
-            undoLabel = string.IsNullOrEmpty(undoLabel) ? "Set Primary Collider Status" : undoLabel;
-
-            Undo.RecordObject(outfit.PrimaryCollider, undoLabel); 
-            Undo.RecordObject(outfit.PrimaryRigidbody, undoLabel);
-
-            outfit.PrimaryCollider.SetStatus(status);
-
-            if (singleUndo)
-                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-
-            return true;
-        }
 
         public static bool SetPrimaryColliderLayer(
             Outfit outfit, int layer, bool singleUndo = true, string undoLabel = null)

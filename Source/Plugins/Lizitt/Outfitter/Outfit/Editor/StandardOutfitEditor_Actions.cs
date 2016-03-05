@@ -270,14 +270,14 @@ namespace com.lizitt.outfitter.editor
 
         #region Colliders
 
-        private static ColliderStatus m_ColliderStatusChoice = ColliderStatus.Disabled;
+        private static RigidbodyBehavior m_RigidbodyBehaviorChoice = RigidbodyBehavior.Disabled;
         private static int m_ColliderLayer = UnityLayer.Default;
 
-        private static readonly GUIContent BodyPartStatusLabel =
-            new GUIContent("Set BPs", "Apply to all body parts.");
+        private static readonly GUIContent BodyPartStatusLabel = 
+            new GUIContent("Set BPs", "Apply the rigidbody behavior to all body parts.");
 
-        private static readonly GUIContent PrimaryStatusLabel =
-            new GUIContent("Set Pri", "Apply to the primary collider.");
+        private static readonly GUIContent PrimaryStatusLabel = 
+            new GUIContent("Set Pri", "Apply the rigidbody behavior to the primary collider.");
 
         public void DrawColliderActions()
         {
@@ -289,21 +289,19 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUIUtil.BeginLabelWidth(50);
 
-            EditorGUILayout.LabelField("Status");
+            EditorGUILayout.LabelField("Behavior");
             EditorGUILayout.BeginHorizontal();
 
-            var position = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
-            m_ColliderStatusChoice = EditorGUIDraw.FilteredColliderStatusPopup(
-                position, GUIContent.none, m_ColliderStatusChoice, ColliderStatusCategory.RigidBody);
+            m_RigidbodyBehaviorChoice = (RigidbodyBehavior)EditorGUILayout.EnumPopup(m_RigidbodyBehaviorChoice);
 
             GUI.enabled = outfit.BodyPartCount > 0;
             if (GUILayout.Button(BodyPartStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                ApplyBodyPartColliderStatus(outfit, m_ColliderStatusChoice);
+                ApplyBodyPartColliderStatus(outfit, m_RigidbodyBehaviorChoice);
             GUI.enabled = true;
 
-            GUI.enabled = outfit.PrimaryCollider;
+            GUI.enabled = outfit.PrimaryRigidbody;
             if (GUILayout.Button(PrimaryStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                SetPrimaryColliderStatus(outfit, m_ColliderStatusChoice);
+                EditorGUIUtil.SetRigidbodyBehavior(outfit.PrimaryRigidbody, m_RigidbodyBehaviorChoice);
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();

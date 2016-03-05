@@ -262,19 +262,6 @@ namespace com.lizitt.outfitter
             }
         }
 
-        /// <summary>
-        /// Apply the collider status to all items in the group.
-        /// </summary>
-        /// <param name="status">The status to apply.</param>
-        public void ApplyStatusToAll(ColliderStatus status)
-        {
-            for (int i = 0; i < m_Items.Length; i++)
-            {
-                if (m_Items[i])
-                    m_Items[i].ColliderStatus = status;
-            }
-        }
-
         #endregion
     }
 }

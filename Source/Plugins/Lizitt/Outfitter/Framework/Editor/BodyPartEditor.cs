@@ -68,11 +68,20 @@ namespace com.lizitt.outfitter.editor
                 return;
             }
 
-            OutfitterEditorUtil.ShowInspectorActions = 
-                EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
+            var bp = Target;
+            if (bp.Collider)
+            {
+                if (bp.Collider.GetAssociatedRigidBody())
+                {
+                    OutfitterEditorUtil.ShowInspectorActions =
+                        EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
 
-            if (OutfitterEditorUtil.ShowInspectorActions)
-                DrawActions();
+                    if (OutfitterEditorUtil.ShowInspectorActions)
+                        DrawActions();
+                }
+                else
+                    EditorGUILayout.HelpBox("The collider does not have a rigidbody.", MessageType.Error);
+            }
             
             EditorGUILayout.Space();
         }
@@ -88,44 +97,14 @@ namespace com.lizitt.outfitter.editor
         {
             var bp = Target;
 
-            //var nstatus = (ColliderStatus)EditorGUILayout.EnumPopup("Collider Status", bp.ColliderStatus);
+            // Note: Rigidbody is guarenteed.
 
             var nstatus = EditorGUIDraw.FilteredColliderStatusPopup(
-                EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel, 
-                bp.ColliderStatus, bp.Collider);
+                EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel,
+                bp.ColliderBehavior, ColliderBehaviorCategory.RigidBody);
 
-            if (nstatus != bp.ColliderStatus)
-                SetColliderStatus(bp, nstatus);
-        }
-         
-        public static bool SetColliderStatus(
-            BodyPart bodyPart, ColliderStatus status, bool singleUndo = true, string undoLabel = null)
-        {
-            if (bodyPart.ColliderStatus == status)
-                return false;
-
-            if (!bodyPart.Collider)
-            {
-                Debug.Log("Can't set status on a null collider.", bodyPart);
-                return false;
-            }
-
-            undoLabel = string.IsNullOrEmpty(undoLabel) ? "Set Body Part Status" : undoLabel;
-
-            if (singleUndo)
-                Undo.IncrementCurrentGroup();
-
-            Undo.RecordObject(bodyPart, undoLabel);
-            Undo.RecordObject(bodyPart.Collider, undoLabel);
-            if (bodyPart.Rigidbody)
-                Undo.RecordObject(bodyPart.Rigidbody, undoLabel);
-
-            bodyPart.ColliderStatus = status;
-
-            if (singleUndo)
-                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
-
-            return true;
+            if (nstatus != bp.ColliderBehavior)
+                EditorGUIUtil.SetRigidbodyBehavior(bp.Collider.GetAssociatedRigidBody(), (RigidbodyBehavior)nstatus);
         }
 
         #endregion

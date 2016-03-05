@@ -32,8 +32,8 @@ namespace com.lizitt.outfitter
     /// This makes the class useful for defining a group of materials that are to be applied to an outfit.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Outfit Material Settings", 
-        order = OutfitterUtil.BaseMenuOrder + 5)]
+    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Outfit Material Settings", 
+        order = OutfitterUtil.OutfitMenuOrder)]
     public sealed class OutfitMaterialSettings
         : ScriptableObject
     {

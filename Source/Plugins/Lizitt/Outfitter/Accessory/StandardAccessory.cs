@@ -32,7 +32,7 @@ namespace com.lizitt.outfitter
     /// supports up to three levels of mounters that are tried in the following order:
     /// </para>
     /// </remarks>
-    [AddComponentMenu(LizittUtil.LizittMenu + "Standard Accessory", OutfitterUtil.BaseMenuOrder + 2)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Standard Accessory", OutfitterUtil.AccessoryMenuOrder + 0)]
     public class StandardAccessory
         : AccessoryCore
     {

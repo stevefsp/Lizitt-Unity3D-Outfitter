@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// <see cref="DefaultLocationType"/> and the supplied owner is non-null.
     /// </para>
     /// </remarks>
-    [AddComponentMenu(LizittUtil.LizittMenu + "Simple Offset Accessory", OutfitterUtil.BaseMenuOrder + 1)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Simple Offset Accessory", OutfitterUtil.AccessoryMenuOrder + 1)]
     public class SimpleOffsetAccessory
         : AccessoryCore
     {

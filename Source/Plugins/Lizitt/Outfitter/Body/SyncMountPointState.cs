@@ -35,8 +35,7 @@ namespace com.lizitt.outfitter
     /// known state is lost if the body outfit is set to null.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync MountPoint State",
-        order = OutfitterUtil.BodyObserverMenuOrder + 2)]
+    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Sync MountPoint State", order = OutfitterUtil.BodyMenuOrder)]
     public class SyncMountPointState
         : BodyObserverObject
     {

@@ -9,7 +9,7 @@ namespace com.lizitt.outfitter.proto
     /// <summary>
     /// A component useful for prototyping body and its features.  (Editor only.)
     /// </summary>
-    [AddComponentMenu(LizittUtil.LizittMenu + "Body Prototyper Manager (Editor Only)", OutfitterUtil.EditorOnlyMenuOrder)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Body Prototyper Manager (Editor Only)", OutfitterUtil.EditorOnlyMenuOrder)]
     [RequireComponent(typeof(BodyPrototyperSettings))]
     public class BodyPrototyperManager
         : MonoBehaviour

@@ -34,8 +34,7 @@ namespace com.lizitt.outfitter
     /// This observer is designed for memory efficiency.  It only synchronizes between two known outfits, so the last 
     /// known state is lost if the body outfit is set to null.
     /// </para>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync BodyPart State",
-        order = OutfitterUtil.BodyObserverMenuOrder + 2)]
+    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Sync BodyPart State", order = OutfitterUtil.BodyMenuOrder)]
     public class SyncBodyPartState
         : BodyObserverObject
     {

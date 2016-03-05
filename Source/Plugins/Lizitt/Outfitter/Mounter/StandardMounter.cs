@@ -37,7 +37,7 @@ namespace com.lizitt.outfitter
     /// Update completes immediately.  Supports multiple concurrent mount operations.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Standard Mounter", order=OutfitterUtil.MounterMenuOrder + 0)]
+    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Standard Mounter", order = OutfitterUtil.AccessoryMenuOrder)]
     public class StandardMounter
         : OffsetMounter
     {

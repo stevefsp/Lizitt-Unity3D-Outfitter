@@ -31,44 +31,43 @@ namespace com.lizitt.outfitter
         #region Unity Editor
 
         /*
-         * This region includes utility members for use with the Unity editor.  
-         * E.g. The CreateAssetMenu attribute.
+         * Utility members for use with the Unity editor.  E.g. With CreateAssetMenu and AddComponentMenu attributes.
          */
+
+        /// <summary>
+        /// The base outfitter menu for GameObject and Component menus.
+        /// </summary>
+        public const string Menu = LizittUtil.LizittMenu + "Outfitter/";
+
+        /// <summary>
+        /// The base outfitter menu for the asset creation menu.
+        /// </summary>
+        public const string AssetMenu = "Lizitt Outfitter/";  // Should not go more than one deep on this menu.
 
         /// <summary>
         /// The base menu order for Outfitter assets. (For use With the menu attributes.)
         /// </summary>
-        public const int BaseMenuOrder = LizittUtil.LizittMenuOrder + 200;
+        private const int BaseMenuOrder = LizittUtil.LizittMenuOrder;
 
         /// <summary>
-        /// The base menu order for accessory mounter assets. (For use With the menu attributes.)
+        /// The base menu order for outfit related components.
         /// </summary>
-        public const int MounterMenuOrder = BaseMenuOrder;
+        public const int OutfitMenuOrder = BaseMenuOrder;
 
         /// <summary>
-        /// The base menu order for accessory observer assets. (For use With the menu attributes.)
+        /// The base menu order for accessory related components.
         /// </summary>
-        public const int AccessoryObserverMenuOrder = BaseMenuOrder + 10;
+        public const int AccessoryMenuOrder = BaseMenuOrder + 40;
 
         /// <summary>
-        /// The base menu order for outfit observer assets. (For use With the menu attributes.)
+        /// The base menu order for body related components.
         /// </summary>
-        public const int OutfitObserverMenuOrder = BaseMenuOrder + 20;
-
-        /// <summary>
-        /// The base menu order for body observer assets. (For use With the menu attributes.)
-        /// </summary>
-        public const int BodyObserverMenuOrder = BaseMenuOrder + 30;
-
-        /// <summary>
-        /// The base menu order for outfit factory assets. (For use With the menu attributes.)
-        /// </summary>
-        public const int OutfitFactoryMenuOrder = BaseMenuOrder + 80;
+        public const int BodyMenuOrder = BaseMenuOrder + 80;
 
         /// <summary>
         /// The base menu order for editor-only assets. (For use With the menu attributes.)
         /// </summary>
-        public const int EditorOnlyMenuOrder = BaseMenuOrder + 100;
+        public const int EditorOnlyMenuOrder = BaseMenuOrder + 120;
 
         #endregion
 

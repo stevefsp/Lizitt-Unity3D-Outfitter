@@ -41,8 +41,7 @@ namespace com.lizitt.outfitter
     /// <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = LizittUtil.LizittMenu + "Sync Body Outfit Animators",
-        order = OutfitterUtil.BodyObserverMenuOrder + 3)]
+    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Sync Body Outfit Animators", order = OutfitterUtil.BodyMenuOrder)]
     public class SyncBodyAnimators
         : BodyObserverObject
     {

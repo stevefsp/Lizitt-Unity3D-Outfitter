@@ -246,7 +246,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Apply the specified layer to all items in the group.
         /// </summary>
-        /// <param name="layer">The layer. [0 &lt;= value &lt=; 31]</param>
+        /// <param name="layer">The layer. [0 &lt;= value &tl;= 31]</param>
         public void ApplyLayerToAll(int layer)
         {
             if (layer < 0 || layer > 31)

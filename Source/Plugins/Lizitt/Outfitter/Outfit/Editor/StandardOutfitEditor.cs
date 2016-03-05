@@ -344,7 +344,7 @@ namespace com.lizitt.outfitter.editor
 
         /// <summary>
         /// Draws a standard foldout section from the list of properties, with the last property
-        /// expected to be a property with children. (So 'isExpanded' can be used for the foldout.)
+        /// expected to be a property with children. (Allows 'isExpanded' to be used for the foldout.)
         /// </summary>
         private bool DrawFoldoutSection(List<SerializedProperty> list, string foldoutTitle)
         {

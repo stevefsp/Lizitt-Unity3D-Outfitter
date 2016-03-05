@@ -394,7 +394,7 @@ namespace com.lizitt.outfitter
         }
 
         /// <summary>
-        /// A destory event called before any other action is taken.  (Pre-destroy)
+        /// A destroy event called before any other action is taken.  (Pre-destroy)
         /// </summary>
         /// <param name="typ">The destroy type.</param>
         protected virtual void OnDestroyLocal(DestroyType typ)

@@ -56,7 +56,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// A completely uncontrolled loss of the previous outfiit occured if <paramref name="wasForced"/> is true 
         /// but <paramref name="previous"/> is null.  E.g. The outfit was improperly destroyed using 
-        /// Object.Destory().
+        /// Object.Destroy().
         /// </para>
         /// </remarks>
         /// <param name="sender">The soruce of the event. (Required)</param>

@@ -125,7 +125,7 @@ namespace com.lizitt.outfitter
 
         public sealed override Outfit SetOutfit(Outfit outfit, bool forceRelease)
         {
-            // Warning: This method can be called by CheckOutfitLost().  So make sure no code paths trigger that
+            // Warning: This method can be called by CheckOutfitLost(), so make sure no code paths trigger that
             // method.
 
             if (outfit)
@@ -375,8 +375,8 @@ namespace com.lizitt.outfitter
         /// <li><see cref="SetOutfit"/> was used to initiate the forced release.</li>
         /// <li>A bake event was received from the outfit.</li>
         /// <li>
-        /// The body detected that the outfit was improperly destroyed using Object.Destory() directly, instead of
-        /// <see cref="Outfit.Destory"/>.
+        /// The body detected that the outfit was improperly destroyed using Object.Destroy() directly, instead of
+        /// <see cref="Outfit.Destroy"/>.
         /// </li>
         /// </ul>
         /// </para>

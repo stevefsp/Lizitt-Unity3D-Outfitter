@@ -32,7 +32,7 @@ namespace com.lizitt.outfitter.editor
         private static readonly GUIContent ContextLabel = new GUIContent(
             "Context", "The context to use when creating/updating mount points and body parts.");
 
-        private GameObject m_ContextChoice;  // Unlikely two outfits will need to share the same context.  So not static.
+        private GameObject m_ContextChoice;  // Unlikely two outfits will need to share the same context, so not static.
 
         private bool ShowActions
         {

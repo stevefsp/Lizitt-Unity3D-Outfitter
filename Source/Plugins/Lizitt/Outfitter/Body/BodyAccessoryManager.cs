@@ -384,7 +384,7 @@ namespace com.lizitt.outfitter
         /// </summary>
         private MountResult MountToOutfit(ref AccessoryMountInfo mountInfo)
         {
-            // If this is a remount and it fails the accessory will be released.  So...
+            // If this is a remount and it fails the accessory will be released, so...
             var origIgnore = m_IgnoreAccessoryStateEvent;
             m_IgnoreAccessoryStateEvent = mountInfo.Accessory;
 

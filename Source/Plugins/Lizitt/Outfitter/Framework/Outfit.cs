@@ -737,7 +737,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// If <paramref name="prepareOnly"/> is false the component will destroy itself as appropriate, so the 
         /// client only needs to call this method then dispose of its references to the component. 
-        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destory
+        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destroy
         /// the component or its GameObject.  The primary use case for <paramref name="prepareOnly"/> is when
         /// performing operations in the editor that required Undo behavior.
         /// </para>
@@ -775,7 +775,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// If <paramref name="prepareOnly"/> is false the component will destroy itself as appropriate, so the 
         /// client only needs to call this method then dispose of its references to the component. 
-        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destory
+        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destroy
         /// the component or its GameObject.  The primary use case for <paramref name="prepareOnly"/> is when
         /// performing operations in the editor that required Undo behavior.
         /// </para>
@@ -808,7 +808,7 @@ namespace com.lizitt.outfitter
         /// <para>
         /// If <paramref name="prepareOnly"/> is false the component will destroy itself as appropriate, so the 
         /// client only needs to call this method then dispose of its references to the component. 
-        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destory
+        /// If <paramref name="prepareOnly"/> is true, it is the responsiblity of the caller to properly destroy
         /// the component or its GameObject.  The primary use case for <paramref name="prepareOnly"/> is when
         /// performing operations in the editor that required Undo behavior.
         /// </para>

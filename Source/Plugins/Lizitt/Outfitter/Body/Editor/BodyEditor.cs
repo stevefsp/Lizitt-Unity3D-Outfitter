@@ -66,7 +66,7 @@ namespace com.lizitt.outfitter.editor
             string undoLabel = "Set Outfit")
         {
             // Design note:  It would be much simpler to just remove and add in separate transactions.  But that
-            // sends the wrong type of event to observers.  So have to go the messy route in order to properly 
+            // sends the wrong type of event to observers, so have to go the messy route in order to properly 
             // mimic runtime behavior.
 
             // Validations

@@ -99,7 +99,7 @@ namespace com.lizitt.outfitter.editor
 
             // Note: Rigidbody is guarenteed.
 
-            var nstatus = EditorGUIDraw.FilteredColliderStatusPopup(
+            var nstatus = EditorGUIDraw.ColliderBehaviorPopup(
                 EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel,
                 bp.ColliderBehavior, ColliderBehaviorCategory.RigidBody);
 

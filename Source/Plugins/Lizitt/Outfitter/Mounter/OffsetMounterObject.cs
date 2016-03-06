@@ -23,8 +23,6 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
-    // TODO: Rename to OffsetMounterObject.  (Standard convention for abstract scriptable object classes.)
-
     /// <summary>
     /// Provides common settings for a mounter that parents an accessory to a location with a position and rotation 
     /// offset.

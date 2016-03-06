@@ -31,7 +31,7 @@ namespace com.lizitt.outfitter
     public sealed class OutfitMaterialTargetGroupAttribute
         : PropertyAttribute
     {
-        // TODO: Add support both absolute and relative paths.
+        // TODO: v0.3: Add support both absolute and relative paths.
 
         /// <summary>
         /// The path to the reference object to search for local components.
@@ -182,7 +182,7 @@ namespace com.lizitt.outfitter
             return result;
         }
 
-        // TODO: Add accessores for non-shared materials.
+        // TODO: v0.3: Add accessores for non-shared materials.
 
         /// <summary>
         /// Get the shared material for the specified type, or null there is none.

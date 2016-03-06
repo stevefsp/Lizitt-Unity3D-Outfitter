@@ -165,7 +165,7 @@ namespace com.lizitt.outfitter.editor
 
                     if (body is StandardBody)
                     {
-                        // Hack: Addition of body as outfit observer is not being recorded for serialization.  
+                        // HACK: Addition of body as outfit observer is not being recorded for serialization.  
                         // This fixes it until the cause and proper fix can be determined.
                         StandardOutfitEditor.AddObserverWithUndo(outfit, (StandardBody)body);
                     }

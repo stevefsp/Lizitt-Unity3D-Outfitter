@@ -90,7 +90,7 @@ namespace com.lizitt.outfitter
             get { return m_Target != null && m_Target.IsDefined; }
         }
 
-        // TODO: Add accessors for the non-shared material.  That is a valid use case.
+        // TODO: v0.3: Add accessors for the non-shared material.  That is a valid use case.
 
         /// <summary>
         /// The target's material, or null if there is none.

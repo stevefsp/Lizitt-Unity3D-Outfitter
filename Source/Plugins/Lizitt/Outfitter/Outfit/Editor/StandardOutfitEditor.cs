@@ -36,7 +36,7 @@ namespace com.lizitt.outfitter.editor
         /*
          * Design notes:
          * 
-         * TODO: EVAL: Can this be refactored to use BehaviourPropertyHelper?
+         * TODO: v0.3: EVAL: Can this be refactored to use BehaviourPropertyHelper?
          * 
          * The design is meant to minimize the need to hard code field values in the editor
          * while maintaining the use of serialized properties to format each field properly.

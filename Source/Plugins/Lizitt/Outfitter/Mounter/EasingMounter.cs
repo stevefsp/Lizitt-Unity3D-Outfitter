@@ -147,7 +147,7 @@ namespace com.lizitt.outfitter
         // Design note:  Serialization friendly. (Hence the use of a list rather than a dictionary.)
         // But not worth fully implementing until properly supported by the accessory core. 
 
-        // TODO:  Convert this to a simpler design. No longer planning to support mount serialization.
+        // TODO:  v0.3: Convert this to a simpler design. No longer planning to support mount serialization.
 
         private struct MountState
         {

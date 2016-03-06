@@ -25,7 +25,7 @@ using UnityEngine;
 namespace com.lizitt.outfitter.editor
 {
     [CustomEditor(typeof(ApplyBodyAsContext))]
-    public class ApplyBodyAsContextEditor
+    public sealed class ApplyBodyAsContextEditor
         : Editor
     {
         public override void OnInspectorGUI()
@@ -35,9 +35,9 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox("Body Observer\n\nSet the context of all of the outfit's components to the"
-                + " body's GameObject, and clears them when the outfit is released.\n\nCan be an observer of any"
-                + " number of concurrent body instances.\n\nActive at design-time.", 
-                MessageType.Info); 
+                + " body's GameObject, and clears them when the outfit is released.\n\nCan observe multiple body"
+                + " instances.\n\nActive at design-time.", 
+                MessageType.None);
         }
     }
 }

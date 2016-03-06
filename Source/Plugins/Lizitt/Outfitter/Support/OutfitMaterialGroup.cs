@@ -32,7 +32,7 @@ namespace com.lizitt.outfitter
     /// within a SerializableObject.  This is a limitation of Unity's ReorderableList control.
     /// </para>
     /// </remarks>
-    public class OutfitMaterialGroupAttribute
+    public sealed class OutfitMaterialGroupAttribute
         : PropertyAttribute
     {
         public OutfitMaterialGroupAttribute()
@@ -50,7 +50,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [System.Serializable]
-    public class OutfitMaterialGroup
+    public sealed class OutfitMaterialGroup
     {
         [SerializeField]
         private List<OutfitMaterial> m_Items = new List<OutfitMaterial>(0);

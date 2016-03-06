@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter.editor
     /// <summary>
     /// Displays a user friendly <see cref="OutfitMaterialTargetGroup"/> list GUI control.
     /// </summary>
-    public class OutfitMaterialListControl
+    public sealed class OutfitMaterialListControl
     {
         private static readonly float HeaderHeight =
             EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;

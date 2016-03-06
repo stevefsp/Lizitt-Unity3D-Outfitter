@@ -28,7 +28,7 @@ namespace com.lizitt.outfitter
     /// Provides a user friendly re-orderable list of local outfit materials when added to a 
     /// <see cref="OutfitMaterialTargetGroup"/> field.
     /// </summary>
-    public class OutfitMaterialTargetGroupAttribute
+    public sealed class OutfitMaterialTargetGroupAttribute
         : PropertyAttribute
     {
         // TODO: Add support both absolute and relative paths.
@@ -75,7 +75,7 @@ namespace com.lizitt.outfitter
     ///  A group of ordered outfit material targets. (Body, head, eyes, etc.)
     /// </summary>
     [System.Serializable]
-    public class OutfitMaterialTargetGroup
+    public sealed class OutfitMaterialTargetGroup
     {
         [SerializeField]
         private List<OutfitMaterialTarget> m_Items = new List<OutfitMaterialTarget>(0);

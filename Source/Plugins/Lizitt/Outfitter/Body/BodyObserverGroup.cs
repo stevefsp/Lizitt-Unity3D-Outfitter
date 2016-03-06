@@ -28,7 +28,7 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <seealso cref="IBodyObserver"/>
     [System.Serializable]
-    public class BodyObserverGroup
+    public sealed class BodyObserverGroup
         : ObjectList<IBodyObserver>
     {
         /// <summary>

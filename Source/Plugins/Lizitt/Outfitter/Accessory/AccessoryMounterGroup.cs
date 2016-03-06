@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [System.Serializable]
-    public class AccessoryMounterGroup
+    public sealed class AccessoryMounterGroup
         : ObjectList<IAccessoryMounter>
     {
         /// <summary>

@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [System.Serializable]
-    public class MountPointGroup
+    public sealed class MountPointGroup
     {
         [SerializeField]
         private MountPoint[] m_Items;

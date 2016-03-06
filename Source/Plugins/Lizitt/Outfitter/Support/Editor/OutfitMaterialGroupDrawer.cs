@@ -26,7 +26,7 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     [CustomPropertyDrawer(typeof(OutfitMaterialGroupAttribute))]
-    public class OutfitMaterialGroupDrawer
+    public sealed class OutfitMaterialGroupDrawer
         : PropertyDrawer
     {
         private const string ItemFieldName = "m_Items";

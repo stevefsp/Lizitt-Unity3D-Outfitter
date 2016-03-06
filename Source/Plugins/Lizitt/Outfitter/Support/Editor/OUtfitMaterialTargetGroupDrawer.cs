@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter.editor
     /// <see cref="OutfitMaterialTargetGroupAttribute"/> custom editor.
     /// </summary>
     [CustomPropertyDrawer(typeof(OutfitMaterialTargetGroupAttribute))]
-    public class OutfitMaterialTargetGroupDrawer
+    public sealed class OutfitMaterialTargetGroupDrawer
         : PropertyDrawer
     {
         private const string ItemFieldName = "m_Items";

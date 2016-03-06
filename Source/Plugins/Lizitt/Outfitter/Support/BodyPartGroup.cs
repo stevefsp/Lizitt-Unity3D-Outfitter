@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [System.Serializable]
-    public class BodyPartGroup
+    public sealed class BodyPartGroup
     {
         #region Core
 

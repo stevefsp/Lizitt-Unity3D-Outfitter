@@ -26,7 +26,7 @@ using com.lizitt.editor;
 namespace com.lizitt.outfitter.editor
 {
     [CustomEditor(typeof(BodyMaterialSettings))]
-    public class BodyMaterialSettingsEditor
+    public sealed class BodyMaterialSettingsEditor
         : Editor
     {
         private ReorderableListControl m_ListControl;

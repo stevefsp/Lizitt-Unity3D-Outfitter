@@ -27,7 +27,7 @@ namespace com.lizitt.outfitter
     /// A utility class for managing a list of ordered <see cref="Accessory"/> observers.
     /// </summary>
     [System.Serializable]
-    public class AccessoryObserverGroup
+    public sealed class AccessoryObserverGroup
         : ObjectList<IAccessoryObserver>
     {
         /// <summary>

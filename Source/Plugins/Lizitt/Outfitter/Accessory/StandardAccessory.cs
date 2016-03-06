@@ -227,7 +227,7 @@ namespace com.lizitt.outfitter
 
         #region Mounting
 
-        protected override IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner)
+        protected sealed override IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner)
         {
             if (!LizittUtil.IsUnityDestroyed(m_PriorityMounter) && PriorityMounter.InitializeMount(this, location))
                 return PriorityMounter;

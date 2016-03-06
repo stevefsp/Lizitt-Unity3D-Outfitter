@@ -38,7 +38,7 @@ namespace com.lizitt.outfitter
     /// component settings and applied to future outfits.
     /// </para>
     /// </remarks>
-    [AddComponentMenu(OutfitterUtil.Menu + "Body Material Settings", OutfitterUtil.BodyMenuOrder + 1)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Body Material Settings", OutfitterUtil.BodyComponentMenuOrder + 1)]
     public sealed class BodyMaterialSettings
         : BodyObserverBehaviour
     {

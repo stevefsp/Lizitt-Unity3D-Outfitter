@@ -41,14 +41,14 @@ namespace com.lizitt.outfitter
     /// <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Sync Body Outfit Animators", order = OutfitterUtil.BodyMenuOrder)]
+    [CreateAssetMenu(
+        menuName = OutfitterUtil.AssetMenu + "Sync Body Outfit Animators", order = OutfitterUtil.BodyAssetMenuOrder + 3)]
     public class SyncBodyAnimators
         : BodyObserverObject
     {
         #region Settings
 
         [Space]
-
         [SerializeField]
         [Tooltip("Remove the previous outfit's animator controller after syncronization is complete, unless the"
             + " outfit was force released.")]
@@ -133,7 +133,7 @@ namespace com.lizitt.outfitter
         /// <returns>The animator, or null if none found.</returns>
         protected virtual Animator GetAnimator(Outfit outfit)
         {
-            // TODO: EVAL: Make this public?
+            // TODO: v0.3: EVAL: Make this public?
             return outfit.GetAnimator();
         }
 
@@ -144,7 +144,7 @@ namespace com.lizitt.outfitter
         /// <param name="previous">The previous animator.</param>
         protected virtual void PerformAnimatorSync(Animator current, Animator previous)
         {
-            // TODO: EVAL: Make this public?
+            // TODO: v0.3: EVAL: Make this public?
             current.SynchronizeFrom(previous);
         }
 

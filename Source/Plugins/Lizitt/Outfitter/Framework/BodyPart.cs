@@ -37,7 +37,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     /// <seealso cref="Outfit"/>
-    [AddComponentMenu(OutfitterUtil.Menu + "Body Part", OutfitterUtil.OutfitMenuOrder + 1)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Body Part", OutfitterUtil.OutfitComponentMenuOrder + 1)]
     public class BodyPart
         : MonoBehaviour
     {

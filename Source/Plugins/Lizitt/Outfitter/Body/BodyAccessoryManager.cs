@@ -38,7 +38,7 @@ namespace com.lizitt.outfitter
     /// unknown owner it will automatically discard the accessory.
     /// </para>
     /// </remarks>
-    [AddComponentMenu(OutfitterUtil.Menu + "Body Accessory Manager", OutfitterUtil.BodyMenuOrder + 2)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Body Accessory Manager", OutfitterUtil.BodyComponentMenuOrder + 9)]  // Last
     public class BodyAccessoryManager
         : MonoBehaviour, IAccessoryObserver, IBodyAccessoryManager
     {

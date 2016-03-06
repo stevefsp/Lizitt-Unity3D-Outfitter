@@ -32,7 +32,8 @@ namespace com.lizitt.outfitter
     /// Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Apply Body As Context", order = OutfitterUtil.BodyMenuOrder)]
+    [CreateAssetMenu(
+        menuName = OutfitterUtil.AssetMenu + "Apply Body As Context", order = OutfitterUtil.BodyAssetMenuOrder + 0)]
     public sealed class ApplyBodyAsContext
         : ApplyBodyOutfitContext
     {

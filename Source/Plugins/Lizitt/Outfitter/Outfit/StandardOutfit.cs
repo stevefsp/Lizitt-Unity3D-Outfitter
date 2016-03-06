@@ -27,7 +27,8 @@ namespace com.lizitt.outfitter
     /// <summary>
     /// An outfit that implements all of the standard outfit behavior.
     /// </summary>
-    [AddComponentMenu(OutfitterUtil.Menu + "Standard Outfit", OutfitterUtil.OutfitMenuOrder + 0)]
+    [AddComponentMenu(OutfitterUtil.Menu + "Standard Outfit", OutfitterUtil.OutfitComponentMenuOrder + 0)]
+    [SelectionBase]
     public class StandardOutfit
         : OutfitCore, IAccessoryObserver
     {
@@ -41,7 +42,7 @@ namespace com.lizitt.outfitter
 
         #region Body Parts (Editor Section)
 
-        // TODO: Update editor so it includes mount point type labels for each entry.
+        // TODO: v0.3: Update editor so it includes mount point type labels for each entry.
 
         [SerializeField]
         [ObjectList("Body Parts")]
@@ -134,7 +135,7 @@ namespace com.lizitt.outfitter
 
         #region Renderers & Materials (Editor Section)
 
-        // TODO: EVAL: Create an attribute that checks that the renderer contains blend shapes.
+        // TODO: v0.3: EVAL: Create an attribute that checks that the renderer contains blend shapes.
 
         [SerializeField]
         [Tooltip("The renderer that contains the outfit's blend shapes.  (Optional)")]

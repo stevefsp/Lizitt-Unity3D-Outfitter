@@ -36,7 +36,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Standard Offset Mounter", order = OutfitterUtil.MounterMenuOrder)]
+        menuName = OutfitterUtil.AssetMenu + "Standard Offset Mounter", order = OutfitterUtil.MounterAssetMenuOrder + 0)]
     public class StandardOffsetMounter
         : OffsetMounterObject
     {

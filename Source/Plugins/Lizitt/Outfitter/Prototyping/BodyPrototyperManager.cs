@@ -9,12 +9,13 @@ namespace com.lizitt.outfitter.proto
     /// <summary>
     /// A component useful for prototyping body and its features.  (Editor only.)
     /// </summary>
-    [AddComponentMenu(OutfitterUtil.Menu + "Body Prototyper Manager (Editor Only)", OutfitterUtil.EditorOnlyMenuOrder)]
+    [AddComponentMenu(
+        OutfitterUtil.Menu + "Body Prototyper Manager (Editor Only)", OutfitterUtil.EditorComponentMenuOrder + 0)]
     [RequireComponent(typeof(BodyPrototyperSettings))]
     public class BodyPrototyperManager
         : MonoBehaviour
     {
-        // TODO: Add proper documentation.
+        // TODO: v0.3: Add proper documentation.
 
         #region Settings
 
@@ -34,7 +35,7 @@ namespace com.lizitt.outfitter.proto
         [SerializeField]
         private bool m_InvertAxisX = false;
 
-        [SerializeField]
+        [SerializeField]    
         private bool m_InvertAxisY = false;
 
         [SerializeField]
@@ -443,7 +444,7 @@ namespace com.lizitt.outfitter.proto
         {
             bool isInTransition = false;
 
-            if (m_MonitorAnimator)
+            if (m_MonitorAnimator && m_Manager.Body.Outfit)
             {
                 var animator = m_Manager.Body.Outfit.GetAnimator();
                 if (animator)

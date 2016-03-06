@@ -37,7 +37,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Dual Curve Mounter", order = OutfitterUtil.MounterMenuOrder + 2)]
+        menuName = OutfitterUtil.AssetMenu + "Dual Curve Mounter", order = OutfitterUtil.MounterAssetMenuOrder + 2)]
     public sealed class DualCurveMounter
         : EasingMounter
     {

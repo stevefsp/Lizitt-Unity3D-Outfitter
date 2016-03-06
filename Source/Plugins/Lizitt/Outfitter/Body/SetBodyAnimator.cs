@@ -34,7 +34,8 @@ namespace com.lizitt.outfitter
     ///  Active at design-time. Can observe multiple <see cref="Body"/> instances.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Set Body Animator", order = OutfitterUtil.BodyMenuOrder)]
+    [CreateAssetMenu(
+        menuName = OutfitterUtil.AssetMenu + "Set Body Animator", order = OutfitterUtil.BodyAssetMenuOrder + 1)]
     public class SetBodyAnimator
         : BodyObserverObject
     {

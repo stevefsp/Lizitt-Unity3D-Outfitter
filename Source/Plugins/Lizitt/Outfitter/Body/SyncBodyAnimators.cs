@@ -47,6 +47,8 @@ namespace com.lizitt.outfitter
     {
         #region Settings
 
+        [Space]
+
         [SerializeField]
         [Tooltip("Remove the previous outfit's animator controller after syncronization is complete, unless the"
             + " outfit was force released.")]

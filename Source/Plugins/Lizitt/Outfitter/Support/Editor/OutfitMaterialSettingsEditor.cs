@@ -20,23 +20,22 @@
  * THE SOFTWARE.
  */
 using UnityEditor;
-using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
-    [CustomEditor(typeof(SetBodyAnimator))]
-    public class SetBodyAnimatorEditor
+    [CustomEditor(typeof(OutfitMaterialSettings))]
+    public class OutfitMaterialSettingsEditor
         : Editor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            EditorGUILayout.Space();
+            // Plenty of space.
 
-            EditorGUILayout.HelpBox("Body Observer\n\nSets the animator controller of incoming outfits based on"
-                + " the settings.\n\nOnly supports one animator component per outfit.\n\nCan observe multiple body"
-                + " instances.\n\nActive at design-time.", 
+            EditorGUILayout.HelpBox("Defines a group of related, unique outfit materials.\n\nCan only contain one"
+                + " material of each type.  E.g. One material for 'body', one for 'team', etc.  This makes this"
+                + " asset useful for defining a group of materials that are to be applied to outfits.", 
                 MessageType.None); 
         }
     }

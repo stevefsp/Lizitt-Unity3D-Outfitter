@@ -55,9 +55,8 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.HelpBox("Body Observer\n\nSynchronize the state of the previous outfit's mount points to"
                 + " the current outfit.\n\nLimitation: This observer is designed for memory efficiency.  It only"
                 + " synchronizes between two known outfits, so the last known state is lost if the body's outfit is"
-                + " set to null.\n\nCan be an observer of any number of concurrent body instances.\n\n"
-                + " Active at design-time.",
-                MessageType.Info); 
+                + " set to null.\n\nCan observe multiple body instances.\n\nActive at design-time.",
+                MessageType.None); 
         }
 
         private static Outfit m_To;
@@ -81,7 +80,7 @@ namespace com.lizitt.outfitter.editor
             if (GUILayout.Button("Apply", GUILayout.MaxWidth(70)))
             {
                 SynchronizeState(
-                    m_To, m_From, settings.IncludeBlockedState, settings.IncludeContext, settings.IncludeContext);
+                    m_To, m_From, settings.IncludeBlockedStatus, settings.IncludeContext, settings.IncludeContext);
             }
             GUI.enabled = true;
 

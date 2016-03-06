@@ -23,7 +23,7 @@ using UnityEditor;
 using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
-{
+{ 
     [CustomEditor(typeof(SyncBodyAnimators))]
     public class SyncBodyAnimatorsEditor
         : Editor
@@ -37,10 +37,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.HelpBox("Body Observer\n\nSynchronizes the animator controller and, optionally, the"
                 + " animator state from the previous to the current boy outfits.\n\nThe component only synchronzes"
                 + " two existing animators, so no change is make to the current outfit if there is no previous"
-                + " outfit or the previous outfit does not have an animator.\n\nOnly supports one Animator"
-                + " component per outfit.\n\nCan be an observer of any number of concurrent body instances."
-                + " \n\nActive at design-time with the exception of state synchronization.", 
-                MessageType.Info); 
+                + " outfit or the previous outfit does not have an animator.\n\nOnly recognizes one Animator"
+                + " component per outfit.\n\nCan observe multiple body instances.\n\nActive at design-time with"
+                + " the exception of state synchronization.", 
+                MessageType.None); 
         }
     }
 }

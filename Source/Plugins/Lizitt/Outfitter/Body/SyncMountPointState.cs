@@ -39,31 +39,32 @@ namespace com.lizitt.outfitter
     public class SyncMountPointState
         : BodyObserverObject
     {
+        [Space]
         [SerializeField]
         [Tooltip("Synchronize the mount point 'is blocked' state.")]
-        private bool m_IncludeBlocked = true;
+        private bool m_BlockedStatus = true;
 
         /// <summary>
         /// Synchronize the mount point 'is blocked' state.
         /// </summary>
-        public bool IncludeBlockedState
+        public bool IncludeBlockedStatus
         {
-            get { return m_IncludeBlocked; }
-            set { m_IncludeBlocked = value; }
+            get { return m_BlockedStatus; }
+            set { m_BlockedStatus = value; }
         }
 
         [SerializeField]
-        [Tooltip("Persist the context unless it is the outgoing outfit's GameObject.")]  // This is the correct behavior.
-        private bool m_IncludeContext = false;
+        [Tooltip("Synchronize the context unless it is the outgoing outfit's GameObject.")]  // This is the correct behavior.
+        private bool m_Context = false;
 
         /// <summary>
-        /// Persist the context unless it is the outgoing outfit's GameObject.
+        /// Synchronize the context unless it is the outgoing outfit's GameObject.
         /// </summary>
         /// </remarks>
         public bool IncludeContext
         {
-            get { return m_IncludeContext; }
-            set { m_IncludeContext = value; }
+            get { return m_Context; }
+            set { m_Context = value; }
         }
 
         protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
@@ -78,7 +79,7 @@ namespace com.lizitt.outfitter
         /// <param name="from">The outfit being syncronzied from. (Required)</param>
         public virtual void Synchronize(Outfit to, Outfit from)
         {
-            Outfit.SynchronizeMountPointState(to, from, m_IncludeBlocked, m_IncludeContext);
+            Outfit.SynchronizeMountPointState(to, from, m_BlockedStatus, m_Context);
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace com.lizitt.outfitter
         /// </param>
         public virtual void Synchronize(MountPoint to, MountPoint from, GameObject ignoreContext)
         {
-            MountPoint.Synchronize(to, from, m_IncludeBlocked, m_IncludeContext, ignoreContext);
+            MountPoint.Synchronize(to, from, m_BlockedStatus, m_Context, ignoreContext);
         }
     }
 }

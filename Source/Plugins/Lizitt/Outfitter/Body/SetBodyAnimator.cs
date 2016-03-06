@@ -40,11 +40,13 @@ namespace com.lizitt.outfitter
     {
         #region Settings
 
+        [Space]
         [SerializeField]
         [Tooltip("The controller to apply to incoming outfits.")]
         [RequiredValue(typeof(RuntimeAnimatorController))]
         private RuntimeAnimatorController m_Controller = null;  // TODO: Add setter/getter.
 
+        [Space]
         [SerializeField]
         [Tooltip("Always set the incoming outfit's animator controller.  Otherwise, only set the controller if it"
             + " doesn't already have one.")]

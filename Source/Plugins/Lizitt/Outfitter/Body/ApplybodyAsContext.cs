@@ -38,30 +38,32 @@ namespace com.lizitt.outfitter
     {
         #region Settings
 
+        [Space]
+
         [SerializeField]
         [Tooltip("Include the context of body parts.")]
-        private bool m_IncludeBodyParts = true;
+        private bool m_BodyParts = true;
 
         /// <summary>
         /// Include the context of body parts.
         /// </summary>
         public bool IncludeBodyParts
         {
-            get { return m_IncludeBodyParts; }
-            set { m_IncludeBodyParts = value; }
+            get { return m_BodyParts; }
+            set { m_BodyParts = value; }
         }
 
         [SerializeField]
         [Tooltip("Include the context of mount points.")]
-        private bool m_IncludeMountPoints = true;
+        private bool m_MountPoints = true;
 
         /// <summary>
         /// Include the context of mount points.
         /// </summary>
         public bool IncludeMountPoints
         {
-            get { return m_IncludeMountPoints; }
-            set { m_IncludeMountPoints = value; }
+            get { return m_MountPoints; }
+            set { m_MountPoints = value; }
         }
 
         #endregion
@@ -92,7 +94,7 @@ namespace com.lizitt.outfitter
 
         private void ProcessBodyParts(Outfit outfit, GameObject context)
         {
-            if (m_IncludeBodyParts)
+            if (m_BodyParts)
             {
                 for (int i = 0; i < outfit.BodyPartCount; i++)
                 {
@@ -105,7 +107,7 @@ namespace com.lizitt.outfitter
 
         private void ProcessMountPoints(Outfit outfit, GameObject context)
         {
-            if (m_IncludeMountPoints)
+            if (m_MountPoints)
             {
                 for (int i = 0; i < outfit.MountPointCount; i++)
                 {

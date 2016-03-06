@@ -20,13 +20,12 @@
  * THE SOFTWARE.
  */
 using UnityEditor;
-using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
-    [CustomEditor(typeof(SetBodyAnimator))]
-    public class SetBodyAnimatorEditor
-        : Editor
+    [CustomEditor(typeof(StandardOffsetMounter))]
+    public class StandardOffsetMounterEditor
+        : OffsetMounterObjectEdtior
     {
         public override void OnInspectorGUI()
         {
@@ -34,9 +33,10 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.HelpBox("Body Observer\n\nSets the animator controller of incoming outfits based on"
-                + " the settings.\n\nOnly supports one animator component per outfit.\n\nCan observe multiple body"
-                + " instances.\n\nActive at design-time.", 
+            EditorGUILayout.HelpBox("Accessory Mounter\n\nA mounter that immediately parents to its location"
+                + " with optional position and rotation offsets. The mount operation will always succeed"
+                + " if its location type matches the the mount point's location type.\n\nUpdate completes"
+                + " immediately.\n\nSupports multiple concurrent mount operations.", 
                 MessageType.None); 
         }
     }

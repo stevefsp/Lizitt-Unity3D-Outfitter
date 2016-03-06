@@ -38,43 +38,45 @@ namespace com.lizitt.outfitter
     public class SyncBodyPartState
         : BodyObserverObject
     {
+        [Space]
+
         [SerializeField]
-        [Tooltip("Persist the collider status.")]
-        private bool m_IncludeStatus = true;
+        [Tooltip("Synchronize collider beahvior.  (Disabled, trigger, collider, etc.)")]
+        private bool m_ColliderBehavior = true;
 
         /// <summary>
-        /// Persist the collider status.
+        /// Synchronize the collider behavior.
         /// </summary>
         public bool IncludeStatus
         {
-            get { return m_IncludeStatus; }
-            set { m_IncludeStatus = value; }
+            get { return m_ColliderBehavior; }
+            set { m_ColliderBehavior = value; }
         }
 
         [SerializeField]
-        [Tooltip("Persist the collider layer.")]
-        private bool m_IncludeLayer = true;
+        [Tooltip("Synchronize the collider layer.")]
+        private bool m_ColliderLayer = true;
 
         /// <summary>
-        /// Persist the collider layer.
+        /// Synchronize the collider layer.
         /// </summary>
         public bool IncludeLayer
         {
-            get { return m_IncludeLayer; }
-            set { m_IncludeLayer = value; }
+            get { return m_ColliderLayer; }
+            set { m_ColliderLayer = value; }
         }
 
         [SerializeField]
-        [Tooltip("Persist the context unless it is the outgoing outfit's GameObject.")]  // << This is the correct behavior!
-        private bool m_IncludeContext = false;
+        [Tooltip("Synchronize the context unless it is the outgoing outfit's GameObject.")]  // << This is the correct behavior!
+        private bool m_Context = false;
 
         /// <summary>
         /// Persist the context unless it is the outgoing outfit's GameObject.
         /// </summary>
         public bool IncludeContext
         {
-            get { return m_IncludeContext; }
-            set { m_IncludeContext = value; }
+            get { return m_Context; }
+            set { m_Context = value; }
         }
 
         protected sealed override void OnOutfitChange(Body sender, Outfit previous, bool wasForced)
@@ -90,7 +92,7 @@ namespace com.lizitt.outfitter
         /// <param name="from">The outfit being syncronzied from.</param>
         public void Synchronize(Outfit to, Outfit from)
         {
-            Outfit.SynchronizeBodyPartState(to, from, m_IncludeStatus, m_IncludeLayer, m_IncludeContext);
+            Outfit.SynchronizeBodyPartState(to, from, m_ColliderBehavior, m_ColliderLayer, m_Context);
         }
 
         /// <summary>
@@ -110,7 +112,7 @@ namespace com.lizitt.outfitter
         /// </param>
         public virtual void Synchronize(BodyPart to, BodyPart from, GameObject ignoreContext)
         {
-            BodyPart.Synchronize(to, from, m_IncludeStatus, m_IncludeLayer, m_IncludeContext, ignoreContext);
+            BodyPart.Synchronize(to, from, m_ColliderBehavior, m_ColliderLayer, m_Context, ignoreContext);
         }
     }
 }

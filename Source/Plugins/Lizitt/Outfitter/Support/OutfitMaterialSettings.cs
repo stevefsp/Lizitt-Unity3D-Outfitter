@@ -28,8 +28,8 @@ namespace com.lizitt.outfitter
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Can't contain more than one material of each type.  (One material for 'body',  one for 'team', etc.)  
-    /// This makes the class useful for defining a group of materials that are to be applied to an outfit.
+    /// Can only contain one material of each type.  E.g. One material for 'body',  one for 'team', etc.
+    /// This makes the class useful for defining a group of materials that are to be applied to outfits.
     /// </para>
     /// </remarks>
     [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Outfit Material Settings", 

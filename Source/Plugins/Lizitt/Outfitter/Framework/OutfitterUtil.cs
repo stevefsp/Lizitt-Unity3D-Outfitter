@@ -59,6 +59,8 @@ namespace com.lizitt.outfitter
         /// </summary>
         public const int AccessoryMenuOrder = BaseMenuOrder + 40;
 
+        public const int MounterMenuOrder = BaseMenuOrder + 60;
+
         /// <summary>
         /// The base menu order for body related components.
         /// </summary>

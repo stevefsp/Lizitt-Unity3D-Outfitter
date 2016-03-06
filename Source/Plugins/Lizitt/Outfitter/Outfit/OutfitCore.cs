@@ -228,7 +228,12 @@ namespace com.lizitt.outfitter
             if (m_Status == status && m_Owner == owner)
                 return true;
 
-            // TODO: Ignore and give a warning if owner is set for 'unmanaged.  (Let chance user confusion about what to check for status.)
+            if (status == OutfitStatus.Unmanaged && owner)
+            {
+                Debug.LogWarning("Can't set owner on an unmanaged outfit.  Owner ignored: " + owner, this);
+                owner = null;
+            }
+
             m_Owner = owner;  
             m_Status = status;
 
@@ -306,13 +311,13 @@ namespace com.lizitt.outfitter
 
         #region Mount Points
 
-        // TODO: Update editor so it includes mount point type labels for each entry.
+        // TODO: v0.3: Update editor so it includes mount point type labels for each entry.
 
         [SerializeField]
         [ObjectList("Mount Points")]
         private MountPointGroup m_MountPoints = new MountPointGroup(0);  // Field name used in the editor <<<<<<<<<<<<<<
 
-        // TODO: EVAL: Move all iteration methods to the base class.
+        // TODO: v0.3: Move all iteration methods to the base class.
 
         public sealed override int MountPointCount
         {

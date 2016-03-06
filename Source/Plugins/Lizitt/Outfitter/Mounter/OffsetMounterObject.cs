@@ -35,11 +35,9 @@ namespace com.lizitt.outfitter
     /// Actual support dependeds on the concrete implemenation.
     /// </para>
     /// </remarks>
-    public abstract class OffsetMounter
+    public abstract class OffsetMounterObject
         : AccessoryMounterObject
     {
-        [Space]
-
         [SerializeField]
         [Tooltip("The coverage of the accessory on a successful mount operation.")]
         [EnumFlags(typeof(BodyCoverage), OutfitterUtil.SortBodyCoverage)]

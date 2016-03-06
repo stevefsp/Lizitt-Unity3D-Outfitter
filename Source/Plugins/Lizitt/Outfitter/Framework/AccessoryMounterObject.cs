@@ -63,6 +63,8 @@ namespace com.lizitt.outfitter
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        public abstract bool UpdateMount(Accessory accessory, MountPoint location, float deltaTime);
+
         public virtual void CancelMount(Accessory accessory, MountPoint location)
         {
             // Do nothing.

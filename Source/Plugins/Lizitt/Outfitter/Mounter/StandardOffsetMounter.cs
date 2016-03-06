@@ -23,8 +23,6 @@ using UnityEngine;
 
 namespace com.lizitt.outfitter
 {
-    // TODO: Rename to StandardOffsetMounter.  (Easier to find.)
-
     /// <summary>
     /// A mounter that immediately parents to its location with optional position and rotation offsets.
     /// </summary>
@@ -37,9 +35,10 @@ namespace com.lizitt.outfitter
     /// Update completes immediately.  Supports multiple concurrent mount operations.
     /// </para>
     /// </remarks>
-    [CreateAssetMenu(menuName = OutfitterUtil.AssetMenu + "Standard Mounter", order = OutfitterUtil.AccessoryMenuOrder)]
-    public class StandardMounter
-        : OffsetMounter
+    [CreateAssetMenu(
+        menuName = OutfitterUtil.AssetMenu + "Standard Offset Mounter", order = OutfitterUtil.MounterMenuOrder)]
+    public class StandardOffsetMounter
+        : OffsetMounterObject
     {
         [Space(8)]
 
@@ -51,7 +50,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The location the accessory can mount to.
         /// </summary>
-        public override MountPointType DefaultLocationType
+        public sealed override MountPointType DefaultLocationType
         {
             get { return m_Location; }
         }
@@ -64,6 +63,7 @@ namespace com.lizitt.outfitter
             m_Location = value;
         }
 
+        // Do not seal.  Allow extra restrictions.
         public override bool CanMount(Accessory accessory, MountPoint location)
         {
             return (accessory && location && location.LocationType == m_Location);
@@ -74,6 +74,7 @@ namespace com.lizitt.outfitter
             return (location && location.LocationType == m_Location) ? Coverage : 0;   
         }
 
+        // Do not seal.  Allow overrides to add functionality.
         public override bool InitializeMount(Accessory accessory, MountPoint location)
         {
             if (!location)
@@ -82,10 +83,26 @@ namespace com.lizitt.outfitter
             return CanMount(accessory, location);
         }
 
+        // Do not seal.  Allow overrides to add functionality.
         public override bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete)
         {
             FinalizeMount(accessory, location.transform);
             return false;
         }
+
+        public sealed override bool UpdateMount(Accessory accessory, MountPoint location, float deltaTime)
+        {
+            FinalizeMount(accessory, location.transform);
+            return false;
+        }
+
+        /*
+         * Design notes:
+         * 
+         * Considered defining and sealing CancelMount().  Desided against it.  While update completes immediately,
+         * it is valid to initialize then immediately cancel.  As long as initialize is overridable, cancel must
+         * remain overridable.
+         * 
+         */
     }
 }

@@ -107,8 +107,6 @@ namespace com.lizitt.outfitter
         /// <returns>True if initialization was successful.  False if the mount operation is not supported.</returns>
         bool InitializeMount(Accessory accessory, MountPoint location);
 
-        // TODO: EVAL: Add the ability to supply a custom deltaTime to the update method.
-
         /// <summary>
         /// Processes the mount operation until it completes.
         /// </summary>
@@ -126,6 +124,16 @@ namespace com.lizitt.outfitter
         /// </param>
         /// <returns>True while the mount operation is in-progress.  False when the operation is complete.</returns>
         bool UpdateMount(Accessory accessory, MountPoint location, bool immediateComplete = false);
+
+        /// <summary>
+        /// Processes the mount operation until it completes, using <paramref name="deltaTime"/> for time related
+        /// actions.
+        /// </summary>
+        /// <param name="accessory">The accessory to update. (Required)</param>
+        /// <param name="location">The mount location. (Required)</param>
+        /// <param name="deltaTime">The time since the last update call.</param>
+        /// <returns>True while the mount operation is in-progress.  False when the operation is complete.</returns>
+        bool UpdateMount(Accessory accessory, MountPoint location, float deltaTime);
 
         /// <summary>
         /// Immediately cancel an in-progress mount operation.

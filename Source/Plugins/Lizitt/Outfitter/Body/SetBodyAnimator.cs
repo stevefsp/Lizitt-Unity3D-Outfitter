@@ -44,7 +44,16 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The controller to apply to incoming outfits.")]
         [RequiredValue(typeof(RuntimeAnimatorController))]
-        private RuntimeAnimatorController m_Controller = null;  // TODO: Add setter/getter.
+        private RuntimeAnimatorController m_Controller = null;
+
+        /// <summary>
+        /// The controller to apply to incoming outfits.
+        /// </summary>
+        public RuntimeAnimatorController Controller
+        {
+            get { return m_Controller; }
+            set {  m_Controller = value;  }
+        }
 
         [Space]
         [SerializeField]

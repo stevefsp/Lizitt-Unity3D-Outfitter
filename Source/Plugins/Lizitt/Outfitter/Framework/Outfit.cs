@@ -223,9 +223,9 @@ namespace com.lizitt.outfitter
             for (int i = 0; i < BodyPartCount; i++)
             {
                 var item = GetBodyPart(i);
-                if (item && item.Collider)
+                if (item)
                 {
-                    var rb = item.Collider.GetAssociatedRigidBody();
+                    var rb = item.Rigidbody;
                     if (rb)
                         rb.SetBehavior(behavior, true);
                 }
@@ -664,7 +664,7 @@ namespace com.lizitt.outfitter
         /// <returns>The material types that are defined and can be set.</returns>
         public abstract OutfitMaterialType[] GetOutfitMaterialTypes();
 
-        // TODO: Add accessors for non-shared materials.
+        // TODO: v0.3: Add accessors for non-shared materials.
 
         /// <summary>
         /// The number of outfit materials. (Some entries may be undefined.)

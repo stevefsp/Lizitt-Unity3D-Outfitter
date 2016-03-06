@@ -69,19 +69,16 @@ namespace com.lizitt.outfitter.editor
             }
 
             var bp = Target;
-            if (bp.Collider)
+            if (bp.Rigidbody)
             {
-                if (bp.Collider.GetAssociatedRigidBody())
-                {
-                    OutfitterEditorUtil.ShowInspectorActions =
-                        EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
+                OutfitterEditorUtil.ShowInspectorActions =
+                    EditorGUILayout.Foldout(OutfitterEditorUtil.ShowInspectorActions, "Actions");
 
-                    if (OutfitterEditorUtil.ShowInspectorActions)
-                        DrawActions();
-                }
-                else
-                    EditorGUILayout.HelpBox("The collider does not have a rigidbody.", MessageType.Error);
+                if (OutfitterEditorUtil.ShowInspectorActions)
+                    DrawActions();
             }
+            else
+                EditorGUILayout.HelpBox("The collider does not have a rigidbody.", MessageType.Error);
             
             EditorGUILayout.Space();
         }
@@ -104,7 +101,11 @@ namespace com.lizitt.outfitter.editor
                 bp.ColliderBehavior, ColliderBehaviorCategory.RigidBody);
 
             if (nstatus != bp.ColliderBehavior)
-                EditorGUIUtil.SetRigidbodyBehavior(bp.Collider.GetAssociatedRigidBody(), (RigidbodyBehavior)nstatus);
+            {
+                var rb = bp.Rigidbody;
+                if (rb)
+                    EditorGUIUtil.SetRigidbodyBehavior(rb, (RigidbodyBehavior)nstatus);
+            }
         }
 
         #endregion

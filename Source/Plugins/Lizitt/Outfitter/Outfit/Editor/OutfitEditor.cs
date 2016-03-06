@@ -163,10 +163,9 @@ namespace com.lizitt.outfitter.editor
             for (int i = 0; i < outfit.BodyPartCount; i++)
             {
                 var bp = outfit.GetBodyPart(i);
-
-                if (bp && bp.Collider)
+                if (bp)
                 {
-                    var rb = bp.Collider.GetAssociatedRigidBody();
+                    var rb = bp.Rigidbody;
                     if (rb)
                         EditorGUIUtil.SetRigidbodyBehavior(rb, status, false, undoLabel);
                 }

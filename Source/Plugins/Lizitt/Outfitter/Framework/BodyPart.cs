@@ -80,37 +80,44 @@ namespace com.lizitt.outfitter
         /// The body part's collider. (Required)  
         /// </summary>
         /// <remarks>
-        /// <para>If unassigned, defaults to the first collider found during a child search.</para>
+        /// <para>
+        /// If unassigned, defaults to the first collider found during a child search.
+        /// </para>
         /// </remarks>
         public Collider Collider
         {
             get 
-            { 
+            {
                 if (!m_Collider)
-                    m_Collider = GetComponentInChildren<Collider>();
+                {
+                    var col = GetComponentInChildren<Collider>();
+
+                    if (col)
+                    {
+                        if (Application.isPlaying)
+                        {
+                            m_Collider = col;
+                            Debug.LogWarningFormat(this, "Body part did not have a collider: {0}. Auto-assigned: {1}",
+                                PartType, col.name, this);
+                        }
+                    }
+                }
 
                 return m_Collider; 
             }
             set 
             { 
-                if (!value)
-                    Debug.LogError("Body part collider can't be null.", this);
-
                 m_Collider = value;
 
-                var rb = Rigidbody;
-                if (rb)
+                // Complain lots.
+                if (m_Collider)
                 {
-                    if (!rb.isKinematic)
-                    {
-                        rb.isKinematic = true;
-                        Debug.LogWarning(
-                            PartType + ": Non-kinematic rigidbody detected on body part. Set rigidbody to kinemetic.", 
-                            this);
-                    }
+                    if (!m_Collider.GetAssociatedRigidBody())
+                        Debug.LogWarningFormat("Body part collider does not have a rigidbody: {0}, Collider: {1}",
+                            PartType, m_Collider.name, this);
                 }
                 else
-                    Debug.LogWarning(PartType + ": Body part collider does not have a rigidbody.", this);
+                    Debug.LogWarning("Body part assigned a null collider: " + PartType, this);
             }
         }
 
@@ -120,7 +127,7 @@ namespace com.lizitt.outfitter
         public Rigidbody Rigidbody
         {
             // Property first, then field.
-            get { return Collider ? m_Collider.GetAssociatedRigidBody() : null; }
+            get { return Collider ? Collider.GetAssociatedRigidBody() : null; }
         }
 
         [SerializeField]
@@ -147,12 +154,11 @@ namespace com.lizitt.outfitter
         /// </summary>
         public int ColliderLayer
         {
-            // Property then field.
-            get { return Collider ? m_Collider.gameObject.layer : 0; }
+            get { return Collider ? Collider.gameObject.layer : 0; }
             set
             {
                 if (Collider)
-                    m_Collider.gameObject.layer = value;
+                    Collider.gameObject.layer = value;
             }
         }
 
@@ -167,7 +173,7 @@ namespace com.lizitt.outfitter
         public ColliderBehavior ColliderBehavior
         {
             // Property first, then field.
-            get { return Collider ? m_Collider.GetBehavior() : ColliderBehavior.Disabled; }
+            get { return Collider ? Collider.GetBehavior() : ColliderBehavior.Disabled; }
         }
 
         /// <summary>

@@ -508,5 +508,23 @@ namespace com.lizitt.outfitter.editor
         #endregion
 
         #endregion
+
+        #region Utility Members
+
+        private static void RefreshAllSettings(
+            StandardOutfit outfit, bool singleUndo = true, string undoLabel = "Refresh All Outfit Settings")
+        {
+            if (singleUndo)
+                Undo.IncrementCurrentGroup();
+
+            Undo.RecordObjects(StandardOutfit.UnsafeGetUndoObjects(outfit).ToArray(), undoLabel);
+
+            StandardOutfit.UnsafeRefreshAllSettings(outfit);
+
+            if (singleUndo)
+                Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+        }
+
+        #endregion
     }
 }

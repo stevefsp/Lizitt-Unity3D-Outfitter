@@ -74,11 +74,8 @@ namespace com.lizitt.outfitter.editor
 
             // Assume auto-detect has already been performed if the motion root is assigned
             // Want to be conservative.
-            if (!Application.isPlaying && outfit && !outfit.MotionRoot)
-            {
-                StandardOutfit.UnsafeRefreshAllSettings(outfit);
-                EditorUtility.SetDirty(outfit);
-            }
+            if (!Application.isPlaying && outfit && !StandardOutfit.IsMotionRootAssigned(outfit))
+                StandardOutfitEditor.RefreshAllSettings(outfit);
 
             m_IsAsset = AssetDatabase.Contains(target);
             m_ContextChoice = outfit.gameObject;

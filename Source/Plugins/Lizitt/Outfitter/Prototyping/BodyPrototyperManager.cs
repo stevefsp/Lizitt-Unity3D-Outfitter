@@ -447,7 +447,7 @@ namespace com.lizitt.outfitter.proto
             if (m_MonitorAnimator && m_Manager.Body.Outfit)
             {
                 var animator = m_Manager.Body.Outfit.GetAnimator();
-                if (animator)
+                if (animator && animator.runtimeAnimatorController)
                 {
                     for (int i = 0; i < animator.layerCount; i++)
                     {

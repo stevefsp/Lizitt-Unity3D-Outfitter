@@ -80,7 +80,11 @@ namespace com.lizitt.outfitter
             get
             {
                 if (!m_DefaultMotionRoot)
-                    m_DefaultMotionRoot = transform;
+                {
+                    if (Application.isPlaying)
+                        m_DefaultMotionRoot = transform;
+                    return transform;
+                }
 
                 return m_DefaultMotionRoot;
             }

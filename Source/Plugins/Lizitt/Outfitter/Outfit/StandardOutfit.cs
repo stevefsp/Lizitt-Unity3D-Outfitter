@@ -472,7 +472,7 @@ namespace com.lizitt.outfitter
         {
             var outfitAnimator = outfit.GetAnimator();
 
-            if (!outfit.MotionRoot)
+            if (!StandardOutfit.IsMotionRootAssigned(outfit))
             {
                 var motionRoot = outfitAnimator
                     ? outfitAnimator.transform

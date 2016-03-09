@@ -58,7 +58,11 @@ namespace com.lizitt.outfitter
             get 
             {
                 if (!m_MotionRoot)
-                    m_MotionRoot = transform;
+                {
+                    if (Application.isPlaying)
+                        m_MotionRoot = transform;
+                    return transform;
+                }
 
                 return m_MotionRoot; 
             }
@@ -97,6 +101,21 @@ namespace com.lizitt.outfitter
             }
             else
                 Debug.LogError("Invalid motion root.  Motion root can't be null.", outfit);
+        }
+
+        /// <summary>
+        /// True if the motion root is assigned.  Otherwise the motion root is defaulting to the outfit transform.
+        /// </summary>
+        /// <remarks>
+        /// <para>This is helpful for editor checks since <see cref="MotionRoot"/> must always return a value.</para>
+        /// </remarks>
+        /// <param name="outfit">The outfit to check.</param>
+        /// <returns>
+        /// True if the motion root is assigned.  Otherwise the motion root is defaulting to the outfit transform.
+        /// </returns>
+        public static bool IsMotionRootAssigned(OutfitCore outfit)
+        {
+            return outfit.m_MotionRoot;
         }
 
         [SerializeField]

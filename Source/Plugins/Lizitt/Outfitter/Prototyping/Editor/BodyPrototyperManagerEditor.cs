@@ -12,9 +12,9 @@ namespace com.lizitt.outfitter.proto.editor
     {
         public override void OnInspectorGUI()
         {
-            EditorGUIUtil.BeginLabelWidth(115);
+            LizittEditorGUIUtil.BeginLabelWidth(115);
             base.OnInspectorGUI();
-            EditorGUIUtil.EndLabelWidth();
+            LizittEditorGUIUtil.EndLabelWidth();
 
             EditorGUILayout.Space();
 

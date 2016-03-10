@@ -42,7 +42,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Sync Body Outfit Animators", order = OutfitterUtil.BodyAssetMenuOrder + 3)]
+        menuName = OutfitterMenu.AssetMenu + "Sync Body Outfit Animators", order = OutfitterMenu.BodyAssetMenuOrder + 3)]
     public class SyncBodyAnimators
         : BodyObserverObject
     {

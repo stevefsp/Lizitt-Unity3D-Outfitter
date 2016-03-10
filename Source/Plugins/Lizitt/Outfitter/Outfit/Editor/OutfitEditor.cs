@@ -167,7 +167,7 @@ namespace com.lizitt.outfitter.editor
                 {
                     var rb = bp.Rigidbody;
                     if (rb)
-                        EditorGUIUtil.SetRigidbodyBehavior(rb, status, false, undoLabel);
+                        LizittEditorGUIUtil.SetRigidbodyBehavior(rb, status, false, undoLabel);
                 }
             }
 

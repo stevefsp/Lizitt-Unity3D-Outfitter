@@ -66,12 +66,12 @@ namespace com.lizitt.outfitter.editor
 
                 if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
                 {
-                    btnStyle = EditorGUIUtil.YellowButton;
+                    btnStyle = LizittEditorGUIUtil.YellowButton;
                     removeType = RemoveActionType.RemoveOnly;
                 }
                 else if (OutfitterEditorUtil.IsDestructiveConfirmed)
                 {
-                    btnStyle = EditorGUIUtil.RedButton;
+                    btnStyle = LizittEditorGUIUtil.RedButton;
                     removeType = RemoveActionType.RemoveAndDestroy;
                 }
             }
@@ -83,7 +83,7 @@ namespace com.lizitt.outfitter.editor
                 if (m_OutfitApplyRemoveChoice && m_OutfitApplyRemoveChoice.Owner)
                 {
                     label.tooltip += " (Current outfit owner: " + m_OutfitApplyRemoveChoice.Owner.name + ")";
-                    btnStyle = EditorGUIUtil.YellowButton;
+                    btnStyle = LizittEditorGUIUtil.YellowButton;
                 }
             }
 
@@ -160,12 +160,12 @@ namespace com.lizitt.outfitter.editor
 
             if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
             {
-                btnStyle = EditorGUIUtil.YellowButton;
+                btnStyle = LizittEditorGUIUtil.YellowButton;
                 removeType = RemoveActionType.RemoveOnly;
             }
             else if (OutfitterEditorUtil.IsDestructiveConfirmed)
             {
-                btnStyle = EditorGUIUtil.RedButton;
+                btnStyle = LizittEditorGUIUtil.RedButton;
                 removeType = RemoveActionType.RemoveAndDestroy;
             }
 
@@ -273,12 +273,12 @@ namespace com.lizitt.outfitter.editor
 
             if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
             {
-                btnStyle = EditorGUIUtil.YellowButton;
+                btnStyle = LizittEditorGUIUtil.YellowButton;
                 removeType = RemoveActionType.RemoveOnly;
             }
             else if (OutfitterEditorUtil.IsDestructiveConfirmed)
             {
-                btnStyle = EditorGUIUtil.RedButton;
+                btnStyle = LizittEditorGUIUtil.RedButton;
                 removeType = RemoveActionType.RemoveAndDestroy;
             }
 
@@ -304,10 +304,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
 
-            EditorGUIUtil.BeginLabelWidth(80);
+            LizittEditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
                 EditorGUILayout.Slider(AutoOffsetLabel, OutfitterEditorUtil.AutoOffset, 0, 5);
-            EditorGUIUtil.EndLabelWidth();
+            LizittEditorGUIUtil.EndLabelWidth();
         }
 
         #endregion

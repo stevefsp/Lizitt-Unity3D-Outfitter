@@ -27,7 +27,7 @@ namespace com.lizitt.outfitter
     /// <summary>
     /// An outfit that implements all of the standard outfit behavior.
     /// </summary>
-    [AddComponentMenu(OutfitterUtil.Menu + "Standard Outfit", OutfitterUtil.OutfitComponentMenuOrder + 0)]
+    [AddComponentMenu(OutfitterMenu.Menu + "Standard Outfit", OutfitterMenu.OutfitComponentMenuOrder + 0)]
     [SelectionBase]
     public class StandardOutfit
         : OutfitCore, IAccessoryObserver

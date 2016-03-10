@@ -52,7 +52,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [RequireComponent(typeof(BodyAccessoryManager))]
-    [AddComponentMenu(OutfitterUtil.Menu + "Standard Body", OutfitterUtil.BodyComponentMenuOrder + 0)]
+    [AddComponentMenu(OutfitterMenu.Menu + "Standard Body", OutfitterMenu.BodyComponentMenuOrder + 0)]
     [SelectionBase]
     public class StandardBody
         : Body, IOutfitObserver

@@ -35,7 +35,7 @@ namespace com.lizitt.outfitter
     /// known state is lost if the body outfit is set to null.
     /// </para>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Sync BodyPart State", order = OutfitterUtil.BodyAssetMenuOrder + 4)]
+        menuName = OutfitterMenu.AssetMenu + "Sync BodyPart State", order = OutfitterMenu.BodyAssetMenuOrder + 4)]
     public class SyncBodyPartState
         : BodyObserverObject
     {

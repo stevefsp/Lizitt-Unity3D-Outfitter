@@ -36,7 +36,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Sync MountPoint State", order = OutfitterUtil.BodyAssetMenuOrder + 5)]
+        menuName = OutfitterMenu.AssetMenu + "Sync MountPoint State", order = OutfitterMenu.BodyAssetMenuOrder + 5)]
     public class SyncMountPointState
         : BodyObserverObject
     {

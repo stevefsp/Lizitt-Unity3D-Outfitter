@@ -35,7 +35,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Set Body Animator", order = OutfitterUtil.BodyAssetMenuOrder + 1)]
+        menuName = OutfitterMenu.AssetMenu + "Set Body Animator", order = OutfitterMenu.BodyAssetMenuOrder + 1)]
     public class SetBodyAnimator
         : BodyObserverObject
     {

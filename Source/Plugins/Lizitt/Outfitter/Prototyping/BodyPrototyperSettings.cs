@@ -10,7 +10,7 @@ namespace com.lizitt.outfitter.proto
     /// A component useful for prototyping body and its features.  (Editor only.)
     /// </summary>
     [AddComponentMenu(
-        OutfitterUtil.Menu + "Body Prototyper Settings (Editor Only)", OutfitterUtil.EditorComponentMenuOrder + 1)]
+        OutfitterMenu.Menu + "Body Prototyper Settings (Editor Only)", OutfitterMenu.EditorComponentMenuOrder + 1)]
     public class BodyPrototyperSettings
         : MonoBehaviour
     {

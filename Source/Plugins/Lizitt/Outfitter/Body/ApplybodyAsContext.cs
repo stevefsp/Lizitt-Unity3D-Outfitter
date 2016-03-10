@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Apply Body As Context", order = OutfitterUtil.BodyAssetMenuOrder + 0)]
+        menuName = OutfitterMenu.AssetMenu + "Apply Body As Context", order = OutfitterMenu.BodyAssetMenuOrder + 0)]
     public sealed class ApplyBodyAsContext
         : ApplyBodyOutfitContext
     {

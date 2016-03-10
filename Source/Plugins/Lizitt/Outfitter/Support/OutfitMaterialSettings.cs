@@ -33,7 +33,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Outfit Material Settings", order = OutfitterUtil.OutfitAssetMenuOrder)]
+        menuName = OutfitterMenu.AssetMenu + "Outfit Material Settings", order = OutfitterMenu.OutfitAssetMenuOrder)]
     public sealed class OutfitMaterialSettings
         : ScriptableObject
     {

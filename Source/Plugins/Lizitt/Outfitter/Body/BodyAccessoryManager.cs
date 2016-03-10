@@ -38,7 +38,7 @@ namespace com.lizitt.outfitter
     /// unknown owner it will automatically discard the accessory.
     /// </para>
     /// </remarks>
-    [AddComponentMenu(OutfitterUtil.Menu + "Body Accessory Manager", OutfitterUtil.BodyComponentMenuOrder + 9)]  // Last
+    [AddComponentMenu(OutfitterMenu.Menu + "Body Accessory Manager", OutfitterMenu.BodyComponentMenuOrder + 9)]  // Last
     public class BodyAccessoryManager
         : MonoBehaviour, IAccessoryObserver, IBodyAccessoryManager
     {
@@ -528,6 +528,18 @@ namespace com.lizitt.outfitter
                     {
                         UnlinkAccessory(sender);
                         wasReleased = true;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < m_Items.Count; i++)
+                        {
+                            var item = m_Items[i];
+                            if (item.Accessory == sender)
+                            {
+                                item.LocationType = item.Accessory.CurrentLocation.LocationType;
+                                m_Items[i] = item;
+                            }
+                        }
                     }
 
                     break;

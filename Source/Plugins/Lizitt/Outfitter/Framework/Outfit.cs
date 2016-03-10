@@ -65,6 +65,8 @@ namespace com.lizitt.outfitter
     public abstract class Outfit
         : MonoBehaviour
     {
+        // TODO: v0.3: Add IsAccessoryMounting() method.
+
         #region Core Settings
 
         /// <summary>

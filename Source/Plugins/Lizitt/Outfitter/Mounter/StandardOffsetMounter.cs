@@ -36,7 +36,7 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Standard Offset Mounter", order = OutfitterUtil.MounterAssetMenuOrder + 0)]
+        menuName = OutfitterMenu.AssetMenu + "Standard Offset Mounter", order = OutfitterMenu.MounterAssetMenuOrder + 0)]
     public class StandardOffsetMounter
         : OffsetMounterObject
     {
@@ -71,7 +71,7 @@ namespace com.lizitt.outfitter
 
         public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {
-            return (location && location.LocationType == m_Location) ? Coverage : 0;   
+            return (location && location.LocationType == m_Location) ? MountedCoverage : 0;   
         }
 
         // Do not seal.  Allow overrides to add functionality.

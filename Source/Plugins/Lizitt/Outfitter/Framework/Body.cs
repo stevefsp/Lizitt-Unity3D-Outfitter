@@ -50,6 +50,8 @@ namespace com.lizitt.outfitter
     public abstract class Body
         : MonoBehaviour
     {
+        // TODO: v0.3: Add IsAccessoryMounting() method.
+
         #region Core
 
         /// <summary>

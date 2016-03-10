@@ -44,7 +44,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The coverage of the accessory on a successful mount operation.
         /// </summary>
-        public BodyCoverage Coverage
+        public BodyCoverage MountedCoverage
         {
             get { return m_Coverage; }
             set { m_Coverage = value; }

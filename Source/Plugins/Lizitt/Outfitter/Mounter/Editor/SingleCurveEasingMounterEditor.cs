@@ -20,23 +20,25 @@
  * THE SOFTWARE.
  */
 using UnityEditor;
+using UnityEngine;
 
 namespace com.lizitt.outfitter.editor
 {
-    [CustomEditor(typeof(StandardOffsetMounter))]
-    public class StandardOffsetMounterEditor
+    [CustomEditor(typeof(SingleCurveEasingMounter), true)]
+    public class SingleCurveEasingMounterEditor
         : OffsetMounterObjectEditor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
+            EditorGUILayout.Space(); 
             EditorGUILayout.Space();
 
-            EditorGUILayout.HelpBox("Accessory Mounter\n\nA mounter that immediately parents to its location"
-                + " with optional position and rotation offsets. The mount operation will always succeed"
-                + " if its location type matches the the mount point's location type.\n\nUpdate completes"
-                + " immediately.\n\nSupports multiple concurrent mount operations.", 
+            EditorGUILayout.HelpBox("Accessory Mounter\n\nTransfers an accessory from one mount point to"
+                + " another, easing its position and rotation based on a single animation curve.\n\nThe same"
+                + " animation curve is used for all position and rotation axes.\n\nWill complete immediately"
+                + " if used outside of play mode. (No animation.)\n\nSupports multiple concurrent mount operations.",
                 MessageType.None); 
         }
 
@@ -44,24 +46,22 @@ namespace com.lizitt.outfitter.editor
         {
             base.CopyFrom(copySource);
 
-            var targ = target as StandardOffsetMounter;
+            var source = copySource as SingleCurveEasingMounter;
+            if (!source)
+                return;
 
-            if (copySource is EasingMounter)
-                targ.SetDefaultLocationType((copySource as EasingMounter).To);
-            else if (copySource is StandardOffsetMounter)
-                targ.SetDefaultLocationType((copySource as StandardOffsetMounter).DefaultLocationType);
+            (target as SingleCurveEasingMounter).EaseCurve = new AnimationCurve(source.EaseCurve.keys);
         }
 
         protected override void CopyTo(OffsetMounterObject copyTarget)
         {
             base.CopyTo(copyTarget);
 
-            var targ = target as StandardOffsetMounter;
+            var copyTarg = copyTarget as SingleCurveEasingMounter;
+            if (!copyTarg)
+                return;
 
-            if (copyTarget is EasingMounter)
-                (copyTarget as EasingMounter).To = targ.DefaultLocationType ;
-            else if (copyTarget is StandardOffsetMounter)
-                (copyTarget as StandardOffsetMounter).SetDefaultLocationType(targ.DefaultLocationType);
+            copyTarg.EaseCurve = new AnimationCurve((target as SingleCurveEasingMounter).EaseCurve.keys);
         }
     }
 }

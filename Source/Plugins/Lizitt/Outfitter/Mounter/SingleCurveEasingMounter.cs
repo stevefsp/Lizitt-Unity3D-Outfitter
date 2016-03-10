@@ -37,8 +37,8 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Single Curve Mounter", order = OutfitterUtil.MounterAssetMenuOrder + 1)]
-    public sealed class SingleCurveMounter
+        menuName = OutfitterMenu.AssetMenu + "Single Curve Easing Mounter", order = OutfitterMenu.MounterAssetMenuOrder + 1)]
+    public sealed class SingleCurveEasingMounter
         : EasingMounter
     {
         [Space]
@@ -65,12 +65,12 @@ namespace com.lizitt.outfitter
             set { m_EaseCurve = value; }
         }
 
-        public override Vector3 GetLocalPosition(Vector3 start, Vector3 end, float normalizedTime)
+        public override Vector3 GetPosition(Vector3 start, Vector3 end, float normalizedTime)
         {
             return end + (start - end) * (1 - m_EaseCurve.Evaluate(normalizedTime));
         }
 
-        public override Vector3 GetLocalEulerAngles(Vector3 start, Vector3 end, float normalizedTime)
+        public override Vector3 GetEulerAngles(Vector3 start, Vector3 end, float normalizedTime)
         {
             var eval = m_EaseCurve.Evaluate(normalizedTime);
 

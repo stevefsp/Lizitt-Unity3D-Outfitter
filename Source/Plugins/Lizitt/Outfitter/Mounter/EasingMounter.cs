@@ -44,7 +44,7 @@ namespace com.lizitt.outfitter
          * designed to transfer an accessory between the same mount point type on different outfits.
          */
 
-        #region Configuration Settings
+        #region Settings
 
         [Space(10)]
         [SerializeField]
@@ -99,10 +99,13 @@ namespace com.lizitt.outfitter
 
         public sealed override BodyCoverage GetCoverageFor(MountPoint location)
         {
-            return (location && location.LocationType == m_To) ? Coverage : 0;
+            return (location && location.LocationType == m_To) ? MountedCoverage : 0;
         }
 
         [Space]
+
+        // TODO: v0.3  Add a property and editor visualization for current buffer size.  That will allow
+        // optimization of the initialization size.
 
         [SerializeField]
         [Tooltip("The initial size of the mount state buffer.  (Set to the maximum expected number of"
@@ -140,6 +143,71 @@ namespace com.lizitt.outfitter
             set { m_EaseDuration = Mathf.Max(0, value); }
         }
 
+        /// <summary>
+        /// The ease space.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Easing works best when it takes place in a local space shared by both the accessory and mount point.
+        /// When a lot of motion is occur, such as when a character is animating, the closer the shared local 
+        /// space, the more accurate the easing will be.
+        /// </para>
+        /// </remarks>
+        public enum EaseSpaceType
+        {
+            /// <summary>
+            /// Use the closest shared parent of the accessory and mount point. (Lowest common ancestor.)
+            /// </summary>
+            FirstShared = 0,
+
+            /// <summary>
+            /// The mount point's local space.  (The accessory will act as a child of the mount point.)
+            /// </summary>
+            MountPoint,
+
+            /// <summary>
+            /// The local space of the mount point's parent.
+            /// </summary>
+            MountParent,
+
+            /// <summary>
+            /// The local space of the mount point's context.
+            /// </summary>
+            MountContext,
+
+            /// <summary>
+            /// The local space of the accessory's current parent.
+            /// </summary>
+            AccessoryParent,
+
+            /// <summary>
+            /// The motion root of the mount point's outfit, or world space if no outfit could be found.
+            /// </summary>
+            /// <remarks>
+            /// <para>
+            /// A parent search will be performed first, followed by a check of the mount point's context.
+            /// </para>
+            /// </remarks>
+            MotionRoot,
+
+            /// <summary>
+            /// World space.
+            /// </summary>
+            World,
+        }
+
+        [SerializeField]
+        private EaseSpaceType m_Space = EaseSpaceType.FirstShared;
+
+        /// <summary>
+        /// The local space of the ease operation.  (Should be shared by the accessory and mountpoint.)
+        /// </summary>
+        public EaseSpaceType EaseSpace
+        {
+            get { return m_Space; }
+            set { m_Space = value; }
+        }
+
         #endregion
 
         #region  Mount State
@@ -153,8 +221,8 @@ namespace com.lizitt.outfitter
         {
             public Accessory accessory;
             public float easeTime;
-            public Vector3 localStartPosition;
-            public Vector3 localStartEulers;
+            public Vector3 startPosition;
+            public Vector3 startEulers;
         }
 
         private List<MountState> m_MountState;
@@ -237,10 +305,69 @@ namespace com.lizitt.outfitter
                 state.accessory = accessory;  // Might be a new state.
                 state.easeTime = state.easeTime == 0 ? 0 : state.easeTime;
 
-                accessory.transform.parent = location.transform;
+                switch (m_Space)
+                {
+                    case EaseSpaceType.FirstShared:
 
-                state.localStartPosition = accessory.transform.localPosition;
-                state.localStartEulers = accessory.transform.localEulerAngles;
+                        if (accessory.transform.IsChildOf(location.transform)
+                            || location.transform.IsChildOf(accessory.transform))  // Weird.  But who knows.
+                        {
+                            accessory.transform.parent = null;
+                        }
+                        else
+                            accessory.transform.parent = accessory.transform.GetSharedParent(location.transform);
+
+                        break;
+
+                    case EaseSpaceType.MotionRoot:
+
+                        var outfit = location.GetComponentInParent<Outfit>();
+                        if (!outfit && location.Context)
+                            outfit = location.Context.GetComponent<Outfit>();
+
+                        if (outfit)
+                            accessory.transform.parent = outfit.transform;
+                        else
+                        {
+                            accessory.transform.parent = null;
+
+                            Debug.LogWarning(
+                                "Could not locate the mount point's Outfit.  Falling back to world space. MountPoint: "
+                                + location.name, location);
+                        }
+
+                        break;
+
+                    case EaseSpaceType.MountPoint:
+
+                        accessory.transform.parent = location.transform;
+                        break;
+
+                    case EaseSpaceType.MountParent:
+
+                        accessory.transform.parent = location.transform.parent;
+                        break;
+
+                    case EaseSpaceType.MountContext:
+
+                        accessory.transform.parent = location.Context ? location.Context.transform : null;
+
+                        break;
+
+                    case EaseSpaceType.AccessoryParent:
+
+                        // Do nothing.
+                        break;
+
+                    default:
+
+                        accessory.transform.parent = null;
+                        break;
+
+                }
+
+                state.startPosition = accessory.transform.localPosition;
+                state.startEulers = accessory.transform.localEulerAngles;
 
                 SetMountState(state);
 
@@ -293,11 +420,27 @@ namespace com.lizitt.outfitter
                 return false;
             }
 
+            //accessory.transform.localPosition =
+            //    GetPosition(state.localStartPosition, PositionOffset, ntime);
+
+            //accessory.transform.localEulerAngles =
+            //    GetEulerAngles(state.localStartEulers, RotationOffset, ntime);
+
+
+            Vector3 rootPos = Vector3.zero;
+            Vector3 rootEulers = Vector3.zero;
+
+            if (accessory.transform.parent)
+            {
+                rootPos = accessory.transform.parent.position;
+                rootEulers = accessory.transform.parent.eulerAngles;
+            }
+
             accessory.transform.localPosition =
-                GetLocalPosition(state.localStartPosition, PositionOffset, ntime);
+                GetPosition(state.startPosition, (location.transform.position + PositionOffset) - rootPos, ntime);
 
             accessory.transform.localEulerAngles =
-                GetLocalEulerAngles(state.localStartEulers, RotationOffset, ntime);
+                GetEulerAngles(state.startEulers, (location.transform.eulerAngles + RotationOffset) - rootEulers, ntime);
 
             SetMountState(state);
 
@@ -321,36 +464,30 @@ namespace com.lizitt.outfitter
         #region Abstract Members
 
         /// <summary>
-        /// Get the local position for the specified time.
+        /// Get the position for the specified time.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// All positions are local offsets to the target location.
-        /// </para>
         /// </remarks>
-        /// <param name="start">The local start position.</param>
-        /// <param name="end">The local end position.</param>
+        /// <param name="start">The start position.</param>
+        /// <param name="end">The end position.</param>
         /// <param name="normalizedTime">The normalized time. [0 &lt;= value &lt;= 1]</param>
-        /// <returns>The local position for the specified time.</returns>
-        public abstract Vector3 GetLocalPosition(Vector3 start, Vector3 end, float normalizedTime);
+        /// <returns>The position for the specified time.</returns>
+        public abstract Vector3 GetPosition(Vector3 start, Vector3 end, float normalizedTime);
 
         /// <summary>
-        /// Get the local rotation for the specified time.
+        /// Get the rotation for the specified time.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// All rotations are local offsets from the target.
-        /// </para>
         /// <para>
         /// Note: <see cref="Easing.Clerp"/> is useful for obtaining the shortest rotation 
         /// between angles.
         /// </para>
         /// </remarks>
-        /// <param name="start">The local start rotation.</param>
-        /// <param name="end">The local end rotation.</param>
+        /// <param name="start">The start rotation.</param>
+        /// <param name="end">The end rotation.</param>
         /// <param name="normalizedTime">The normalized time. [0 &lt;= value &lt;= 1]</param>
-        /// <returns>The local position for the specified time.</returns>
-        public abstract Vector3 GetLocalEulerAngles(Vector3 start, Vector3 end, float normalizedTime);
+        /// <returns>The position for the specified time.</returns>
+        public abstract Vector3 GetEulerAngles(Vector3 start, Vector3 end, float normalizedTime);
 
         #endregion
     }

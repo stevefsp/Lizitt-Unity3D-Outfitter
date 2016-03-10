@@ -25,39 +25,40 @@ namespace com.lizitt.outfitter.editor
 {
     [CustomEditor(typeof(EasingMounter), true)]
     public class EasingMounterEditor
-        : OffsetMounterObjectEdtior
+        : OffsetMounterObjectEditor
     {
-        public override void OnInspectorGUI()
+        protected override void CopyFrom(OffsetMounterObject copySource)
         {
-            base.OnInspectorGUI();
+            base.CopyFrom(copySource);
 
-            EditorGUILayout.Space();
+            var source = copySource as EasingMounter;
+            if (!source)
+                return;
 
-            if (target is SingleCurveMounter)
-            {
-                EditorGUILayout.HelpBox("Accessory Mounter\n\nTransfers an accessory from one mount point to"
-                    + " another, easing its position and rotation based on a single animation curve.\n\nThe same"
-                    + " animation curve is used for all position and rotation axes.\n\nWill complete immediately"
-                    + " if used outside of play mode. (No animation.)\n\nSupports multiple concurrent mount operations.", 
-                    MessageType.None); 
-            }
-            else if (target is DualCurveMounter)
-            {
-                EditorGUILayout.HelpBox("Accessory Mounter\n\nTransfers an accessory from one mount point to"
-                    + " another, easing its position and rotation based on separate curves.\n\nOne animation curve"
-                    + " is used for all position axes while second animation curve is used for all rotation axes.\n\n"
-                    + " Will complete immediately if used outside of play mode. (No animation.)\n\nSupports multiple"
-                    + " concurrent mount operations. ",
-                    MessageType.None); 
-            }
-            else if (target is SixCurveMounter)
-            {
-                EditorGUILayout.HelpBox("Accessory Mounter\n\nTransfers an accessory from one mount point to"
-                    + " another, easing its position and rotation based on an animation curve for each axis.\n\n"
-                    + " Each position and rotation axis has its own animation curve.\n\nWill complete immediately"
-                    + " if used outside of play mode. (No animation.)\n\nSupports multiple concurrent mount operations.",
-                    MessageType.None); 
-            }
+            var targ = target as EasingMounter;
+
+            targ.From = source.From;
+            targ.To = source.To;
+            targ.MountBufferSize = source.MountBufferSize;
+            targ.EaseDuration = source.EaseDuration;
+            targ.EaseSpace = source.EaseSpace;
+        }
+
+        protected override void CopyTo(OffsetMounterObject copyTarget)
+        {
+            base.CopyTo(copyTarget);
+
+            var copyTarg = copyTarget as EasingMounter;
+            if (!copyTarg)
+                return;
+
+            var targ = target as EasingMounter;
+
+            copyTarg.From = targ.From;
+            copyTarg.To = targ.To;
+            copyTarg.MountBufferSize = targ.MountBufferSize;
+            copyTarg.EaseDuration = targ.EaseDuration;
+            copyTarg.EaseSpace = targ.EaseSpace;
         }
     }
 }

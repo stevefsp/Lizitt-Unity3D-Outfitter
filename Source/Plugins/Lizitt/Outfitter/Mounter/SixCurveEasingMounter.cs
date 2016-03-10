@@ -37,8 +37,8 @@ namespace com.lizitt.outfitter
     /// </para>
     /// </remarks>
     [CreateAssetMenu(
-        menuName = OutfitterUtil.AssetMenu + "Six Curve Mounter", order = OutfitterUtil.MounterAssetMenuOrder + 3)]
-    public sealed class SixCurveMounter
+        menuName = OutfitterMenu.AssetMenu + "Six Curve Mounter", order = OutfitterMenu.MounterAssetMenuOrder + 3)]
+    public sealed class SixCurveEasingMounter
         : EasingMounter
     {
         [Header("Position Curves")]
@@ -171,7 +171,7 @@ namespace com.lizitt.outfitter
             set { m_RotationZ = value; }
         }
 
-        public override Vector3 GetLocalPosition(Vector3 start, Vector3 end, float normalizedTime)
+        public override Vector3 GetPosition(Vector3 start, Vector3 end, float normalizedTime)
         {
             return new Vector3(
                 end.x + (start.x - end.x) * (1 - m_PositionX.Evaluate(normalizedTime)),
@@ -179,7 +179,7 @@ namespace com.lizitt.outfitter
                 end.z + (start.z - end.z) * (1 - m_PositionZ.Evaluate(normalizedTime)));
         }
 
-        public override Vector3 GetLocalEulerAngles(Vector3 start, Vector3 end, float normalizedTime)
+        public override Vector3 GetEulerAngles(Vector3 start, Vector3 end, float normalizedTime)
         {
             return new Vector3(
                 Easing.Clerp(start.x, end.x, m_RotationX.Evaluate(normalizedTime)),

@@ -35,7 +35,7 @@ namespace com.lizitt.outfitter.proto
         [SerializeField]
         private bool m_InvertAxisX = false;
 
-        [SerializeField]    
+        [SerializeField]
         private bool m_InvertAxisY = false;
 
         [SerializeField]
@@ -245,18 +245,18 @@ namespace com.lizitt.outfitter.proto
 
         private Transform m_CameraPivot;
         private Camera m_Camera;
-        private Vector3 m_CameraPivotRotation; 
+        private Vector3 m_CameraPivotRotation;
 
         private void InitializeCamera()
         {
             var body = m_Manager.Body;
-            m_BodyRotationY = body.transform.eulerAngles.y;
+            m_BodyRotationY = body.MotionRoot.eulerAngles.y;
 
             m_Camera = Camera.main;
             m_CameraPivot = new GameObject(m_Camera.name + "_Pivot").transform;
             m_Camera.transform.parent = m_CameraPivot;
 
-            m_CameraPivotRotation = new Vector3(0, body.transform.eulerAngles.y + 180, 0);
+            m_CameraPivotRotation = new Vector3(0, m_BodyRotationY + 180, 0);
         }
 
         private void ProcessEvents()
@@ -299,12 +299,12 @@ namespace com.lizitt.outfitter.proto
         void LateUpdate()
         {
             var body = m_Manager.Body;
-            body.transform.eulerAngles = new Vector3(0, m_BodyRotationY, 0);
+            body.MotionRoot.eulerAngles = new Vector3(0, m_BodyRotationY, 0);
 
             m_CameraDistance = Mathf.Max(0.5f, m_CameraDistance);
             m_CameraPivotRotation.x = Mathf.Clamp(m_CameraPivotRotation.x, -85, 85);
 
-            m_CameraPivot.position = body.transform.position + Vector3.up * m_CameraHeight;
+            m_CameraPivot.position = body.MotionRoot.position + Vector3.up * m_CameraHeight;
             m_CameraPivot.transform.eulerAngles = new Vector3(-m_CameraPivotRotation.x, m_CameraPivotRotation.y, 0);
 
             m_Camera.transform.localPosition = new Vector3(0, 0, -m_CameraDistance);
@@ -322,7 +322,7 @@ namespace com.lizitt.outfitter.proto
             if (m_RotationDisc)
             {
                 var color = ColorUtil.Chocolate;
-                var trans = m_Manager.Body.transform;
+                var trans = m_Manager.Body.MotionRoot;
                 var dist = 0.5f;
                 var pos = trans.position + Vector3.up * 0.005f;
                 DebugDraw.Circle(pos, dist, color);
@@ -346,7 +346,7 @@ namespace com.lizitt.outfitter.proto
 
             GUILayout.BeginArea(new Rect(m_LeftWidth + 5, 5, Screen.width - m_LeftWidth - m_RightWidth - 10, 90));
 
-            var outfitName = (body.Outfit ? m_Manager.Body.Outfit.name : "No Outfit");
+            var outfitName = (body.Outfit ? body.Outfit.name : "No Outfit");
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button(outfitName, GUI.skin.box, GUILayout.MinWidth(100)) && body.Outfit)
@@ -496,6 +496,11 @@ namespace com.lizitt.outfitter.proto
 
             if (m_Manager.Accessories.Count > 0)
             {
+                if (GUILayout.Button("Retry Mounts"))
+                {
+                    body.Accessories.TryMountStored();
+                }
+
                 for (int i = 0; i < m_Manager.Accessories.Count; i++)
                 {
                     var item = m_Manager.Accessories[i];
@@ -544,11 +549,6 @@ namespace com.lizitt.outfitter.proto
 
                         GUILayout.Space(5);
                     }
-                }
-
-                if (GUILayout.Button("Retry Mounts"))
-                {
-                    body.Accessories.TryMountStored();
                 }
             }
 

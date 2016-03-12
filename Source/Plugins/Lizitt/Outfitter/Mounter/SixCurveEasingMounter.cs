@@ -46,7 +46,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The normalized animation curve applied to the position x-axis."
             + " (Both time and value axes are normalized.)")]
-        private AnimationCurve m_PositionX = new AnimationCurve();
+        private AnimationCurve m_PositionX = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the position x-axis (Both time and value axes are normalized.)
@@ -67,7 +67,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip(
             "The normalized animation curve applied to the position y-axis. (Both time and value axes are normalized.)")]
-        private AnimationCurve m_PositionY = new AnimationCurve();
+        private AnimationCurve m_PositionY = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the position y-axis (Both time and value axes are normalized.)
@@ -88,7 +88,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip(
             "The normalized animation curve applied to the position y-axis. (Both time and value axes are normalized.)")]
-        private AnimationCurve m_PositionZ = new AnimationCurve();
+        private AnimationCurve m_PositionZ = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the position z-axis (Both time and value axes are normalized.)
@@ -111,7 +111,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip(
             "The normalized animation curve applied to the rotation x-axis. (Both time and value axes are normalized.)")]
-        private AnimationCurve m_RotationX = new AnimationCurve();
+        private AnimationCurve m_RotationX = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the rotation x-axis (Both time and value axes are normalized.)
@@ -132,7 +132,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip(
             "The normalized animation curve applied to the rotation y-axis. (Both time and value axes are normalized.)")]
-        private AnimationCurve m_RotationY = new AnimationCurve();
+        private AnimationCurve m_RotationY = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the rotation y-axis (Both time and value axes are normalized.)
@@ -153,7 +153,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip(
             "The normalized animation curve applied to the rotation z-axis. (Both time and value axes are normalized.)")]
-        private AnimationCurve m_RotationZ = new AnimationCurve();
+        private AnimationCurve m_RotationZ = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to the rotation z-axis (Both time and value axes are normalized.)

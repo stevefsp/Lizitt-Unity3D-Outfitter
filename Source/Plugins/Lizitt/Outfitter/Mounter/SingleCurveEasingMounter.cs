@@ -46,7 +46,7 @@ namespace com.lizitt.outfitter
         [SerializeField]
         [Tooltip("The normalized animation curve applied to all position and rotation axes. (Both time and value"
             + " axes are normalized.)")]
-        private AnimationCurve m_EaseCurve = new AnimationCurve();
+        private AnimationCurve m_EaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         /// <summary>
         /// The normalized animation curve applied to all position and rotation axes. (Both time and value axes

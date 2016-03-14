@@ -41,7 +41,8 @@ namespace com.lizitt.outfitter.editor
             targ.To = source.To;
             targ.MountBufferSize = source.MountBufferSize;
             targ.EaseDuration = source.EaseDuration;
-            targ.EaseSpace = source.EaseSpace;
+            //targ.EaseSpace = source.EaseSpace;
+            targ.UseSharedSpace = source.UseSharedSpace;
         }
 
         protected override void CopyTo(OffsetMounterObject copyTarget)
@@ -58,7 +59,8 @@ namespace com.lizitt.outfitter.editor
             copyTarg.To = targ.To;
             copyTarg.MountBufferSize = targ.MountBufferSize;
             copyTarg.EaseDuration = targ.EaseDuration;
-            copyTarg.EaseSpace = targ.EaseSpace;
+            //copyTarg.EaseSpace = targ.EaseSpace;
+            copyTarg.UseSharedSpace = targ.UseSharedSpace;
         }
     }
 }

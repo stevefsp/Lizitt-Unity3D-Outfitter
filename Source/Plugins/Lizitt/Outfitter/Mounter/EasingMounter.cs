@@ -143,70 +143,94 @@ namespace com.lizitt.outfitter
             set { m_EaseDuration = Mathf.Max(0, value); }
         }
 
+        [SerializeField]
+        [Tooltip("Ease in the local space of the nearest shared parent of the 'from' and 'to' mount points."
+            + " Otherwise perform the ease while parented to the 'to' mount point.")]
+        private bool m_UseSharedSpace = true;
+
         /// <summary>
-        /// The ease space.
+        /// Ease in the local space of the nearest shared parent of the 'from' and 'to' mount points. Otherwise"
+        /// perform the ease while parented to the 'to' mount point.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// Easing works best when it takes place in a local space shared by both the accessory and mount point.
-        /// When a lot of motion is occur, such as when a character is animating, the closer the shared local 
-        /// space, the more accurate the easing will be.
+        /// Easing usually works best when it takes place in a local space shared by both the original and target
+        /// and mount points. When a lot of motion is occurs, such as when a character is animating, the closer 
+        /// the shared local space, the more accurate the easing will be.
         /// </para>
         /// </remarks>
-        public enum EaseSpaceType
+        public bool UseSharedSpace
         {
-            /// <summary>
-            /// Use the closest shared parent of the accessory and mount point. (Lowest common ancestor.)
-            /// </summary>
-            FirstShared = 0,
-
-            /// <summary>
-            /// The mount point's local space.  (The accessory will act as a child of the mount point.)
-            /// </summary>
-            MountPoint,
-
-            /// <summary>
-            /// The local space of the mount point's parent.
-            /// </summary>
-            MountParent,
-
-            /// <summary>
-            /// The local space of the mount point's context.
-            /// </summary>
-            MountContext,
-
-            /// <summary>
-            /// The local space of the accessory's current parent.
-            /// </summary>
-            AccessoryParent,
-
-            /// <summary>
-            /// The motion root of the mount point's outfit, or world space if no outfit could be found.
-            /// </summary>
-            /// <remarks>
-            /// <para>
-            /// A parent search will be performed first, followed by a check of the mount point's context.
-            /// </para>
-            /// </remarks>
-            MotionRoot,
-
-            /// <summary>
-            /// World space.
-            /// </summary>
-            World,
+            get { return m_UseSharedSpace; }
+            set { m_UseSharedSpace = value; }
         }
 
-        [SerializeField]
-        private EaseSpaceType m_Space = EaseSpaceType.FirstShared;
+        // TODO: EVAL: v0.4:  Make decision to remove or restore.
+        // Added complexity for not much benefit?
+        ///// <summary>
+        ///// The ease space.
+        ///// </summary>
+        ///// <remarks>
+        ///// <para>
+        ///// Easing works best when it takes place in a local space shared by both the accessory and mount point.
+        ///// When a lot of motion is occurs, such as when a character is animating, the closer the shared local 
+        ///// space, the more accurate the easing will be.
+        ///// </para>
+        ///// </remarks>
+        //public enum EaseSpaceType
+        //{
+        //    /// <summary>
+        //    /// Use the closest shared parent of the accessory and mount point. (Lowest common ancestor.)
+        //    /// </summary>
+        //    FirstShared = 0,
 
-        /// <summary>
-        /// The local space of the ease operation.  (Should be shared by the accessory and mountpoint.)
-        /// </summary>
-        public EaseSpaceType EaseSpace
-        {
-            get { return m_Space; }
-            set { m_Space = value; }
-        }
+        //    /// <summary>
+        //    /// The mount point's local space.  (The accessory will act as a child of the mount point.)
+        //    /// </summary>
+        //    MountPoint,
+
+        //    /// <summary>
+        //    /// The local space of the mount point's parent.
+        //    /// </summary>
+        //    MountParent,
+
+        //    /// <summary>
+        //    /// The local space of the mount point's context.
+        //    /// </summary>
+        //    MountContext,
+
+        //    /// <summary>
+        //    /// The local space of the accessory's current parent.
+        //    /// </summary>
+        //    AccessoryParent,
+
+        //    /// <summary>
+        //    /// The motion root of the mount point's outfit, or world space if no outfit could be found.
+        //    /// </summary>
+        //    /// <remarks>
+        //    /// <para>
+        //    /// A parent search will be performed first, followed by a check of the mount point's context.
+        //    /// </para>
+        //    /// </remarks>
+        //    MotionRoot,
+
+        //    /// <summary>
+        //    /// World space.
+        //    /// </summary>
+        //    World,
+        //}
+
+        //[SerializeField]
+        //private EaseSpaceType m_Space = EaseSpaceType.FirstShared;
+
+        ///// <summary>
+        ///// The local space of the ease operation.  (Should be shared by the accessory and mountpoint.)
+        ///// </summary>
+        //public EaseSpaceType EaseSpace
+        //{
+        //    get { return m_Space; }
+        //    set { m_Space = value; }
+        //}
 
         #endregion
 
@@ -305,66 +329,80 @@ namespace com.lizitt.outfitter
                 state.accessory = accessory;  // Might be a new state.
                 state.easeTime = state.easeTime == 0 ? 0 : state.easeTime;
 
-                switch (m_Space)
+                if (m_UseSharedSpace)
                 {
-                    case EaseSpaceType.FirstShared:
-
-                        if (accessory.transform.IsChildOf(location.transform)
-                            || location.transform.IsChildOf(accessory.transform))  // Weird.  But who knows.
-                        {
-                            accessory.transform.parent = null;
-                        }
-                        else
-                            accessory.transform.parent = accessory.transform.GetSharedParent(location.transform);
-
-                        break;
-
-                    case EaseSpaceType.MotionRoot:
-
-                        var outfit = location.GetComponentInParent<Outfit>();
-                        if (!outfit && location.Context)
-                            outfit = location.Context.GetComponent<Outfit>();
-
-                        if (outfit)
-                            accessory.transform.parent = outfit.transform;
-                        else
-                        {
-                            accessory.transform.parent = null;
-
-                            Debug.LogWarning(
-                                "Could not locate the mount point's Outfit.  Falling back to world space. MountPoint: "
-                                + location.name, location);
-                        }
-
-                        break;
-
-                    case EaseSpaceType.MountPoint:
-
-                        accessory.transform.parent = location.transform;
-                        break;
-
-                    case EaseSpaceType.MountParent:
-
-                        accessory.transform.parent = location.transform.parent;
-                        break;
-
-                    case EaseSpaceType.MountContext:
-
-                        accessory.transform.parent = location.Context ? location.Context.transform : null;
-
-                        break;
-
-                    case EaseSpaceType.AccessoryParent:
-
-                        // Do nothing.
-                        break;
-
-                    default:
-
+                    if (accessory.transform.IsChildOf(location.transform) 
+                        || location.transform.IsChildOf(accessory.transform))  // Unexpected.  But who knows.
+                    {
                         accessory.transform.parent = null;
-                        break;
-
+                    }
+                    else
+                        accessory.transform.parent = accessory.transform.GetSharedParent(location.transform);
                 }
+                else
+                    accessory.transform.parent = location.transform;
+
+                // See notes for EaseSpaceType.  Restore or remove by v0.4.
+                //switch (m_Space)
+                //{
+                //    case EaseSpaceType.FirstShared:
+
+                //        if (accessory.transform.IsChildOf(location.transform)
+                //            || location.transform.IsChildOf(accessory.transform))  // Unexpected.  But who knows.
+                //        {
+                //            accessory.transform.parent = null;
+                //        }
+                //        else
+                //            accessory.transform.parent = accessory.transform.GetSharedParent(location.transform);
+
+                //        break;
+
+                //    case EaseSpaceType.MotionRoot:
+
+                //        var outfit = location.GetComponentInParent<Outfit>();
+                //        if (!outfit && location.Context)
+                //            outfit = location.Context.GetComponent<Outfit>();
+
+                //        if (outfit)
+                //            accessory.transform.parent = outfit.transform;
+                //        else
+                //        {
+                //            accessory.transform.parent = null;
+
+                //            Debug.LogWarning(
+                //                "Could not locate the mount point's Outfit.  Falling back to world space. MountPoint: "
+                //                + location.name, location);
+                //        }
+
+                //        break;
+
+                //    case EaseSpaceType.MountPoint:
+
+                //        accessory.transform.parent = location.transform;
+                //        break;
+
+                //    case EaseSpaceType.MountParent:
+
+                //        accessory.transform.parent = location.transform.parent;
+                //        break;
+
+                //    case EaseSpaceType.MountContext:
+
+                //        accessory.transform.parent = location.Context ? location.Context.transform : null;
+
+                //        break;
+
+                //    case EaseSpaceType.AccessoryParent:
+
+                //        // Do nothing.
+                //        break;
+
+                //    default:
+
+                //        accessory.transform.parent = null;
+                //        break;
+
+                //}
 
                 state.startPosition = accessory.transform.localPosition;
                 state.startEulers = accessory.transform.localEulerAngles;
@@ -420,27 +458,19 @@ namespace com.lizitt.outfitter
                 return false;
             }
 
-            //accessory.transform.localPosition =
-            //    GetPosition(state.localStartPosition, PositionOffset, ntime);
-
-            //accessory.transform.localEulerAngles =
-            //    GetEulerAngles(state.localStartEulers, RotationOffset, ntime);
-
-
-            Vector3 rootPos = Vector3.zero;
-            Vector3 rootEulers = Vector3.zero;
+            // Local offset -> Global space.
+            var endPos = location.transform.TransformPoint(PositionOffset);
+            var endRot = location.transform.rotation * Quaternion.Euler(RotationOffset);
 
             if (accessory.transform.parent)
             {
-                rootPos = accessory.transform.parent.position;
-                rootEulers = accessory.transform.parent.eulerAngles;
+                // Global space -> Same space as accessory.
+                endPos = accessory.transform.parent.InverseTransformPoint(endPos);
+                endRot = (Quaternion.Inverse(accessory.transform.parent.rotation) * endRot);
             }
 
-            accessory.transform.localPosition =
-                GetPosition(state.startPosition, (location.transform.position + PositionOffset) - rootPos, ntime);
-
-            accessory.transform.localEulerAngles =
-                GetEulerAngles(state.startEulers, (location.transform.eulerAngles + RotationOffset) - rootEulers, ntime);
+            accessory.transform.localPosition = GetPosition(state.startPosition, endPos, ntime);
+            accessory.transform.localEulerAngles = GetEulerAngles(state.startEulers, endRot.eulerAngles, ntime);
 
             SetMountState(state);
 

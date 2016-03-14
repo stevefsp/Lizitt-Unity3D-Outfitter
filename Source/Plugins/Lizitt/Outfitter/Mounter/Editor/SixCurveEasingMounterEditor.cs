@@ -26,7 +26,7 @@ namespace com.lizitt.outfitter.editor
 {
     [CustomEditor(typeof(SixCurveEasingMounter), true)]
     public class SixCurveEasingMounterEditor
-        : OffsetMounterObjectEditor
+        : EasingMounterEditor
     {
         public override void OnInspectorGUI()
         {

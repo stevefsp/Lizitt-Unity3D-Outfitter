@@ -81,6 +81,11 @@ namespace com.lizitt.outfitter.proto
         [Range(0, 2)]
         private float m_AnimatorTimeout = 1;
 
+        [SerializeField]
+        [Tooltip("The speed of time.")]
+        [Range(0, 1)]
+        private float m_TimeScale = 1;
+
         #endregion
 
         #region Utility Members
@@ -311,6 +316,8 @@ namespace com.lizitt.outfitter.proto
             m_Camera.transform.LookAt(m_CameraPivot.position);
 
             m_OutfitBlockTime -= Time.deltaTime;
+
+            Time.timeScale = m_TimeScale;
         }
 
         #endregion

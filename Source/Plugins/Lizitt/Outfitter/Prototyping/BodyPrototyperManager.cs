@@ -499,7 +499,7 @@ namespace com.lizitt.outfitter.proto
         {
             var body = m_Manager.Body;
 
-            GUILayout.BeginArea(new Rect(Screen.width - 5 - m_RightWidth, 5, m_RightWidth, Screen.height));
+            GUILayout.BeginArea(new Rect(Screen.width - 5 - m_RightWidth, 5, m_RightWidth, Screen.height - 15));
 
             if (m_Manager.Accessories.Count > 0)
             {
@@ -558,6 +558,16 @@ namespace com.lizitt.outfitter.proto
                     }
                 }
             }
+
+            GUILayout.FlexibleSpace();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Time Scale");
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            m_TimeScale = GUILayout.HorizontalSlider(m_TimeScale, 0, 1);
 
             GUILayout.EndArea();
         }

@@ -29,7 +29,7 @@ namespace com.lizitt.outfitter
     /// <remarks>
     /// <para>
     /// The mount operation will always succeed if the mount point's location type is the same as 
-    /// <see cref="DefaultLocationType"/>.
+    /// <see cref="DefaultLocation"/>.
     /// </para>
     /// <para>
     /// Update completes immediately.  Supports multiple concurrent mount operations.
@@ -50,7 +50,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The location the accessory can mount to.
         /// </summary>
-        public sealed override MountPointType DefaultLocationType
+        public sealed override MountPointType DefaultLocation
         {
             get { return m_Location; }
         }
@@ -58,7 +58,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// Set the location the accessory can mount to.
         /// </summary>
-        public void SetDefaultLocationType(MountPointType value)
+        public void SetDefaultLocation(MountPointType value)
         {
             m_Location = value;
         }

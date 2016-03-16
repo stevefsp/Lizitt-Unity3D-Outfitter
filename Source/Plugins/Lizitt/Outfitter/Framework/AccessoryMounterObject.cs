@@ -45,7 +45,7 @@ namespace com.lizitt.outfitter
     {
         public abstract BodyCoverage GetCoverageFor(MountPoint location);
 
-        public abstract MountPointType DefaultLocationType { get; }
+        public abstract MountPointType DefaultLocation { get; }
 
         public abstract bool CanMount(Accessory accessory, MountPoint location);
 

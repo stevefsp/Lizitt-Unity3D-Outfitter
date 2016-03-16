@@ -86,7 +86,7 @@ namespace com.lizitt.outfitter
             m_To = to;
         }
 
-        public override MountPointType DefaultLocationType
+        public override MountPointType DefaultLocation
         {
             get { return m_To; }
         }

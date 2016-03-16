@@ -68,7 +68,7 @@ namespace com.lizitt.outfitter
         /// guarentee a successful mount is to first check <see cref="CanMount"/>.
         /// </para>
         /// </remarks>
-        MountPointType DefaultLocationType { get; }
+        MountPointType DefaultLocation { get; }
 
         /// <summary>
         /// Determines if the mounter can mount the accessory to the specified location based on the accessory's 

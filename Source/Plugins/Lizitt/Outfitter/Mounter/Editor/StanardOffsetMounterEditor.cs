@@ -47,9 +47,9 @@ namespace com.lizitt.outfitter.editor
             var targ = target as StandardOffsetMounter;
 
             if (copySource is EasingMounter)
-                targ.SetDefaultLocationType((copySource as EasingMounter).To);
+                targ.SetDefaultLocation((copySource as EasingMounter).To);
             else if (copySource is StandardOffsetMounter)
-                targ.SetDefaultLocationType((copySource as StandardOffsetMounter).DefaultLocationType);
+                targ.SetDefaultLocation((copySource as StandardOffsetMounter).DefaultLocation);
         }
 
         protected override void CopyTo(OffsetMounterObject copyTarget)
@@ -59,9 +59,9 @@ namespace com.lizitt.outfitter.editor
             var targ = target as StandardOffsetMounter;
 
             if (copyTarget is EasingMounter)
-                (copyTarget as EasingMounter).To = targ.DefaultLocationType ;
+                (copyTarget as EasingMounter).To = targ.DefaultLocation ;
             else if (copyTarget is StandardOffsetMounter)
-                (copyTarget as StandardOffsetMounter).SetDefaultLocationType(targ.DefaultLocationType);
+                (copyTarget as StandardOffsetMounter).SetDefaultLocation(targ.DefaultLocation);
         }
     }
 }

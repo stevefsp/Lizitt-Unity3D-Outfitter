@@ -63,11 +63,11 @@ namespace com.lizitt.outfitter.proto
 
         [SerializeField]
         [Range(100, 500)]
-        private float m_RightWidth = 150;
+        private float m_RightWidth = 180;
 
         [SerializeField]
         [Range(100, 500)]
-        private float m_LeftWidth = 150;
+        private float m_LeftWidth = 180;
 
         [Header("Miscellaneous Settings")]
 
@@ -266,8 +266,6 @@ namespace com.lizitt.outfitter.proto
 
         private void ProcessEvents()
         {
-            // Ummm.  Why did I do this with Event rather Input?  Not worth changing now.
-
             int bodyBtn = 0;
             int camBtn = 1;
             if (m_InvertButtons)
@@ -341,17 +339,17 @@ namespace com.lizitt.outfitter.proto
 
         void OnGUI()
         {
-            ProcessEvents();
             DrawTopArea();
             DrawLeftArea();
             DrawRightArea();
+            ProcessEvents();  // Must be last.
         }
 
         private void DrawTopArea()
         {
             var body = m_Manager.Body;
 
-            GUILayout.BeginArea(new Rect(m_LeftWidth + 5, 5, Screen.width - m_LeftWidth - m_RightWidth - 10, 90));
+            GUILayout.BeginArea(new Rect(5, 5, Screen.width - 10, 30));
 
             var outfitName = (body.Outfit ? body.Outfit.name : "No Outfit");
             GUILayout.BeginHorizontal();
@@ -375,11 +373,13 @@ namespace com.lizitt.outfitter.proto
             GUILayout.EndArea();
         }
 
+        private Vector2 m_MaterialScroll = Vector2.zero;
+
         private void DrawLeftArea()
         {
             var body = m_Manager.Body;
 
-            GUILayout.BeginArea(new Rect(5, 5, m_LeftWidth, Screen.height));
+            GUILayout.BeginArea(new Rect(5, 5, m_LeftWidth, Screen.height - 15));
 
             if (m_Manager.Outfits.Count > 0)
             {
@@ -429,16 +429,40 @@ namespace com.lizitt.outfitter.proto
                 var labels = m_Manager.GetMaterialGroupNames();
 
                 GUI.enabled = body.Outfit;
-                for (int i = 0; i < m_Manager.OutfitMaterialGroups.Count; i++)
-                {
-                    var item = m_Manager.OutfitMaterialGroups[i];
-                    if (item)
-                    {
-                        if (GUILayout.Button(labels[i]))
-                            item.ApplyMaterials(body.Outfit);
 
+                var outfitMats = body.Outfit ? new List<OutfitMaterialType>(body.Outfit.GetOutfitMaterialTypes()) : null;
+
+                using (var view = new GUILayout.ScrollViewScope(m_MaterialScroll))
+                {
+                    m_MaterialScroll = view.scrollPosition;
+
+                    for (int i = 0; i < m_Manager.OutfitMaterialGroups.Count; i++)
+                    {
+                        var item = m_Manager.OutfitMaterialGroups[i];
+                        if (item)
+                        {
+                            if (outfitMats != null)
+                            {
+                                bool found = false;
+                                foreach (var omat in outfitMats)
+                                {
+                                    if (item.OutfitMaterials.IsDefined(omat))
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found)
+                                    continue;
+                            }
+
+                            if (GUILayout.Button(labels[i]))
+                                item.ApplyMaterials(body.Outfit);
+
+                        }
                     }
                 }
+
                 GUI.enabled = true;
 
                 GUILayout.EndVertical();
@@ -495,6 +519,8 @@ namespace com.lizitt.outfitter.proto
             m_OutfitBlockTime = 0;
         }
 
+        private Vector2 m_AccessoryScroll = Vector2.zero;
+
         private void DrawRightArea()
         {
             var body = m_Manager.Body;
@@ -508,53 +534,58 @@ namespace com.lizitt.outfitter.proto
                     body.Accessories.TryMountStored();
                 }
 
-                for (int i = 0; i < m_Manager.Accessories.Count; i++)
+                using (var view = new GUILayout.ScrollViewScope(m_AccessoryScroll))
                 {
-                    var item = m_Manager.Accessories[i];
-                    if (item)
+                    m_AccessoryScroll = view.scrollPosition;
+
+                    for (int i = 0; i < m_Manager.Accessories.Count; i++)
                     {
-                        GUILayout.BeginVertical(GUI.skin.box);
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                        if (GUILayout.Button(item.name, GUI.skin.label))
+                        var item = m_Manager.Accessories[i];
+                        if (item)
                         {
-                            Selection.activeObject = item;
-                        }
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
+                            GUILayout.BeginVertical(GUI.skin.box);
 
-                        GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                        if (GUILayout.Button(item.Status.ToString(), GUI.skin.label))  // More space for the click.
-                        {
-                            Selection.activeObject = item;
-                        }
-                        GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
-
-                        if (GUILayout.Button(
-                            item.Status == AccessoryStatus.Unmanaged ? "Add" : "Remove", GetStyle(item)))
-                        {
-                            if (item.Status == AccessoryStatus.Unmanaged)
+                            GUILayout.BeginHorizontal();
+                            GUILayout.FlexibleSpace();
+                            if (GUILayout.Button(item.name, GUI.skin.label))
                             {
-                                var result = body.Accessories.Add(item);
-                                if (result.IsFailed())
+                                Selection.activeObject = item;
+                            }
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.FlexibleSpace();
+                            if (GUILayout.Button(item.Status.ToString(), GUI.skin.label))  // More space for the click.
+                            {
+                                Selection.activeObject = item;
+                            }
+                            GUILayout.FlexibleSpace();
+                            GUILayout.EndHorizontal();
+
+                            if (GUILayout.Button(
+                                item.Status == AccessoryStatus.Unmanaged ? "Add" : "Remove", GetStyle(item)))
+                            {
+                                if (item.Status == AccessoryStatus.Unmanaged)
                                 {
-                                    Debug.LogErrorFormat(
-                                        item, "Could not add accessory to body: {0}, Status: {1}", item.name, result);
+                                    var result = body.Accessories.Add(item);
+                                    if (result.IsFailed())
+                                    {
+                                        Debug.LogErrorFormat(
+                                            item, "Could not add accessory to body: {0}, Status: {1}", item.name, result);
+                                    }
+                                }
+                                else
+                                {
+                                    body.Accessories.Remove(item);
+                                    item.transform.position = m_Manager.GetStoragePosition(item);
                                 }
                             }
-                            else
-                            {
-                                body.Accessories.Remove(item);
-                                item.transform.position = m_Manager.GetStoragePosition(item);
-                            }
+
+                            GUILayout.EndVertical();
+
+                            GUILayout.Space(5);
                         }
-
-                        GUILayout.EndVertical();
-
-                        GUILayout.Space(5);
                     }
                 }
             }

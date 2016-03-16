@@ -433,7 +433,7 @@ namespace com.lizitt.outfitter
         public static bool CanMount(
             Accessory accessory, IAccessoryMounter mounter, MountPoint location, BodyCoverage restrictions)
         {
-            if (accessory && location && !LizittUtil.IsUnityDestroyed(mounter)
+            if (accessory && location && !LizUtil.IsUnityDestroyed(mounter)
                 && (mounter.GetCoverageFor(location) & restrictions) == 0)
             {
                 return mounter.CanMount(accessory, location);

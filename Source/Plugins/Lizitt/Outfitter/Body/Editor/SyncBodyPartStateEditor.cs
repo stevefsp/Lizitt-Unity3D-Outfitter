@@ -69,10 +69,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.BeginHorizontal();
 
             EditorGUILayout.BeginVertical();
-            LizittEditorGUIUtil.BeginLabelWidth(50);
+            LizEditorGUIUtil.BeginLabelWidth(50);
             m_From = EditorGUILayout.ObjectField("From", m_From, typeof(Outfit), true) as Outfit;
             m_To = EditorGUILayout.ObjectField("To", m_To, typeof(Outfit), true) as Outfit;
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
             EditorGUILayout.EndVertical();
 
             GUI.enabled = (m_From && m_To);

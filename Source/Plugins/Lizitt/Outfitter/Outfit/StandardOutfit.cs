@@ -309,7 +309,7 @@ namespace com.lizitt.outfitter
                 }
             }
 
-            if (priorityMounter != null && LizittUtil.IsUnityDestroyed(priorityMounter))
+            if (priorityMounter != null && LizUtil.IsUnityDestroyed(priorityMounter))
             {
                 Debug.LogError("The priority mounter is a reference to a destroyed object.", this);
                 Release(accessory);

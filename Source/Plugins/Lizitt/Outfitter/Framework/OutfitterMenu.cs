@@ -35,7 +35,7 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The outfitter menu path for the GameObject and Component menus.
         /// </summary>
-        public const string Menu = LizittMenu.Menu + "Outfitter/";
+        public const string Menu = LizMenu.Menu + "Outfitter/";
 
         #region Asset Menu
 
@@ -47,22 +47,22 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The base menu order for outfit related assets.
         /// </summary>
-        public const int OutfitAssetMenuOrder = LizittMenu.AssetMenuOrderStart + 1;
+        public const int OutfitAssetMenuOrder = LizMenu.AssetMenuOrderStart + 1;
 
         /// <summary>
         /// The base menu order for accessory related assets. (Except mounters.)
         /// </summary>
-        public const int AccessoryAssetMenuOrder = OutfitAssetMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int AccessoryAssetMenuOrder = OutfitAssetMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for mounter related assets.
         /// </summary>
-        public const int MounterAssetMenuOrder = AccessoryAssetMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int MounterAssetMenuOrder = AccessoryAssetMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for body related assets.
         /// </summary>
-        public const int BodyAssetMenuOrder = MounterAssetMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int BodyAssetMenuOrder = MounterAssetMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         #endregion
 
@@ -71,27 +71,27 @@ namespace com.lizitt.outfitter
         /// <summary>
         /// The base menu order for outfit related components.
         /// </summary>
-        public const int OutfitComponentMenuOrder = LizittMenu.ComponentMenuOrderStart;
+        public const int OutfitComponentMenuOrder = LizMenu.ComponentMenuOrderStart;
 
         /// <summary>
         /// The base menu order for accessory related components. (Except mounters.)
         /// </summary>
-        public const int AccessoryComponentMenuOrder = OutfitComponentMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int AccessoryComponentMenuOrder = OutfitComponentMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for mounter related components.
         /// </summary>
-        public const int MounterComponentMenuOrder = AccessoryComponentMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int MounterComponentMenuOrder = AccessoryComponentMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for body related components.
         /// </summary>
-        public const int BodyComponentMenuOrder = MounterComponentMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int BodyComponentMenuOrder = MounterComponentMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for editor-only related components.
         /// </summary>
-        public const int EditorComponentMenuOrder = BodyComponentMenuOrder + LizittMenu.MenuGroupAllocation + 10;
+        public const int EditorComponentMenuOrder = BodyComponentMenuOrder + LizMenu.MenuGroupAllocation + 10;
 
         /// <summary>
         /// The base menu order for outfit related components.

@@ -127,7 +127,7 @@ namespace com.lizitt.outfitter.editor
                     if (typProp.enumValueIndex == -1)
                     {
                         label = new GUIContent("Invalid Type", "Enum type value changed or removed?");
-                        style = LizittEditorGUIUtil.RedLabel;
+                        style = LizEditorGUIUtil.RedLabel;
                     }
                     else
                     {
@@ -144,12 +144,12 @@ namespace com.lizitt.outfitter.editor
                         {
                             case PropertyValidationResult.Warning:
 
-                                style = LizittEditorGUIUtil.YellowLabel;
+                                style = LizEditorGUIUtil.YellowLabel;
                                 break;
 
                             case PropertyValidationResult.Error:
 
-                                style = LizittEditorGUIUtil.RedLabel;
+                                style = LizEditorGUIUtil.RedLabel;
                                 break;
                         }
                     }

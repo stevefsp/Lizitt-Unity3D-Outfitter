@@ -195,14 +195,14 @@ namespace com.lizitt.outfitter
                 return false;
             };
 
-            if (!LizittUtil.IsUnityDestroyed(priorityMounter) && priorityMounter.InitializeMount(this, location))
+            if (!LizUtil.IsUnityDestroyed(priorityMounter) && priorityMounter.InitializeMount(this, location))
             {
                 RunMounter(priorityMounter, owner, location, additionalCoverage);
                 return true;
             }
 
             var mounter = GetInitializedMounter(location, owner);
-            if (!LizittUtil.IsUnityDestroyed(mounter))
+            if (!LizUtil.IsUnityDestroyed(mounter))
             {
                 RunMounter(mounter, owner, location, additionalCoverage);
                 return true;
@@ -301,7 +301,7 @@ namespace com.lizitt.outfitter
 
             yield return null;
 
-            while (m_MounterId == id && !LizittUtil.IsUnityDestroyed(mounter) && mounter.UpdateMount(this, location))
+            while (m_MounterId == id && !LizUtil.IsUnityDestroyed(mounter) && mounter.UpdateMount(this, location))
                 yield return null;
 
             if (m_MounterId == id)
@@ -428,7 +428,7 @@ namespace com.lizitt.outfitter
 
                     m_CurrentCoverage = 0;
 
-                    if (!LizittUtil.IsUnityDestroyed(m_CurrentMounter))  // Is mounting.
+                    if (!LizUtil.IsUnityDestroyed(m_CurrentMounter))  // Is mounting.
                     {
                         m_CurrentMounter.CancelMount(this, CurrentLocation);
                         m_CurrentMounter = null;

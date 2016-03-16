@@ -134,12 +134,12 @@ namespace com.lizitt.outfitter.editor
 
             if (OutfitterEditorUtil.IsNonDestructiveConfirmed)
             {
-                btnStyle = LizittEditorGUIUtil.YellowButton;
+                btnStyle = LizEditorGUIUtil.YellowButton;
                 removeType = RemoveActionType.RemoveOnly;
             }
             else if (OutfitterEditorUtil.IsDestructiveConfirmed)
             {
-                btnStyle = LizittEditorGUIUtil.RedButton;
+                btnStyle = LizEditorGUIUtil.RedButton;
                 removeType = RemoveActionType.RemoveAndDestroy;
             }
 
@@ -173,7 +173,7 @@ namespace com.lizitt.outfitter.editor
 
             var outfit = Target;
 
-            LizittEditorGUIUtil.BeginLabelWidth(70);
+            LizEditorGUIUtil.BeginLabelWidth(70);
 
             m_ContextChoice =
                 EditorGUILayout.ObjectField(ContextLabel, m_ContextChoice, typeof(GameObject), true) as GameObject;
@@ -249,7 +249,7 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUILayout.EndHorizontal();
 
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
         }
 
         #endregion
@@ -287,7 +287,7 @@ namespace com.lizitt.outfitter.editor
 
             var outfit = Target;
 
-            LizittEditorGUIUtil.BeginLabelWidth(50);
+            LizEditorGUIUtil.BeginLabelWidth(50);
 
             EditorGUILayout.LabelField("Behavior");
             EditorGUILayout.BeginHorizontal();
@@ -301,7 +301,7 @@ namespace com.lizitt.outfitter.editor
 
             GUI.enabled = outfit.PrimaryRigidbody;
             if (GUILayout.Button(PrimaryStatusLabel, GUILayout.MaxWidth(BtnWidth)))
-                LizittEditorGUIUtil.SetRigidbodyBehavior(outfit.PrimaryRigidbody, m_RigidbodyBehaviorChoice);
+                LizEditorGUIUtil.SetRigidbodyBehavior(outfit.PrimaryRigidbody, m_RigidbodyBehaviorChoice);
             GUI.enabled = true;
 
             EditorGUILayout.EndHorizontal();
@@ -322,7 +322,7 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUILayout.EndHorizontal();
 
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
         }
 
         #endregion
@@ -345,7 +345,7 @@ namespace com.lizitt.outfitter.editor
         {
             EditorGUILayout.LabelField("Body Parts");
 
-            LizittEditorGUIUtil.BeginLabelWidth(70);
+            LizEditorGUIUtil.BeginLabelWidth(70);
 
             m_ContextChoice = 
                 EditorGUILayout.ObjectField(ContextLabel, m_ContextChoice, typeof(GameObject), true) as GameObject;
@@ -424,7 +424,7 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUILayout.EndHorizontal();
 
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
         }
 
         #endregion
@@ -448,12 +448,12 @@ namespace com.lizitt.outfitter.editor
         {
             var outfit = Target;
 
-            LizittEditorGUIUtil.BeginLabelWidth(70);
+            LizEditorGUIUtil.BeginLabelWidth(70);
 
             var cmat = outfit.GetSharedMaterial(matType);
             var nmat = EditorGUILayout.ObjectField(matType.ToString(), cmat, typeof(Material), false) as Material;
 
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
 
             if (nmat || nmat != cmat)
                 ApplyOutfitMaterial(outfit, matType, nmat);
@@ -499,10 +499,10 @@ namespace com.lizitt.outfitter.editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Inspector Settings", EditorStyles.boldLabel);
 
-            LizittEditorGUIUtil.BeginLabelWidth(80);
+            LizEditorGUIUtil.BeginLabelWidth(80);
             OutfitterEditorUtil.AutoOffset =
                 EditorGUILayout.Slider(AutoOffsetLabel, OutfitterEditorUtil.AutoOffset, 0, 5);
-            LizittEditorGUIUtil.EndLabelWidth();
+            LizEditorGUIUtil.EndLabelWidth();
         }
 
         #endregion

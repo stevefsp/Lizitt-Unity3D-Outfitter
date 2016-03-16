@@ -96,7 +96,7 @@ namespace com.lizitt.outfitter.editor
 
             // Note: Rigidbody is guarenteed.
 
-            var nstatus = LizittEditorGUI.ColliderBehaviorPopup(
+            var nstatus = LizEditorGUI.ColliderBehaviorPopup(
                 EditorGUILayout.GetControlRect(true, EditorGUIUtility.singleLineHeight), m_StatusLabel,
                 bp.ColliderBehavior, ColliderBehaviorCategory.RigidBody);
 
@@ -104,7 +104,7 @@ namespace com.lizitt.outfitter.editor
             {
                 var rb = bp.Rigidbody;
                 if (rb)
-                    LizittEditorGUIUtil.SetRigidbodyBehavior(rb, (RigidbodyBehavior)nstatus);
+                    LizEditorGUIUtil.SetRigidbodyBehavior(rb, (RigidbodyBehavior)nstatus);
             }
         }
 

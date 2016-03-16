@@ -104,7 +104,7 @@ namespace com.lizitt.outfitter.editor
 
             EditorGUI.LabelField(rect, label, labelStyle);
 
-            rect = LizittEditorGUIUtil.NextGuiElementPosition(rect);
+            rect = LizEditorGUIUtil.NextGuiElementPosition(rect);
             rect.height = m_MaterialControl.GetPropertyHeight(property, GUIContent.none);
 
             m_MaterialControl.OnGUI(rect, property, GUIContent.none);

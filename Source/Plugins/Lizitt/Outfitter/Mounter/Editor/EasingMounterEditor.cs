@@ -31,36 +31,42 @@ namespace com.lizitt.outfitter.editor
         {
             base.CopyFrom(copySource);
 
-            var source = copySource as EasingMounter;
-            if (!source)
-                return;
-
             var targ = target as EasingMounter;
 
-            targ.From = source.From;
-            targ.To = source.To;
-            targ.MountBufferSize = source.MountBufferSize;
-            targ.EaseDuration = source.EaseDuration;
-            //targ.EaseSpace = source.EaseSpace;
-            targ.UseSharedSpace = source.UseSharedSpace;
+
+            if (copySource is EasingMounter)
+            {
+                var source = copySource as EasingMounter;
+
+                targ.From = source.From;
+                targ.To = source.To;
+                targ.MountBufferSize = source.MountBufferSize;
+                targ.EaseDuration = source.EaseDuration;
+                targ.UseSharedSpace = source.UseSharedSpace;
+            }
+            else
+                targ.To = copySource.DefaultLocation;
         }
 
         protected override void CopyTo(OffsetMounterObject copyTarget)
         {
             base.CopyTo(copyTarget);
 
-            var copyTarg = copyTarget as EasingMounter;
-            if (!copyTarg)
-                return;
-
             var targ = target as EasingMounter;
 
-            copyTarg.From = targ.From;
-            copyTarg.To = targ.To;
-            copyTarg.MountBufferSize = targ.MountBufferSize;
-            copyTarg.EaseDuration = targ.EaseDuration;
-            //copyTarg.EaseSpace = targ.EaseSpace;
-            copyTarg.UseSharedSpace = targ.UseSharedSpace;
+            if (copyTarget is EasingMounter)
+            {
+                var copyTarg = copyTarget as EasingMounter;
+
+                copyTarg.From = targ.From;
+                copyTarg.To = targ.To;
+                copyTarg.MountBufferSize = targ.MountBufferSize;
+                copyTarg.EaseDuration = targ.EaseDuration;
+                copyTarg.UseSharedSpace = targ.UseSharedSpace;
+            }
+            else if (copyTarget is StandardOffsetMounter)
+                (copyTarget as StandardOffsetMounter).SetDefaultLocation(targ.To);
+                
         }
     }
 }

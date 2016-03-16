@@ -57,34 +57,6 @@ namespace com.lizitt.outfitter
 
         #region Mounters & Limits
 
-        [SerializeField]
-        [Tooltip("Use the default mounter if no other mounter is available. (Will immediately parent the accessory"
-            + " to any mount point with no offsets and no coverage.")]
-        private bool m_UseDefaultMounter = false;
-
-        /// <summary>
-        /// Use the default mounter if no other mounter is available.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The default mounter will immediately parent the accessory to any mount point with no offsets and no
-        /// coverage. (Though the mount method's 'additional coverage' parameter can be used to apply 
-        /// coverage.)   
-        /// </para>
-        /// <para>
-        /// <ol>
-        /// <li>The mounter provided to the mount method.</li>
-        /// <li><see cref="PriorityMounter"/></li>
-        /// <li>The 'normal' mounters in the order of their list.</li>
-        /// </ol>
-        /// </para>
-        /// </remarks>
-        public bool UseDefaultMounter
-        {
-            get { return m_UseDefaultMounter; }
-            set { m_UseDefaultMounter = value; }
-        }
-
         /// <summary>
         /// Only access through the property.
         /// </summary>
@@ -215,9 +187,6 @@ namespace com.lizitt.outfitter
             if (!location)
                 return false;
 
-            if (m_UseDefaultMounter)
-                return true;
-
             if (Accessory.CanMount(this, PriorityMounter, location, restrictions))
                 return true;
 
@@ -230,7 +199,7 @@ namespace com.lizitt.outfitter
 
         protected sealed override IAccessoryMounter GetInitializedMounter(MountPoint location, GameObject owner)
         {
-            if (!LizittUtil.IsUnityDestroyed(m_PriorityMounter) && PriorityMounter.InitializeMount(this, location))
+            if (!LizUtil.IsUnityDestroyed(m_PriorityMounter) && PriorityMounter.InitializeMount(this, location))
                 return PriorityMounter;
 
             return m_Mounters.GetInitializedMounter(this, location);
@@ -238,22 +207,11 @@ namespace com.lizitt.outfitter
 
         protected sealed override bool CanMountInternal(MountPoint location, GameObject owner)
         {
-            return (m_UseDefaultMounter || location.LocationType == DefaultLocationType);
+            return false;
         }
 
         protected sealed override BodyCoverage MountInternal(MountPoint location, GameObject owner)
         {
-            if (!m_UseDefaultMounter)
-            {
-                Debug.LogWarning("Unexpected configuation: No mounter found for default mount location."
-                    + " Used default mounter: " + location.LocationType, this);
-            }
-
-            transform.parent = location.transform;
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
-
-            // The default mounter never has coverage.
             return 0;
         }
 

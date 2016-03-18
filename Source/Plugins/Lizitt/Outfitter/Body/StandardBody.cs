@@ -164,8 +164,7 @@ namespace com.lizitt.outfitter
             {
                 m_Outfit.RemoveObserver(this);  // Keep this early.
 
-                if (m_Outfit.Owner == gameObject)
-                    m_Outfit.SetState(OutfitStatus.Unmanaged, null);
+                // Note: The state of the outfit it set at the end of the method, just before final release.
 
                 if (m_Outfit.transform.parent == transform)
                     m_Outfit.transform.parent = null;
@@ -209,6 +208,11 @@ namespace com.lizitt.outfitter
 
             AccessoriesLocal.SetOutfit(outfit, forceRelease);
             SendOutfitChange(origOutfit, forceRelease);
+
+            // Keep this last.  There may be outfit observers that take action when the outfit transitions state.
+            // Don't want to trigger them until the outfit is truley free.
+            if (origOutfit && origOutfit.Owner == gameObject)
+                origOutfit.SetState(OutfitStatus.Unmanaged, null);
 
             return origOutfit;
         }

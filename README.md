@@ -1,35 +1,41 @@
-# Lizitt Outfitter (Unity3D)
+# Lizitt Outfitter for Unity3D
 
 ## Notice
 
-**This project is in flux** as its undergoes a major redesign.  Components are checked-in as individual unit testing is completed. Changes will be frequent and proper integration testing is limited during this phase. Release v0.2.0 will be created once the design has stabilized and all testing completed.
+**2016-03-18:** Released v0.2.0.  With this release the main branch will no longer be treated as a development branch and breaking changes will only occur in major versions (0.x).  For now, bug fixes and new features will still be added between releases with the changes aggregated periodically into minor releases (0.x.x).
 
 ## Overview
 
-API Status: Pre-release Alpha  
-Test Status: Beta  
-Language: C#  
-Target: [Unity3D](http://unity3d.com/unity) 5.3+ (Personal & Professional)
+**API Status:** Pre-release Alpha  
+**Test Status:** Beta  
+**Language:** C#  
+**Platform:** [Unity3D](http://unity3d.com/unity) 5.3+ (Personal & Professional)
 
-The Outfitter helps a user to define prototypes (usually prefabs) that represent outfits and accessories.  These components are combined at run-time to represent an agent's body.  Certain parts of the outfits, such as materials can be overriden in order to support outfit variants.  At run-time the outfits and accessories are instantiated as needed to create a body.
+Outfitter implements a framework with various concrete components that help define and manage an agent's physical presence in a Unity3D scene.  This includes outfits, accessories, accessory mounters, outfit mangers, etc.
 
 ## Installation
 
 Requires:
 
-[Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore  
+[Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) (Core only)  
 [Unity3D v5.3+](http://unity3d.com/)
 
-1. Install [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) Core & EasingCore
+1. Install the correct release of [Lizitt-Unity3D-Utilities](https://github.com/stevefsp/Lizitt-Unity3D-Utilities) (Only Core is required.)
 2. Download this project and drop the contents of the `Source` directory into the Unity Assets folder.
+
+The correct release of Lizitt utilities can be found in the Outfitter release's notes.
 
 ## Documentation
 
-There is some information over on the [Wiki](https://github.com/stevefsp/Lizitt-Unity3D-Outfitter/wiki).  All code is documented using standard C# XML comments.
+There is some information over on the [Wiki](https://github.com/stevefsp/Lizitt-Unity3D-Outfitter/wiki).  
 
-### Videos
+All code is documented using standard C# XML comments.
 
-[A Quick Introduction](https://vimeo.com/128934977)  (Outdated: v0.1.0.  Similar concepts, but outdated features and design.)
+### Getting Started Videos
+
+[An Introduction to the Outfit](https://vimeo.com/159148215)  
+[An Introduction to Accessories and Mounters](https://vimeo.com/159439363)  
+[An Introduction to the Body](https://vimeo.com/159569866)  
 
 ## Miscellaneous
 
